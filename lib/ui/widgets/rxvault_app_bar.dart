@@ -7,18 +7,20 @@ import '../../models/setting.dart';
 import '../../models/user_info.dart';
 import '../../network/api_service.dart';
 import '../../utils/colors.dart';
-import '../../utils/utils.dart';
 
 class RxVaultAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String clinicName;
   final Function(bool) openDrawer;
+  final Function(String) changeAppointmentDate;
   final Setting setting;
 
-  const RxVaultAppBar(
-      {super.key,
-      required this.openDrawer,
-      required this.clinicName,
-      required this.setting});
+  const RxVaultAppBar({
+    super.key,
+    required this.openDrawer,
+    required this.clinicName,
+    required this.setting,
+    required this.changeAppointmentDate,
+  });
 
   @override
   State<RxVaultAppBar> createState() => RxVaultAppBarState();
@@ -30,7 +32,10 @@ class RxVaultAppBar extends StatefulWidget implements PreferredSizeWidget {
 class RxVaultAppBarState extends State<RxVaultAppBar> {
   final api = API();
   late User user;
+
   get setting => widget.setting;
+  late String selectedDate;
+  String? formattedDate;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +78,6 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(width: 10),
                     ],
                   ),
                   Container(
@@ -86,17 +90,20 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
                     children: [
                       const SizedBox(width: 10),
                       Text(
-                        getCurrentDate(),
+                        formattedDate ?? getCurrentDate(),
                         style: const TextStyle(
                           fontSize: 15,
                           color: Colors.black,
                         ),
                       ),
                       const SizedBox(width: 42),
-                      const Icon(
-                        Icons.calendar_month,
-                        color: darkBlue,
-                        size: 24,
+                      InkWell(
+                        onTap: () => _selectDate(context),
+                        child: const Icon(
+                          Icons.calendar_month,
+                          color: darkBlue,
+                          size: 24,
+                        ),
                       )
                     ],
                   ),
@@ -117,21 +124,6 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
     return formatter.format(now);
   }
 
-  void updateSettings(bool open) async {
-    Utils.showLoader(context);
-    setting.status = open ? "open" : "close";
-    try {
-      await api.updateSettings(setting);
-      Utils.toast("Clinic ${setting.status}");
-    } catch (e) {
-      Utils.toast(e.toString());
-    } finally {
-      if (mounted) {
-        Navigator.pop(context);
-      }
-    }
-  }
-
   IconButton buildMenuButton(bool isMobile) {
     return IconButton(
       onPressed: () => widget.openDrawer(isMobile),
@@ -141,5 +133,22 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
         Icons.menu,
       ),
     );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime today = DateTime.now();
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: today,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != today) {
+      selectedDate = DateFormat('yyyy-MM-dd').format(picked);
+      setState(() {
+        formattedDate = DateFormat("dd.MM.yy").format(picked);
+      });
+      user.updateDate(selectedDate);
+    }
   }
 }
