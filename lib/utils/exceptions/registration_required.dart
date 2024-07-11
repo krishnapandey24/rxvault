@@ -1,0 +1,1 @@
+class RegistrationRequired implements Exception {}

@@ -1,0 +1,383 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:rxvault/models/analytics_response.dart';
+import 'package:rxvault/ui/widgets/analytics_bar_chart.dart';
+import 'package:rxvault/ui/widgets/responsive.dart';
+
+import '../../network/api_service.dart';
+import '../../utils/colors.dart';
+
+class Analytics extends StatefulWidget {
+  final String userId;
+
+  const Analytics({super.key, required this.userId});
+
+  @override
+  State<Analytics> createState() => AnalyticsState();
+}
+
+class AnalyticsState extends State<Analytics> {
+  late Size size;
+  late Future analyticsFuture;
+  final api = API();
+  List<AnalyticsData> data = [];
+  String startDate = "Select Start Date";
+  String endDate = "Select End Date";
+  bool startSelected = false;
+  bool endSelected = false;
+  bool showAmount = true;
+  double totalPatients = 0;
+  double totalAmount = 0;
+  double maxAmount = 0;
+  double maxPatientCount = 0;
+  bool isChartLoading = true;
+  bool isError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    refreshData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    size = MediaQuery.of(context).size;
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Responsive(
+            mobile: mainColumn(true),
+            tablet: mainColumn(false),
+            desktop: mainColumn(false),
+          ),
+        ),
+      ),
+    );
+  }
+
+  refreshData([String? startDate, String? endDate]) async {
+    setState(() {
+      isChartLoading = true;
+      isError = false;
+    });
+    try {
+      List<AnalyticsData> analyticsData =
+          await api.getAnalytics(widget.userId, startDate, endDate);
+      await determineData();
+      setState(() {
+        data = analyticsData;
+        totalAmount = totalAmount;
+        totalPatients = totalPatients;
+        maxAmount = maxAmount;
+        maxPatientCount = maxPatientCount;
+        isChartLoading = false;
+        isError = false;
+      });
+    } catch (e) {
+      setState(() {
+        isError = true;
+        isChartLoading = false;
+      });
+    }
+  }
+
+  getChart(bool isMobile) {
+    if (isError) {
+      return Center(
+        child: Container(
+          margin: const EdgeInsets.all(8),
+          color: transparentBlue,
+          height: size.height * 0.4,
+          width: size.width * 0.75,
+          child: const Center(
+            child: Text(
+              'No Data Available',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (isChartLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (data.isEmpty) return const SizedBox.shrink();
+
+    return isMobile
+        ? AnalyticsBarChart(
+            data: data,
+            showAmount: showAmount,
+            maxAmount: maxAmount,
+            maxPatientCount: maxPatientCount,
+          )
+        : Row(
+            children: [
+              buildGraph(data, true),
+              buildGraph(data, false),
+            ],
+          );
+  }
+
+  Column mainColumn(bool isMobile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        getChart(isMobile),
+        const SizedBox(height: 10),
+        if (isMobile) buildSwitch(),
+        const SizedBox(height: 30),
+        Row(
+          children: [
+            const Text("Data Range: From: "),
+            isMobile ? const Spacer() : const SizedBox(width: 25),
+            InkWell(
+              onTap: () {
+                pickDate(true);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                decoration: BoxDecoration(
+                  color: primary,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  startDate,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(width: 25),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            const Text("Data Range: To: "),
+            isMobile ? const Spacer() : const SizedBox(width: 25),
+            InkWell(
+              onTap: () {
+                pickDate(false);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 7,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: primary,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  endDate,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            const SizedBox(width: 25),
+          ],
+        ),
+        const SizedBox(height: 30),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Total No. of patients: $totalPatients"),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Total Amount: $totalAmount"),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 30),
+        // Align(
+        //   alignment: Alignment.center,
+        //   child: InkWell(
+        //     onTap: () {},
+        //     child: Container(
+        //       width: size.width * 0.5,
+        //       padding: const EdgeInsets.symmetric(vertical: 8),
+        //       decoration: BoxDecoration(
+        //           color: transparentBlue,
+        //           borderRadius: BorderRadius.circular(8),
+        //           border: Border.all(color: Colors.black, width: 1)),
+        //       child: const Column(
+        //         mainAxisSize: MainAxisSize.min,
+        //         children: [Text("Download Excel Sheet"), Icon(Icons.download)],
+        //       ),
+        //     ),
+        //   ),
+        // )
+      ],
+    );
+  }
+
+  Expanded buildGraph(List<AnalyticsData> data, bool showAmount) {
+    return Expanded(
+      child: SizedBox(
+        height: size.height * 0.6,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: AnalyticsBarChart(
+                data: data,
+                showAmount: showAmount,
+                maxAmount: maxAmount,
+                maxPatientCount: maxPatientCount,
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              top: -5,
+              child: Text(
+                showAmount ? "Amount" : "Patient count",
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> pickDate(bool isStart) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate != null) {
+      final String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+
+      setState(() {
+        if (isStart) {
+          if (endSelected) {
+            DateTime endDateParsed = DateFormat('yyyy-MM-dd').parse(endDate);
+            if (pickedDate.isAfter(endDateParsed) ||
+                endDateParsed.difference(pickedDate).inDays > 7) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                      'Start date must be before the end date and within a week.'),
+                ),
+              );
+              return; // Exit the function if the condition is not met
+            }
+          }
+          startDate = formattedDate;
+          startSelected = true;
+        } else {
+          if (startSelected) {
+            DateTime startDateParsed =
+                DateFormat('yyyy-MM-dd').parse(startDate);
+            if (pickedDate.isBefore(startDateParsed) ||
+                pickedDate.difference(startDateParsed).inDays > 7) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                      'End date must be after the start date and within a week.'),
+                ),
+              );
+              return;
+            }
+          }
+          endDate = formattedDate;
+          endSelected = true;
+        }
+
+        if (startSelected && endSelected) {
+          refreshData(startDate, endDate);
+        }
+      });
+    }
+  }
+
+  Widget buildSwitch() {
+    return Center(
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black, width: 1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            InkWell(
+              onTap: switchAmountCount,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: showAmount ? primary : Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  "Amount",
+                  style: TextStyle(
+                    color: showAmount ? Colors.white : Colors.black,
+                  ),
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: switchAmountCount,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: !showAmount ? primary : Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  ),
+                ),
+                child: Text(
+                  "Patients",
+                  style: TextStyle(
+                    color: !showAmount ? Colors.white : Colors.black,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  switchAmountCount() {
+    setState(() {
+      showAmount = !showAmount;
+    });
+  }
+
+  Future determineData() async {
+    double totalPatientCount = 0;
+    double totalAmountCount = 0;
+    for (var analytic in data) {
+      double count = analytic.count;
+      double amount = analytic.amount;
+      totalPatientCount += count;
+      totalAmountCount += amount;
+      if (count > maxPatientCount) maxPatientCount = count;
+      if (amount > maxAmount) maxAmount = amount;
+    }
+    totalPatients = totalPatientCount;
+    totalAmount = totalAmountCount;
+  }
+}
