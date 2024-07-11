@@ -28,17 +28,9 @@ class RxVaultAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class RxVaultAppBarState extends State<RxVaultAppBar> {
-  var switchIcon = Icons.toggle_on_rounded;
-  var switchOn = true;
   final api = API();
   late User user;
   get setting => widget.setting;
-
-  @override
-  void initState() {
-    super.initState();
-    switchOn = widget.setting.status == "open";
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,29 +74,6 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () {
-                          if (user.isStaff) {
-                            Utils.noPermission();
-                            return;
-                          }
-                          switchOn = !switchOn;
-                          setState(() {
-                            if (switchOn) {
-                              switchIcon = Icons.toggle_on_rounded;
-                            } else {
-                              switchIcon = Icons.toggle_off_rounded;
-                            }
-                          });
-                          updateSettings(switchOn);
-                        },
-                        child: Icon(
-                          switchOn
-                              ? Icons.toggle_on_rounded
-                              : Icons.toggle_off_rounded,
-                          color: darkBlue,
-                        ),
-                      )
                     ],
                   ),
                   Container(
