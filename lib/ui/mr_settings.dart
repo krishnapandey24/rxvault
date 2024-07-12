@@ -160,18 +160,19 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
             ),
             const SizedBox(width: 5),
             Switch(
-                value: mrOnOff,
-                onChanged: (value) {
-                  if (user.isStaff) {
-                    Utils.noPermission();
-                    return;
-                  }
-                  setState(() {
-                    mrOnOff = !mrOnOff;
-                  });
-                  setting.status = mrOnOff ? "open" : "close";
-                  updateSettings(true);
-                })
+              value: mrOnOff,
+              onChanged: (value) {
+                if (user.isStaff) {
+                  Utils.noPermission();
+                  return;
+                }
+                setState(() {
+                  mrOnOff = !mrOnOff;
+                });
+                setting.status = mrOnOff ? "open" : "close";
+                updateSettings(true);
+              },
+            )
           ],
         ),
         const Padding(

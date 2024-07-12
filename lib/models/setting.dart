@@ -30,7 +30,7 @@ class Setting {
   factory Setting.fromJson(Map<String, dynamic> json) {
     final setting = Setting(
       settingId: json['setting_id'] ?? json['mr_setting_id'],
-      doctorId: json['doctor_id'],
+      doctorId: json['user_id'],
       openClose: json['open_close'] ?? json['mr_open_close'],
       openTime: json['open_time'] ?? json['mr_open_time'],
       closeTime: json['close_time'] ?? json['mr_close_time'],
@@ -46,7 +46,7 @@ class Setting {
   Map<String, dynamic> toJson() {
     return {
       'setting_id': settingId ?? "",
-      'doctor_id': doctorId ?? "1",
+      'user_id': doctorId,
       'open_close': openClose ?? "",
       'open_time': openTime ?? "",
       'close_time': closeTime ?? "",

@@ -32,29 +32,43 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  late Size size;
-  var switchIcon = Icons.toggle_on_rounded;
-  var switchOn = true;
   final searchController = TextEditingController();
   final fileNameController = TextEditingController();
-  late Future<List<Patient>> patientsFuture;
+
+  final searchFocusNode = FocusNode();
+
+  bool clinicOpen = true;
+  bool isSearching = false;
+  bool isFirst = true;
+
+  int totalAmount = 0;
+
+  String? permission;
+  String? selectedDate;
+
   final api = API();
+
+  late Future<List<Patient>> patientsFuture;
+
   List<Patient> patients = [];
   List<Patient> searchResults = [];
-  bool isSearching = false;
-  final searchFocusNode = FocusNode();
+
+  late User user;
+  late Setting setting;
+
+  late Size size;
+
   late double screenWidth;
   late double screenHeight;
-  int totalAmount = 0;
-  String? permission;
-  late User user;
 
   String get userId => widget.userId;
 
   @override
   void initState() {
     super.initState();
-    patientsFuture = api.getSelectedPatientList(widget.userId);
+    setting = widget.setting;
+    clinicOpen = setting.status == "open";
+    refreshPatients();
   }
 
   @override
@@ -126,7 +140,9 @@ class HomeState extends State<Home> {
                 Text(
                   text,
                   style: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w500),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 )
               ],
             ),
@@ -141,7 +157,10 @@ class HomeState extends State<Home> {
             child: Text(
               quantity,
               style: const TextStyle(
-                  color: teal, fontWeight: FontWeight.w600, fontSize: 13),
+                color: teal,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
             ),
           )
         ],
@@ -153,22 +172,64 @@ class HomeState extends State<Home> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-              color: darkBlue, borderRadius: BorderRadius.circular(4)),
-          child: const Text(
-            " User:  ",
-            style: TextStyle(color: Colors.white, fontSize: 12),
-          ),
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: darkBlue,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                " User:  ",
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ),
+            Transform.scale(
+              scale: 0.7,
+              child: Switch(
+                activeTrackColor: darkBlue,
+                activeColor: Colors.white,
+                value: clinicOpen,
+                onChanged: (value) {
+                  setState(() {
+                    clinicOpen = value;
+                  });
+                  if (user.isStaff) {
+                    Utils.noPermission();
+                    return;
+                  }
+                  updateClinicStatus(clinicOpen);
+                },
+              ),
+            ),
+          ],
         ),
         Text(
           user.userName,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-        )
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
+  }
+
+  void updateClinicStatus(bool open) async {
+    Utils.showLoader(context);
+    setting.status = open ? "open" : "close";
+    try {
+      await api.updateSettings(setting);
+      Utils.toast("Clinic ${setting.status}");
+    } catch (e) {
+      Utils.toast(e.toString());
+    } finally {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
   }
 
   buildSearchBar() {
@@ -297,7 +358,8 @@ class HomeState extends State<Home> {
                   padding: isMobile
                       ? EdgeInsets.zero
                       : EdgeInsets.symmetric(
-                          horizontal: MediaQuery.of(context).size.width * 0.15),
+                          horizontal: MediaQuery.of(context).size.width * 0.15,
+                        ),
                   child: ListView.builder(
                     itemCount: searchResults.length,
                     itemBuilder: searchResultItem,
@@ -321,7 +383,7 @@ class HomeState extends State<Home> {
   GridView buildGridView(int length) {
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, // Number of columns
+        crossAxisCount: 2,
         mainAxisExtent: 60,
         crossAxisSpacing: 20,
       ),
@@ -343,7 +405,7 @@ class HomeState extends State<Home> {
     api.addDoctorsPatient(userId, patient.patientId).then((value) {
       Navigator.pop(context);
       setState(() {
-        patientsFuture = api.getSelectedPatientList(widget.userId);
+        refreshPatients();
       });
     }).catchError((e) {
       Navigator.pop(context);
@@ -368,7 +430,7 @@ class HomeState extends State<Home> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            patient.name,
+            getFormattedName(patient.name),
             style: const TextStyle(fontSize: 15, color: Colors.black),
           ),
           const Spacer(),
@@ -415,7 +477,7 @@ class HomeState extends State<Home> {
     );
   }
 
-  // Patient List Item
+// Patient List Item
   Widget? getPatientListItems(
       BuildContext context, int index, bool isGrid, int size) {
     final GlobalKey key = GlobalKey();
@@ -506,7 +568,8 @@ class HomeState extends State<Home> {
           InkWell(
             key: key,
             onTap: () {
-              showDropdownMenu(context, key, patient.doctorPatientId!, index);
+              showDropdownMenu(
+                  context, key, patient.doctorPatientId!, index, patient);
             },
             child: const Icon(
               Icons.more_vert,
@@ -518,8 +581,8 @@ class HomeState extends State<Home> {
     );
   }
 
-  void showDropdownMenu(
-      BuildContext context, GlobalKey key, String doctorPatientId, int index) {
+  void showDropdownMenu(BuildContext context, GlobalKey key,
+      String doctorPatientId, int index, Patient patient) {
     final RenderBox renderBox =
         key.currentContext!.findRenderObject() as RenderBox;
     final Offset position = renderBox.localToGlobal(Offset.zero);
@@ -534,13 +597,28 @@ class HomeState extends State<Home> {
       ),
       items: [
         const PopupMenuItem<String>(
-          value: 'Delete',
+          value: 'delete',
           child: Text('Delete'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'view_history',
+          child: Text('View History'),
         ),
       ],
     ).then((value) {
       if (value != null) {
-        deleteSelectedPatient(doctorPatientId, index);
+        if (value == 'delete') {
+          deleteSelectedPatient(doctorPatientId, index);
+        } else {
+          Navigator.of(context, rootNavigator: true).push(
+            MaterialPageRoute(
+              builder: (context) => ViewPatient(
+                patient: patient,
+                doctorId: userId,
+              ),
+            ),
+          );
+        }
       }
     });
   }
@@ -600,7 +678,8 @@ class HomeState extends State<Home> {
             );
           },
           child: Text(
-            patient.name,
+            getFormattedName(patient.name),
+            maxLines: 1,
             style: const TextStyle(
               color: darkBlue,
               fontSize: 13,
@@ -611,6 +690,14 @@ class HomeState extends State<Home> {
         buildPatientInfoRow(patient)
       ],
     );
+  }
+
+  String getFormattedName(String name) {
+    if (name.length > 15) {
+      return '${name.substring(0, 14)}...';
+    } else {
+      return name;
+    }
   }
 
   Row buildPatientInfoRow(Patient patient) {
@@ -708,10 +795,12 @@ class HomeState extends State<Home> {
     );
 
     if (patientAdded != null) {
-      setState(() {
-        patientsFuture = api.getSelectedPatientList(widget.userId);
-      });
+      setState(() {});
     }
+  }
+
+  refreshPatients() {
+    patientsFuture = api.getSelectedPatientList(widget.userId, selectedDate);
   }
 
   void showUpdatePatientDialog(Patient patient) async {

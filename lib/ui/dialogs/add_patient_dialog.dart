@@ -280,9 +280,11 @@ class AddPatientDialogState extends State<AddPatientDialog> {
     try {
       Utils.showLoader(context, "Adding Patient...");
       int? newPatientId = await api.addPatient(patient, widget.userId);
-      if (newPatientId != null) {
-        await api.addDoctorsPatient(widget.userId, newPatientId.toString());
+      if (newPatientId != null || (patient.patientId.isNotEmpty)) {
+        await api.addDoctorsPatient(
+            widget.userId, (newPatientId ?? patient.patientId).toString());
       }
+
       Utils.toast("Patient Added Successfully!");
       patientAdded = true;
     } catch (e) {

@@ -5,6 +5,7 @@ class User extends ChangeNotifier {
   String permissions;
   bool isStaff;
   String userName;
+  String? selectedDate;
 
   User(this.permissions, this.isStaff, this.userName);
 
@@ -22,6 +23,11 @@ class User extends ChangeNotifier {
   // Method to update permissions and notify listeners
   void updatePermissions(String newPermissions) {
     permissions = newPermissions;
+    notifyListeners();
+  }
+
+  void updateDate(String newDate) {
+    selectedDate = newDate;
     notifyListeners();
   }
 

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:rxvault/ui/home_screen/analytics.dart';
-import 'package:rxvault/ui/home_screen/home/home.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
 import 'package:rxvault/ui/widgets/rxvault_app_bar.dart';
 import 'package:rxvault/utils/colors.dart';
@@ -13,8 +11,10 @@ import '../../models/user_info.dart';
 import '../../network/api_service.dart';
 import '../../utils/utils.dart';
 import '../mr_settings.dart';
+import 'analytics.dart';
 import 'drawer/drawer.dart';
 import 'drawer/settings_screen.dart';
+import 'home/home.dart';
 
 class HomeScreen extends StatefulWidget {
   final String userId;
@@ -30,6 +30,7 @@ class HomeScreenState extends State<HomeScreen> {
   late User user;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   Setting setting = Setting();
+  String? selectedDate;
   late final List<Widget> _screens = [
     Home(userId: widget.userId, setting: setting),
     SettingsScreen(
@@ -106,6 +107,11 @@ class HomeScreenState extends State<HomeScreen> {
         },
         clinicName: widget.clinicName,
         setting: setting,
+        changeAppointmentDate: (date) {
+          // setState(() {
+          //   // selectedDate = date;
+          // });
+        },
       ),
       key: _scaffoldKey,
       drawer: isDesktop
@@ -140,7 +146,9 @@ class HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       getNavigationBar(true),
-                      Expanded(child: buildPageView())
+                      Expanded(
+                        child: buildPageView(),
+                      )
                     ],
                   )
                 : buildPageView();

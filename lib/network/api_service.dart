@@ -126,19 +126,28 @@ class API {
 
   Future<List<Patient>> getPatientList(String userId, String search) async {
     try {
-      final response = await _dio.post("PatientList",
-          data: FormData.fromMap({"user_id": userId, "search": search}));
+      final response = await _dio.post(
+        "PatientList",
+        data: FormData.fromMap({"user_id": userId, "search": search}),
+      );
       return PatientListResponse.fromJson(response.data).patientList;
     } catch (e) {
       return [];
     }
   }
 
-  Future<List<Patient>> getSelectedPatientList(String userId) async {
+  Future<List<Patient>> getSelectedPatientList(String userId,
+      [String? date]) async {
     try {
-      final response = await _dio.post("DoctorsPatientList",
-          data:
-              FormData.fromMap({"user_id": userId, "date": getCurrentDate()}));
+      final response = await _dio.post(
+        "DoctorsPatientList",
+        data: FormData.fromMap(
+          {
+            "user_id": userId,
+            "date": date ?? getCurrentDate(),
+          },
+        ),
+      );
       return PatientListResponse.fromJson(response.data).patientList;
     } catch (e) {
       return [];
@@ -394,7 +403,7 @@ class API {
   Future<Setting> getSettings(String doctorId) async {
     try {
       final formData = FormData.fromMap({
-        'doctor_id': doctorId,
+        'user_id': doctorId,
       });
 
       final response = await _dio.post(

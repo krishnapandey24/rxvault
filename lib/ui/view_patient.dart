@@ -79,12 +79,17 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
               buildValue(widget.patient.age),
               buildValue(widget.patient.gender),
               buildValue(widget.patient.mobile),
-              buildValue(widget.patient.allergic ?? "No"),
+              buildValue(getAllergic(widget.patient.allergic)),
             ],
           ),
         ],
       ),
     );
+  }
+
+  String getAllergic(String? allergic) {
+    if (allergic != null && allergic != "") return allergic;
+    return "No";
   }
 
   buildLabel(String label) {
@@ -95,6 +100,9 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
   }
 
   buildValue(String label) {
+    if (label.length > 15) {
+      label = "${label.substring(0, 14)}...";
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(label, style: valueTextStyle),
@@ -104,7 +112,9 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
   buildDetailsTable() {
     return FutureBuilder<List<Patient>>(
       future: api.getPatientAmountDetails(
-          widget.doctorId, widget.patient.patientId),
+        widget.doctorId,
+        widget.patient.patientId,
+      ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -155,9 +165,11 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
         decoration: BoxDecoration(
           image: DecorationImage(
             image: imageUrl == null
-                ? AssetImage(isMale
-                    ? "assets/images/ic_male.png"
-                    : "assets/images/ic_female.png")
+                ? AssetImage(
+                    isMale
+                        ? "assets/images/ic_male.png"
+                        : "assets/images/ic_female.png",
+                  )
                 : NetworkImage(imageUrl),
             fit: BoxFit.cover,
           ),
@@ -196,10 +208,16 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
     final documents = await api.getPatientDocuments(
         widget.patient.patientId, widget.doctorId);
 
+    if (documents.isEmpty && mounted) {
+      Utils.toast("No Document Found!");
+      Navigator.pop(context);
+      return;
+    }
+
     List<String> imageUrls = [];
-    documents
-        .asMap()
-        .forEach((index, value) => imageUrls.add(documents[index].imageUrl));
+    documents.asMap().forEach(
+          (index, value) => imageUrls.add(documents[index].imageUrl),
+        );
 
     _createPdfFromListOfImages(imageUrls);
   }
