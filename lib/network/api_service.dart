@@ -103,7 +103,7 @@ class API {
 
       final loginResponse = LoginResponse.fromJson(response.data, isStaffLogin);
 
-      if (loginResponse.success == false || loginResponse.status == failure) {
+      if (loginResponse.status == failure) {
         throw loginResponse.message == newUser
             ? RegistrationRequired()
             : CustomException(loginResponse.message);
@@ -113,13 +113,15 @@ class API {
       UserManager.saveUserInfo(loginResponse.userInfo!);
 
       return loginResponse.userInfo!;
-    } on DioException catch (e) {
+    } on DioException catch (e, t) {
+      print("$e $t");
       if (e.response != null && e.response?.statusCode == 404) {
         throw CustomException(staffNotFound);
       } else {
         rethrow;
       }
-    } catch (e) {
+    } catch (e, t) {
+      print("$e $t");
       rethrow;
     }
   }
@@ -199,6 +201,21 @@ class API {
     if (success == failure) throw CustomException(message);
   }
 
+  Future<void> deleteDoctorsPatientDocuments(
+      String patientId, String doctorId) async {
+    final responseData = (await _dio.post(
+      "DeletePatientDocuments",
+      data: FormData.fromMap(
+        {"patient_id": patientId, "doctor_id": doctorId},
+      ),
+    ))
+        .data;
+
+    String success = responseData["success"];
+    String message = responseData["message"];
+    if (success == failure) throw CustomException(message);
+  }
+
   Future<Patient?> checkPatient(String mobile) async {
     try {
       final response = await _dio.post(
@@ -226,12 +243,59 @@ class API {
     }
   }
 
+  Future<void> deletePatientDoctor(
+      String userId, String doctorPatientId) async {
+    try {
+      Dio dio = Dio();
+
+      // Replace with your actual API endpoint
+      String url = 'http://122.170.7.173/RxVault/Api/DeletePatientDoctor';
+
+      // Replace with your actual headers
+      Map<String, dynamic> headers = {
+        'Accept': 'application/json',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Authorization':
+            'Basic cnh2YXVsdDpyeHZhdWx0ZGIyY2Q3MGQwMGJjMGE4YmFlZTA2MTAzZWU1ZjljYjY=',
+        'Connection': 'keep-alive',
+        'Referer': 'http://localhost:57608/',
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0',
+        'X-API-KEY': '3d628cf8204cff3d5a8e64b22419dd76dc83df6b',
+        'Cookie': 'ci_session=5npo3vv1vm58uik3fo237asojlf93en6',
+      };
+
+      // Replace with your form data
+      FormData formData = FormData.fromMap({
+        'user_id': userId,
+        'doctor_patient_id': doctorPatientId,
+      });
+
+      // Perform the HTTP POST request
+      Response response = await dio.post(
+        url,
+        data: formData,
+        options: Options(headers: headers),
+      );
+
+      // Handle success
+      print('Response status: ${response.statusCode}');
+      print('Response data: ${response.data}');
+
+      // Handle any other logic here based on response
+    } catch (e) {
+      // Handle error
+      print('Error: $e');
+      // Handle error UI or other logic
+    }
+  }
+
   Future<void> deleteSelectedPatient(
       String doctorPatientId, String doctorId) async {
     final responseData = (await _dio.post(
       "DeletePatientDoctor",
       data: FormData.fromMap(
-        {"user_id ": doctorId, "doctor_patient_id": doctorPatientId},
+        {"user_id": doctorId, "doctor_patient_id": doctorPatientId},
       ),
     ))
         .data;
@@ -251,7 +315,6 @@ class API {
     if (success == failure && message != "Patient already exists!") {
       throw CustomException(message);
     }
-
     return response["patient_id"] as int?;
   }
 
@@ -379,12 +442,17 @@ class API {
   }
 
   Future<List<Document>> getPatientDocuments(
-      String patientId, String doctorId) async {
+      String patientId, String doctorId, String? date) async {
     try {
-      final formData = FormData.fromMap({
+      final map = {
         'patient_id': patientId,
         'doctor_id': doctorId,
-      });
+      };
+
+      if (date != null) {
+        map['date'] = Utils.reverseDate(date);
+      }
+      final formData = FormData.fromMap(map);
 
       final response = await _dio.post(
         'PatientDocuments',

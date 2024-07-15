@@ -32,7 +32,12 @@ class HomeScreenState extends State<HomeScreen> {
   Setting setting = Setting();
   String? selectedDate;
   late final List<Widget> _screens = [
-    Home(userId: widget.userId, setting: setting),
+    Home(
+      userId: widget.userId,
+      setting: setting,
+      scaffoldKey: _scaffoldKey,
+      clinicName: widget.clinicName,
+    ),
     SettingsScreen(
       userId: widget.userId,
       setting: setting,
@@ -97,22 +102,24 @@ class HomeScreenState extends State<HomeScreen> {
 
   Scaffold buildScaffold(bool isDesktop) {
     return Scaffold(
-      appBar: RxVaultAppBar(
-        openDrawer: (isMobile) {
-          if (isMobile) {
-            _scaffoldKey.currentState?.openDrawer();
-          } else {
-            _scaffoldKey.currentState?.openEndDrawer();
-          }
-        },
-        clinicName: widget.clinicName,
-        setting: setting,
-        changeAppointmentDate: (date) {
-          // setState(() {
-          //   // selectedDate = date;
-          // });
-        },
-      ),
+      appBar: _bottomNavIndex == 0
+          ? null
+          : RxVaultAppBar(
+              openDrawer: (isMobile) {
+                if (isMobile) {
+                  _scaffoldKey.currentState?.openDrawer();
+                } else {
+                  _scaffoldKey.currentState?.openEndDrawer();
+                }
+              },
+              clinicName: widget.clinicName,
+              setting: setting,
+              changeAppointmentDate: (date) {
+                // setState(() {
+                //   // selectedDate = date;
+                // });
+              },
+            ),
       key: _scaffoldKey,
       drawer: isDesktop
           ? null

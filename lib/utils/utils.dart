@@ -20,6 +20,15 @@ class Utils {
     );
   }
 
+  static String reverseDate(String inputDate) {
+    DateTime dateTime = DateTime.parse(inputDate);
+    String formattedDate = "${dateTime.day.toString().padLeft(2, '0')}-"
+        "${dateTime.month.toString().padLeft(2, '0')}-"
+        "${dateTime.year}";
+
+    return formattedDate;
+  }
+
   static bool isEmailValid(String email) {
     if (email.isEmpty) return false;
     final pattern = RegExp(

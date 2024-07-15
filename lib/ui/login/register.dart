@@ -256,7 +256,8 @@ class RegisterState extends State<Register> {
         );
       },
     ).catchError(
-      (e) {
+      (e, t) {
+        print("$e $t");
         Navigator.pop(context);
         if (e is RegistrationRequired) {
           Utils.toast("Registration Required");

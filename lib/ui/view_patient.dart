@@ -22,6 +22,7 @@ class ViewPatient extends StatefulWidget {
 }
 
 class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
+  late Size size;
   final labelTextStyle = const TextStyle(fontWeight: FontWeight.w500);
 
   final valueTextStyle =
@@ -31,6 +32,7 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: Utils.getDefaultAppBar("Patient Details"),
       body: SingleChildScrollView(
@@ -40,6 +42,22 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
             getProfileImage(null, widget.patient.gender == "Male"),
             const SizedBox(height: 10),
             buildPatientDetails(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                optionButton(
+                  "Download\nAll Documents",
+                  Icons.download,
+                  _downloadAllDocuments,
+                ),
+                optionButton(
+                  "Delete\nAll Documents",
+                  Icons.delete,
+                  _confirmDelete,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
             buildDetailsTable(),
           ],
         ),
@@ -55,34 +73,103 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
         color: transparentBlue,
         borderRadius: BorderRadius.circular(16),
       ),
+      child: Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(width: 35),
+            buildKeyValueLabel("Patient ID: ", widget.patient.patientId),
+            buildKeyValueLabel("Name: ", widget.patient.name),
+            buildKeyValueLabel("Age: ", widget.patient.age),
+            buildKeyValueLabel("Gender: ", widget.patient.gender),
+            buildKeyValueLabel("Mobile No.: ", widget.patient.mobile),
+            buildKeyValueLabel(
+                "Allergic: ", getAllergic(widget.patient.allergic)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildKeyValueLabel(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(width: 35),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildLabel("Patient ID: "),
-              buildLabel("Name: "),
-              buildLabel("Age: "),
-              buildLabel("Gender: "),
-              buildLabel("Mobile No.: "),
-              buildLabel("Allergic: "),
-            ],
+          SizedBox(
+            width: size.width * 0.35,
+            child: Text(
+              label,
+              style: labelTextStyle,
+            ),
           ),
-          const SizedBox(width: 25),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildValue(widget.patient.patientId),
-              buildValue(widget.patient.name),
-              buildValue(widget.patient.age),
-              buildValue(widget.patient.gender),
-              buildValue(widget.patient.mobile),
-              buildValue(getAllergic(widget.patient.allergic)),
-            ],
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              value,
+              style: valueTextStyle,
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  _downloadAllDocuments() {
+    createPdf(null);
+  }
+
+  _confirmDelete() async {
+    Utils.showAlertDialog(
+        context,
+        "Are you sure, you want to delete all documents?",
+        _deleteAllDocuments, () {
+      Navigator.pop(context);
+    });
+  }
+
+  _deleteAllDocuments() async {
+    Navigator.pop(context);
+    Utils.showLoader(context, "Deleting all documents...");
+    try {
+      await api.deleteDoctorsPatientDocuments(
+          widget.patient.patientId, widget.doctorId);
+    } catch (e) {
+      Utils.toast(e.toString());
+    } finally {
+      if (mounted) Navigator.pop(context);
+    }
+  }
+
+  optionButton(String text, IconData iconData, Function() onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              spreadRadius: 0,
+              blurRadius: 5,
+              offset: const Offset(0, 0),
+            ),
+          ],
+          border: Border.all(color: darkBlue),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        margin: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Icon(iconData),
+            Text(
+              text,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -100,9 +187,6 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
   }
 
   buildValue(String label) {
-    if (label.length > 15) {
-      label = "${label.substring(0, 14)}...";
-    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(label, style: valueTextStyle),
@@ -191,7 +275,7 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
             ),
             DataCell(
               InkWell(
-                onTap: createPdf,
+                onTap: () => createPdf(patient.date),
                 child: const Icon(
                   CupertinoIcons.arrow_down_doc_fill,
                   color: primary,
@@ -203,10 +287,10 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
         .toList();
   }
 
-  void createPdf() async {
+  void createPdf(String? date) async {
     Utils.showLoader(context, "Generating PDFs, Please wait...");
     final documents = await api.getPatientDocuments(
-        widget.patient.patientId, widget.doctorId);
+        widget.patient.patientId, widget.doctorId, date);
 
     if (documents.isEmpty && mounted) {
       Utils.toast("No Document Found!");

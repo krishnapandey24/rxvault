@@ -28,7 +28,8 @@ class UploadImageDialogs extends StatefulWidget {
     required this.userId,
     required this.patientId,
     this.fromViewDocuments = false,
-    this.addDocument, required this.doctorPatientId,
+    this.addDocument,
+    required this.doctorPatientId,
   });
 
   @override
@@ -61,6 +62,7 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
     return Dialog(
+      insetPadding: const EdgeInsets.all(5),
       child: Container(
         width: isMobile ? null : screenWidth * 0.5,
         padding: const EdgeInsets.all(16),
@@ -73,33 +75,46 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              "assets/images/add_image.png",
-              height: 135,
-              width: 135,
-            ),
-            Padding(
-              padding: isMobile
-                  ? const EdgeInsets.all(0)
-                  : EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.1, vertical: 10),
-              child: ElevatedButton(
-                onPressed: _handleImageSelection,
-                child: const Text(
-                  "Add New Document",
-                  style: TextStyle(color: Colors.white),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                InkWell(
+                  onTap: () => _handleImageSelection(ImageSource.camera),
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        "assets/images/camera.png",
+                        height: 135,
+                        width: 135,
+                      ),
+                      const Text("Open Camera")
+                    ],
+                  ),
                 ),
-              ),
-            )
+                InkWell(
+                  onTap: () => _handleImageSelection(ImageSource.gallery),
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        "assets/images/add_image.png",
+                        height: 135,
+                        width: 135,
+                      ),
+                      const Text("From Gallery")
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  void _handleImageSelection() async {
+  void _handleImageSelection(ImageSource imageSource) async {
     final result = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
+      source: imageSource,
     );
 
     if (result != null && mounted) {
@@ -125,6 +140,7 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
   Dialog buildShowSelectedImageDialog(bool isMobile) {
     final fileNameController = TextEditingController(text: imageFileName);
     return Dialog(
+      insetPadding: const EdgeInsets.all(4),
       child: Container(
         padding: const EdgeInsets.all(16),
         width: isMobile ? null : screenWidth * 0.5,
@@ -203,8 +219,8 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
                   Utils.showLoader(
                       context, "Your Image is uploading, Please wait...");
                   api
-                      .addDocument(patientId, doctorPatientId,doctorId, fileNameController.text,
-                          filePath, imageBytes)
+                      .addDocument(patientId, doctorPatientId, doctorId,
+                          fileNameController.text, filePath, imageBytes)
                       .then((value) {
                     closeDialogs(value.imageId, value.documentImage);
                   }).catchError((e) {

@@ -148,7 +148,8 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
       setState(() {
         formattedDate = DateFormat("dd.MM.yy").format(picked);
       });
-      user.updateDate(selectedDate);
+      // user.updateDate(selectedDate);
+      widget.changeAppointmentDate(selectedDate);
     }
   }
 }

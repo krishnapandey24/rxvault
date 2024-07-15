@@ -13,18 +13,23 @@ import '../../../models/setting.dart';
 import '../../../models/user_info.dart';
 import '../../../network/api_service.dart';
 import '../../../utils/utils.dart';
+import '../../dialogs/upload_image_dialog.dart';
 import '../../view_patient.dart';
+import '../../widgets/rxvault_app_bar.dart';
 import '../../widgets/triangle.dart';
-import '../../widgets/upload_image_dialog.dart';
 
 class Home extends StatefulWidget {
   final String userId;
   final Setting setting;
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  final String clinicName;
 
   const Home({
     super.key,
     required this.userId,
     required this.setting,
+    required this.scaffoldKey,
+    required this.clinicName,
   });
 
   @override
@@ -40,6 +45,7 @@ class HomeState extends State<Home> {
   bool clinicOpen = true;
   bool isSearching = false;
   bool isFirst = true;
+  bool isLoading = false;
 
   int totalAmount = 0;
 
@@ -68,7 +74,29 @@ class HomeState extends State<Home> {
     super.initState();
     setting = widget.setting;
     clinicOpen = setting.status == "open";
-    refreshPatients();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      List<Patient> patients =
+          await api.getSelectedPatientList(widget.userId, selectedDate);
+      int totalAmount = setTotalAmount(patients);
+
+      setState(() {
+        this.patients = patients;
+        this.totalAmount = totalAmount;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      Utils.toast(e.toString());
+    }
   }
 
   @override
@@ -78,25 +106,27 @@ class HomeState extends State<Home> {
     screenWidth = size.width;
     screenHeight = size.height;
     return Scaffold(
+      appBar: RxVaultAppBar(
+        openDrawer: (isMobile) {
+          if (isMobile) {
+            widget.scaffoldKey.currentState?.openDrawer();
+          } else {
+            widget.scaffoldKey.currentState?.openEndDrawer();
+          }
+        },
+        clinicName: widget.clinicName,
+        setting: setting,
+        changeAppointmentDate: (date) {
+          selectedDate = date;
+          loadData();
+        },
+      ),
       backgroundColor: Colors.white,
       body: Container(
         color: transparentBlue,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-          child: FutureBuilder<List<Patient>>(
-            future: patientsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text(snapshot.error.toString()));
-              } else {
-                patients = snapshot.data!;
-                setTotalAmount(patients);
-                return buildMainColumn();
-              }
-            },
-          ),
+          child: buildMainColumn(),
         ),
       ),
     );
@@ -347,9 +377,14 @@ class HomeState extends State<Home> {
     return Expanded(
       child: Stack(
         children: [
-          Positioned.fill(
-            child: isMobile ? buildListView(length) : buildGridView(length),
-          ),
+          isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Positioned.fill(
+                  child:
+                      isMobile ? buildListView(length) : buildGridView(length),
+                ),
           if (searchResults.isNotEmpty)
             Positioned.fill(
               child: Container(
@@ -404,9 +439,7 @@ class HomeState extends State<Home> {
     Utils.showLoader(context, "Adding Patient to the list...");
     api.addDoctorsPatient(userId, patient.patientId).then((value) {
       Navigator.pop(context);
-      setState(() {
-        refreshPatients();
-      });
+      loadData();
     }).catchError((e) {
       Navigator.pop(context);
       Utils.toast(e.toString());
@@ -693,8 +726,8 @@ class HomeState extends State<Home> {
   }
 
   String getFormattedName(String name) {
-    if (name.length > 15) {
-      return '${name.substring(0, 14)}...';
+    if (name.length > 10) {
+      return '${name.substring(0, 10)}...';
     } else {
       return name;
     }
@@ -712,14 +745,20 @@ class HomeState extends State<Home> {
     if (patient.diagnosis?.isNotEmpty ?? false) {
       children.add(const Triangle());
       children.add(const SizedBox(width: 4));
+      children.add(
+        Text(
+          patient.diagnosis!.substring(0, 4),
+          style: const TextStyle(color: Colors.black, fontSize: 13),
+        ),
+      );
+    } else {
+      children.add(
+        const Text(
+          "DIAG",
+          style: TextStyle(color: Colors.black, fontSize: 13),
+        ),
+      );
     }
-
-    children.add(
-      const Text(
-        "Ac.GE",
-        style: TextStyle(color: Colors.black, fontSize: 13),
-      ),
-    );
 
     if (patient.isAllergic) {
       children.add(const SizedBox(width: 8));
@@ -795,12 +834,8 @@ class HomeState extends State<Home> {
     );
 
     if (patientAdded != null) {
-      setState(() {});
+      loadData();
     }
-  }
-
-  refreshPatients() {
-    patientsFuture = api.getSelectedPatientList(widget.userId, selectedDate);
   }
 
   void showUpdatePatientDialog(Patient patient) async {
@@ -950,9 +985,7 @@ class HomeState extends State<Home> {
     Utils.showLoader(context, "Deleting Entry...");
     api.deleteSelectedPatient(doctorPatientId, widget.userId).then((value) {
       Navigator.pop(context);
-      setState(() {
-        patients.removeAt(index);
-      });
+      loadData();
       Utils.toast("Patient Removed");
     }).catchError((e) {
       Utils.toast("Unable to remove patient!");
@@ -960,7 +993,7 @@ class HomeState extends State<Home> {
     });
   }
 
-  void setTotalAmount(List<Patient> patients) {
+  int setTotalAmount(List<Patient> patients) {
     int total = 0;
     for (var patient in patients) {
       int addition;
@@ -971,7 +1004,7 @@ class HomeState extends State<Home> {
       }
       total += addition;
     }
-    totalAmount = total;
+    return total;
   }
 
   void clearSearch() {

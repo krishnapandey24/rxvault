@@ -1,6 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../models/analytics_response.dart';
 
@@ -64,8 +63,7 @@ class AnalyticsBarChartState extends State<AnalyticsBarChart> {
                     if (index < 0 || index >= widget.data.length) {
                       return const Text('');
                     }
-                    DateTime date = widget.data[index].date;
-                    return Text(DateFormat('dd/MM').format(date));
+                    return Text("${index + 1}");
                   },
                 ),
               ),

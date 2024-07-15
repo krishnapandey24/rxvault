@@ -29,7 +29,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
     super.initState();
     controller = PageController(initialPage: 0);
     documentsFuture =
-        api.getPatientDocuments(widget.patientId, widget.doctorId);
+        api.getPatientDocuments(widget.patientId, widget.doctorId, null);
   }
 
   @override
