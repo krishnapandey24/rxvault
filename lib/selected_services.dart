@@ -1,7 +1,11 @@
 class SelectedServices {
   Map<String, String> selectedServices = {};
+  Map<String, String> copy = {};
 
-  SelectedServices(this.selectedServices);
+  SelectedServices(this.selectedServices) {
+    copy = Map<String, String>.from(selectedServices);
+  }
+
   SelectedServices.empty();
 
   void addService(String name, String value) {
@@ -13,7 +17,12 @@ class SelectedServices {
   }
 
   bool haveService(String name) {
-    return selectedServices.containsKey(name);
+    if (selectedServices.containsKey(name)) {
+      copy.remove(name);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   int get total {

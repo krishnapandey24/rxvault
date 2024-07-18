@@ -13,6 +13,7 @@ import '../../utils/utils.dart';
 class SelectServicesDialog extends StatefulWidget {
   final Setting setting;
   final String patientId;
+  final String doctorId;
   final String selectedServices;
   final Function(String, String) update;
 
@@ -21,7 +22,8 @@ class SelectServicesDialog extends StatefulWidget {
       required this.setting,
       required this.patientId,
       required this.update,
-      required this.selectedServices});
+      required this.selectedServices,
+      required this.doctorId});
 
   @override
   State<SelectServicesDialog> createState() => SelectServicesDialogState();
@@ -30,6 +32,7 @@ class SelectServicesDialog extends StatefulWidget {
 class SelectServicesDialogState extends State<SelectServicesDialog> {
   late Size size;
   final searchFocusNode = FocusNode();
+  int otherServiceAddition = 0;
 
   get setting => widget.setting;
   late Map<String, String> allServices =
@@ -38,17 +41,23 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
   final searchController = TextEditingController();
   late final SelectedServices selectedServices;
   final api = API();
+  late int servicesCount;
+  String otherServiceName = "";
+  String otherServiceAmount = "";
+  bool otherServiceSelected = false;
 
   @override
   void initState() {
     super.initState();
     displayedServices = allServices.entries.toList();
+    servicesCount = displayedServices.length;
     selectedServices = SelectedServices(getSelectedServiceFromString());
   }
 
   Map<String, String> getSelectedServiceFromString() {
     try {
-      return jsonDecode(widget.selectedServices);
+      Map<String, dynamic> tempMap = jsonDecode(widget.selectedServices);
+      return tempMap.map((key, value) => MapEntry(key, value.toString()));
     } catch (e) {
       return {};
     }
@@ -117,25 +126,32 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
     }
   }
 
-  void updateServices() {
+  void updateServices() async {
     Utils.showLoader(context, "Updating services...");
+    if (otherServiceSelected && otherServiceAmount != "") {
+      if (otherServiceName == "") {
+        otherServiceName = "Other";
+      }
+      selectedServices.addService(otherServiceName, otherServiceAmount);
+    }
     String selectedService = getSelectedServiceAsString();
     String totalAmount = selectedServices.total.toString();
-    api
-        .addDoctorsPatient(
-      setting.doctorId,
-      widget.patientId,
-      selectedService,
-      totalAmount,
-    )
-        .then((value) {
+    try {
+      await api.addDoctorsPatient(
+        widget.doctorId,
+        widget.patientId,
+        selectedService,
+        totalAmount,
+      );
+      if (!mounted) return;
       widget.update(selectedService, totalAmount);
       Navigator.pop(context);
-      Navigator.pop(context);
-    }).catchError((e) {
+    } catch (e, t) {
       Utils.toast(e.toString());
+      print("$e $t");
+    } finally {
       Navigator.pop(context);
-    });
+    }
   }
 
   Padding buildTotal() {
@@ -151,7 +167,7 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
             Text(
-              " $rupee${selectedServices.total}",
+              " $rupee${selectedServices.total + otherServiceAddition}",
               style: const TextStyle(
                 color: Colors.green,
                 fontSize: 18,
@@ -168,42 +184,117 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
     return Container(
       color: transparentBlue,
       height: size.height * 0.5,
-      child: ListView.builder(
-        itemCount: displayedServices.length,
-        itemBuilder: (context, index) {
-          String serviceName = displayedServices[index].key;
-          String servicePrice = displayedServices[index].value;
-          bool isSelected = selectedServices.haveService(serviceName);
-          return InkWell(
-            onTap: () {
-              setState(() {
-                isSelected = !isSelected;
-              });
-            },
-            child: ListTile(
-              leading: Checkbox(
-                fillColor: Utils.getFillColor(),
-                checkColor: Colors.white,
-                value: isSelected,
-                onChanged: (bool? value) {
-                  setState(() {
-                    if (value == true) {
-                      selectedServices.addService(serviceName, servicePrice);
-                    } else {
-                      selectedServices.removeService(serviceName);
-                    }
-                  });
-                },
-              ),
-              title: Text(serviceName),
-              trailing: Text(
-                "$rupee $servicePrice",
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              ),
-            ),
-          );
+      child: ListView(
+        children: _buildListViewChildren(),
+      ),
+    );
+  }
+
+  List<Widget> _buildListViewChildren() {
+    List<Widget> children = displayedServices
+        .map((service) => getListItem(service.key, service.value, false))
+        .toList();
+    children.addAll(selectedServices.copy.entries
+        .map((service) => getListItem(service.key, service.value, true))
+        .toList());
+    children.add(_otherServiceItem());
+    return children;
+  }
+
+  Widget _otherServiceItem() {
+    return ListTile(
+      leading: Checkbox(
+        fillColor: Utils.getFillColor(),
+        checkColor: Colors.white,
+        value: otherServiceSelected,
+        onChanged: (bool? value) {
+          if (otherServiceAmount != "") {
+            setState(() {
+              otherServiceSelected = !otherServiceSelected;
+              if (otherServiceSelected) {
+                otherServiceAddition = parseStringToInt(otherServiceAmount);
+              } else {
+                otherServiceAddition = 0;
+              }
+            });
+          }
         },
+      ),
+      title: Row(
+        children: [
+          Flexible(
+            child: TextField(
+              onChanged: (value) {
+                otherServiceName = value;
+              },
+              decoration: const InputDecoration(hintText: "Others"),
+            ),
+          ),
+          const SizedBox(width: 30),
+        ],
+      ),
+      trailing: SizedBox(
+        width: 55,
+        child: TextField(
+          onChanged: (value) {
+            otherServiceAmount = value;
+            if (otherServiceSelected) {
+              setState(() {
+                otherServiceAddition = parseStringToInt(otherServiceAmount);
+              });
+            }
+          },
+          keyboardType: TextInputType.phone,
+          decoration: const InputDecoration(
+            prefixText: rupee,
+          ),
+        ),
+      ),
+    );
+  }
+
+  int parseStringToInt(String? input) {
+    if (input == null) {
+      return 0;
+    }
+
+    int? parsedValue = int.tryParse(input);
+    if (parsedValue != null) {
+      return parsedValue;
+    } else {
+      return 0;
+    }
+  }
+
+  Widget getListItem(
+      String serviceName, String servicePrice, bool alreadyAdded) {
+    bool isSelected = alreadyAdded || selectedServices.haveService(serviceName);
+    return InkWell(
+      onTap: () {
+        setState(() {
+          isSelected = !isSelected;
+        });
+      },
+      child: ListTile(
+        leading: Checkbox(
+          fillColor: Utils.getFillColor(),
+          checkColor: Colors.white,
+          value: isSelected,
+          onChanged: (bool? value) {
+            setState(() {
+              if (value == true) {
+                selectedServices.addService(serviceName, servicePrice);
+              } else {
+                selectedServices.removeService(serviceName);
+              }
+            });
+          },
+        ),
+        title: Text(serviceName),
+        trailing: Text(
+          "$rupee $servicePrice",
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
       ),
     );
   }
@@ -268,7 +359,6 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
       style: const TextStyle(color: Colors.black, fontSize: 13),
     );
   }
-
 
   void searchService(String query) {
     setState(() {

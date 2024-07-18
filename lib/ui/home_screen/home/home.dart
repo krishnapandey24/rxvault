@@ -921,15 +921,15 @@ class HomeState extends State<Home> {
       }
     }
 
-    if (setting.itemDetails == null) {
-      Utils.toast("Unable to load services!");
-      return;
-    }
-
-    if (setting.itemDetails!.isEmpty) {
-      Utils.toast("Add Services First!");
-      return;
-    }
+    // if (setting.itemDetails == null) {
+    //   Utils.toast("Unable to load services!");
+    //   return;
+    // }
+    //
+    // if (setting.itemDetails!.isEmpty) {
+    //   Utils.toast("Add Services First!");
+    //   return;
+    // }
 
     showDialog(
       context: context,
@@ -974,6 +974,7 @@ class HomeState extends State<Home> {
       ),
       child: SelectServicesDialog(
         setting: setting,
+        doctorId: widget.userId,
         patientId: patient.patientId,
         selectedServices: patient.selectedServices ?? "",
         update: (selectedServices, totalAmount) {
