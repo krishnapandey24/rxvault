@@ -3,6 +3,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:rxvault/ui/view_image.dart';
 import 'package:rxvault/utils/colors.dart';
+import 'package:rxvault/utils/utils.dart';
 
 import '../../../network/api_service.dart';
 import '../models/patient_document_response.dart';
@@ -65,12 +66,9 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
           } else {
             documents = snapshot.data!;
             if (documents.isEmpty) {
-              return const Center(
-                child: Text(
-                  "No Document Found!",
-                  style: TextStyle(color: Colors.black),
-                ),
-              );
+              Utils.toast("No Documents Found");
+              Navigator.pop(context);
+              return const SizedBox();
             }
             title = documents.first.title;
             return buildSwiper();
