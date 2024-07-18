@@ -53,8 +53,6 @@ class API {
           : await MultipartFile.fromFile(filePath!, filename: title),
       'doctor_patient_id': doctorPatientId
     });
-
-    print(formData.fields.toString());
     final response = await _dio.post(
       'AddDocuments',
       data: formData,
@@ -114,15 +112,13 @@ class API {
       UserManager.saveUserInfo(loginResponse.userInfo!);
 
       return loginResponse.userInfo!;
-    } on DioException catch (e, t) {
-      print("$e $t");
+    } on DioException catch (e) {
       if (e.response != null && e.response?.statusCode == 404) {
         throw CustomException(staffNotFound);
       } else {
         rethrow;
       }
-    } catch (e, t) {
-      print("$e $t");
+    } catch (e) {
       rethrow;
     }
   }
@@ -241,53 +237,6 @@ class API {
       return patientListResponse.patientList.first;
     } catch (e) {
       throw CustomException("Patient Not Found");
-    }
-  }
-
-  Future<void> deletePatientDoctor(
-      String userId, String doctorPatientId) async {
-    try {
-      Dio dio = Dio();
-
-      // Replace with your actual API endpoint
-      String url = 'http://122.170.7.173/RxVault/Api/DeletePatientDoctor';
-
-      // Replace with your actual headers
-      Map<String, dynamic> headers = {
-        'Accept': 'application/json',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Authorization':
-            'Basic cnh2YXVsdDpyeHZhdWx0ZGIyY2Q3MGQwMGJjMGE4YmFlZTA2MTAzZWU1ZjljYjY=',
-        'Connection': 'keep-alive',
-        'Referer': 'http://localhost:57608/',
-        'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0',
-        'X-API-KEY': '3d628cf8204cff3d5a8e64b22419dd76dc83df6b',
-        'Cookie': 'ci_session=5npo3vv1vm58uik3fo237asojlf93en6',
-      };
-
-      // Replace with your form data
-      FormData formData = FormData.fromMap({
-        'user_id': userId,
-        'doctor_patient_id': doctorPatientId,
-      });
-
-      // Perform the HTTP POST request
-      Response response = await dio.post(
-        url,
-        data: formData,
-        options: Options(headers: headers),
-      );
-
-      // Handle success
-      print('Response status: ${response.statusCode}');
-      print('Response data: ${response.data}');
-
-      // Handle any other logic here based on response
-    } catch (e) {
-      // Handle error
-      print('Error: $e');
-      // Handle error UI or other logic
     }
   }
 
@@ -596,6 +545,17 @@ class API {
       Utils.toast(e.toString());
     } finally {
       if (context.mounted) Navigator.pop(context);
+    }
+  }
+
+  submitFeedback(String text, String userId, String type) async {
+    FormData formData =
+        FormData.fromMap({"user_id": userId, "text": text, "type": type});
+    final response = (await _dio.post("SubmitFeedback", data: formData)).data;
+    String success = response["success"];
+    String message = response["message"];
+    if (success == failure) {
+      throw CustomException(message);
     }
   }
 }
