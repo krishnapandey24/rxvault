@@ -103,7 +103,7 @@ class API {
 
       final loginResponse = LoginResponse.fromJson(response.data, isStaffLogin);
 
-      if (loginResponse.status == failure) {
+      if (loginResponse.success == false || loginResponse.status == failure) {
         throw loginResponse.message == newUser
             ? RegistrationRequired()
             : CustomException(loginResponse.message);

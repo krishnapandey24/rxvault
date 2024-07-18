@@ -73,20 +73,18 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
         color: transparentBlue,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(width: 35),
-            buildKeyValueLabel("Patient ID: ", widget.patient.patientId),
-            buildKeyValueLabel("Name: ", widget.patient.name),
-            buildKeyValueLabel("Age: ", widget.patient.age),
-            buildKeyValueLabel("Gender: ", widget.patient.gender),
-            buildKeyValueLabel("Mobile No.: ", widget.patient.mobile),
-            buildKeyValueLabel(
-                "Allergic: ", getAllergic(widget.patient.allergic)),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(width: 35),
+          buildKeyValueLabel("Patient ID: ", widget.patient.patientId),
+          buildKeyValueLabel("Name: ", widget.patient.name),
+          buildKeyValueLabel("Age: ", widget.patient.age),
+          buildKeyValueLabel("Gender: ", widget.patient.gender),
+          buildKeyValueLabel("Mobile No.: ", widget.patient.mobile),
+          buildKeyValueLabel(
+              "Allergic: ", getAllergic(widget.patient.allergic)),
+        ],
       ),
     );
   }
