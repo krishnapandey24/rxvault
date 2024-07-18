@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
+import 'package:rxvault/ui/view_image.dart';
 import 'package:rxvault/utils/colors.dart';
 
 import '../../../network/api_service.dart';
@@ -23,6 +25,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
   List<Document> documents = [];
   final api = API();
   int currentIndex = 0;
+  late Size size;
 
   @override
   void initState() {
@@ -34,18 +37,23 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
 
   @override
   Widget build(BuildContext context) {
+    size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        leading: InkWell(
-          onTap: () => Navigator.pop(context),
-          child: const Icon(
-            Icons.arrow_back,
-            color: Colors.black,
+        leading: const SizedBox.shrink(),
+        actions: [
+          InkWell(
+            onTap: () => Navigator.pop(context),
+            child: const Icon(
+              Icons.close,
+              color: Colors.white,
+              size: 35,
+            ),
           ),
-        ),
+        ],
       ),
       body: FutureBuilder<List<Document>>(
         future: documentsFuture,
@@ -65,10 +73,50 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
               );
             }
             title = documents.first.title;
-            return buildMainColumn();
+            return buildSwiper();
           }
         },
       ),
+    );
+  }
+
+  buildSwiper() {
+    return Column(
+      children: [
+        emptyArea(),
+        Expanded(
+          child: Swiper(
+            itemBuilder: (BuildContext context, int index) {
+              String url = documents[index].imageUrl;
+              return InkWell(
+                onTap: () => Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute(
+                    builder: (context) => ViewImage(url),
+                  ),
+                ),
+                child: Hero(
+                  tag: 'image',
+                  child: CachedNetworkImage(
+                    imageUrl: documents[index].imageUrl,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              );
+            },
+            itemCount: documents.length,
+            viewportFraction: 0.8,
+            scale: 0.9,
+          ),
+        ),
+        emptyArea()
+      ],
+    );
+  }
+
+  InkWell emptyArea() {
+    return InkWell(
+      onTap: () => Navigator.pop(context),
+      child: SizedBox(height: size.height * 0.2),
     );
   }
 

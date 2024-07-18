@@ -573,14 +573,7 @@ class HomeState extends State<Home> {
             ),
           ),
           InkWell(
-            onTap: () => Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute(
-                builder: (context) => ViewAllDocuments(
-                  patientId: patient.patientId,
-                  doctorId: widget.userId,
-                ),
-              ),
-            ),
+            onTap: () => _showDocumentsDialog(patient.patientId),
             child: Padding(
               padding: isGrid
                   ? const EdgeInsets.all(7)
@@ -654,6 +647,22 @@ class HomeState extends State<Home> {
         }
       }
     });
+  }
+
+  void _showDocumentsDialog(String patientId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(0),
+          child: ViewAllDocuments(
+            patientId: patientId,
+            doctorId: widget.userId,
+          ),
+        );
+      },
+    );
   }
 
   void addDocumentDialog(String patientId, String doctorPatientId) {

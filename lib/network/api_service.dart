@@ -54,6 +54,7 @@ class API {
       'doctor_patient_id': doctorPatientId
     });
 
+    print(formData.fields.toString());
     final response = await _dio.post(
       'AddDocuments',
       data: formData,
