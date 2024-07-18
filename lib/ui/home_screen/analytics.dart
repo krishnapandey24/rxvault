@@ -3,7 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:rxvault/models/analytics_response.dart';
 import 'package:rxvault/ui/widgets/analytics_bar_chart.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
+import 'package:rxvault/utils/excel_generator.dart';
 
+import '../../models/patient.dart';
 import '../../network/api_service.dart';
 import '../../utils/colors.dart';
 
@@ -32,6 +34,7 @@ class AnalyticsState extends State<Analytics> {
   double maxPatientCount = 0;
   bool isChartLoading = true;
   bool isError = false;
+  List<Patient> patients = [];
 
   @override
   void initState() {
@@ -201,24 +204,24 @@ class AnalyticsState extends State<Analytics> {
           ],
         ),
         const SizedBox(height: 30),
-        // Align(
-        //   alignment: Alignment.center,
-        //   child: InkWell(
-        //     onTap: () {},
-        //     child: Container(
-        //       width: size.width * 0.5,
-        //       padding: const EdgeInsets.symmetric(vertical: 8),
-        //       decoration: BoxDecoration(
-        //           color: transparentBlue,
-        //           borderRadius: BorderRadius.circular(8),
-        //           border: Border.all(color: Colors.black, width: 1)),
-        //       child: const Column(
-        //         mainAxisSize: MainAxisSize.min,
-        //         children: [Text("Download Excel Sheet"), Icon(Icons.download)],
-        //       ),
-        //     ),
-        //   ),
-        // )
+        Align(
+          alignment: Alignment.center,
+          child: InkWell(
+            onTap: _generateAndDownloadExcelSheet,
+            child: Container(
+              width: size.width * 0.5,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                  color: transparentBlue,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.black, width: 1)),
+              child: const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [Text("Download Excel Sheet"), Icon(Icons.download)],
+              ),
+            ),
+          ),
+        )
       ],
     );
   }
@@ -364,6 +367,37 @@ class AnalyticsState extends State<Analytics> {
     setState(() {
       showAmount = !showAmount;
     });
+  }
+
+  _generateAndDownloadExcelSheet() {
+    final patient = Patient.newPatient("1");
+    patient.name = "Dane John";
+    patient.age = "16";
+    patient.allergic = "Yes";
+    patient.mobile = "9012345678";
+    final patients = [
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+      patient,
+    ];
+    ExcelGenerator excelGenerator =
+        ExcelGenerator(context, patients, "$startDate-$endDate");
+    excelGenerator.generateAndSavePatientExcel();
   }
 
   Future determineData() async {
