@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rxvault/models/patient_document_response.dart';
-import 'package:rxvault/ui/view_all_documents.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
 import 'package:rxvault/utils/colors.dart';
 import 'package:rxvault/utils/utils.dart';
@@ -292,11 +291,11 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
       );
       return;
     }
-    Navigator.of(parentContext, rootNavigator: true).push(
-      MaterialPageRoute(
-        builder: (context) =>
-            ViewAllDocuments(doctorId: doctorId, patientId: patientId),
-      ),
-    );
+    // Navigator.of(parentContext, rootNavigator: true).push(
+    //   MaterialPageRoute(
+    //     builder: (context) =>
+    //         ViewAllDocuments(doctorId: doctorId, patientId: patientId),
+    //   ),
+    // );
   }
 }
