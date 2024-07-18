@@ -36,6 +36,8 @@ class SettingsScreenState extends State<SettingsScreen> {
   Map<String, String> services = {};
   String openingTime = "--Select--";
   String closingTime = "--Select--";
+  String openingTime2 = "--Select--";
+  String closingTime2 = "--Select--";
   late List<bool> selectedDays;
   late TextEditingController addressController;
   List<DataRow> serviceTableRows = [];
@@ -251,11 +253,19 @@ class SettingsScreenState extends State<SettingsScreen> {
         const Padding(
           padding: EdgeInsets.all(8.0),
           child: Text(
-            "Opening and Closing Time: ",
+            "Opening and Closing Time (Slot 1): ",
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
         ),
-        buildFromToSelector(isDesktop),
+        buildFromToSelector(isDesktop, true),
+        const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            "Opening and Closing Time (Slot 2): ",
+            style: TextStyle(fontWeight: FontWeight.w500),
+          ),
+        ),
+        buildFromToSelector(isDesktop, false),
         const SizedBox(height: 20),
         const SizedBox(height: 10),
         Align(
@@ -336,33 +346,33 @@ class SettingsScreenState extends State<SettingsScreen> {
     return selectedDays.map((bool value) => value ? '1' : '0').join('');
   }
 
-  buildFromToSelector(bool isDesktop) {
+  buildFromToSelector(bool isDesktop, bool forSlot1) {
     return isDesktop
         ? Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const SizedBox(width: 20),
-              fromSelector(),
+              fromSelector(forSlot1),
               const SizedBox(width: 20),
-              toSelector(),
+              toSelector(forSlot1),
             ],
           )
         : Wrap(
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                child: fromSelector(),
+                child: fromSelector(forSlot1),
               ),
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                child: toSelector(),
+                child: toSelector(forSlot1),
               ),
             ],
           );
   }
 
-  Column toSelector() {
+  Column toSelector(bool forSlot1) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -377,7 +387,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               Utils.noPermission();
               return;
             }
-            pickTime(false);
+            pickTime(false, forSlot1);
           },
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -386,7 +396,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              closingTime,
+              forSlot1 ? closingTime : closingTime2,
               style: const TextStyle(color: Colors.white),
             ),
           ),
@@ -395,7 +405,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Column fromSelector() {
+  Column fromSelector(bool forSlot1) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -410,7 +420,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               Utils.noPermission();
               return;
             }
-            pickTime(true);
+            pickTime(true, forSlot1);
           },
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -419,7 +429,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
-              openingTime,
+              forSlot1 ? openingTime : openingTime2,
               style: const TextStyle(color: Colors.white),
             ),
           ),
@@ -428,7 +438,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Future<void> pickTime(bool isFrom) async {
+  Future<void> pickTime(bool isFrom, bool forSlot1) async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -446,10 +456,10 @@ class SettingsScreenState extends State<SettingsScreen> {
       final String formattedTime = DateFormat('hh:mm a').format(selectedTime);
 
       (context as Element).markNeedsBuild();
-      if (isFrom) {
-        openingTime = formattedTime;
+      if (forSlot1) {
+        isFrom ? openingTime = formattedTime : closingTime = formattedTime;
       } else {
-        closingTime = formattedTime;
+        isFrom ? openingTime2 = formattedTime : closingTime2 = formattedTime;
       }
     }
   }
