@@ -84,6 +84,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
         emptyArea(),
         Expanded(
           child: Swiper(
+            loop: documents.length > 3,
             itemBuilder: (BuildContext context, int index) {
               String url = documents[index].imageUrl;
               return InkWell(
