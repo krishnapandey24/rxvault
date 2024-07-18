@@ -9,17 +9,19 @@ import '../../../utils/colors.dart';
 import '../../../utils/user_manager.dart';
 import '../../../utils/utils.dart';
 import '../../widgets/user_image_preview.dart';
+import 'feedback.dart';
 
 class RxDrawer extends StatefulWidget {
   final Setting setting;
   final User user;
   final Function() resetBack;
 
-  const RxDrawer(
-      {super.key,
-      required this.setting,
-      required this.resetBack,
-      required this.user});
+  const RxDrawer({
+    super.key,
+    required this.setting,
+    required this.resetBack,
+    required this.user,
+  });
 
   @override
   State<RxDrawer> createState() => _RxDrawerState();
@@ -75,6 +77,74 @@ class _RxDrawerState extends State<RxDrawer> {
               ),
               title: const Text(
                 "Privacy and Security",
+                style: TextStyle(fontSize: 14),
+              ),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey.shade700,
+                size: 22,
+              ),
+            ),
+            ListTile(
+              onTap: () {},
+              leading: const Icon(
+                Icons.share,
+                size: 22,
+              ),
+              title: const Text(
+                "Share",
+                style: TextStyle(fontSize: 14),
+              ),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey.shade700,
+                size: 22,
+              ),
+            ),
+            ListTile(
+              onTap: () {},
+              leading: const Icon(
+                Icons.star,
+                size: 22,
+              ),
+              title: const Text(
+                "Rate Us",
+                style: TextStyle(fontSize: 14),
+              ),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey.shade700,
+                size: 22,
+              ),
+            ),
+            ListTile(
+              onTap: () {},
+              leading: const Icon(
+                Icons.public,
+                size: 22,
+              ),
+              title: const Text(
+                "Go To Web App",
+                style: TextStyle(fontSize: 14),
+              ),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey.shade700,
+                size: 22,
+              ),
+            ),
+            ListTile(
+              onTap: () => Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(
+                  builder: (context) => const FeedbackScreen(),
+                ),
+              ),
+              leading: const Icon(
+                Icons.feedback,
+                size: 22,
+              ),
+              title: const Text(
+                "Feedback",
                 style: TextStyle(fontSize: 14),
               ),
               trailing: Icon(
