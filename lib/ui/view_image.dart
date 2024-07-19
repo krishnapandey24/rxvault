@@ -24,17 +24,12 @@ class ViewImage extends StatelessWidget {
         ),
       ),
       body: Center(
-        child: Expanded(
-          child: InteractiveViewer(
-            child: Hero(
-              tag: 'image',
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.contain,
-                height: double.maxFinite,
-                width: double.maxFinite,
-              ),
-            ),
+        child: InteractiveViewer(
+          child: CachedNetworkImage(
+            imageUrl: imageUrl,
+            fit: BoxFit.contain,
+            height: double.maxFinite,
+            width: double.maxFinite,
           ),
         ),
       ),
