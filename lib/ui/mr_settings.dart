@@ -49,8 +49,8 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
     setState(() {
       mrOnOff = setting.status == "open";
       selectedDays = List<bool>.from(setting.getDaySelection());
-      openingTime = setting.openTime ?? defaultOpeningString;
-      closingTime = setting.closeTime ?? defaultClosingString;
+      openingTime = setting.openTime1 ?? defaultOpeningString;
+      closingTime = setting.closeTime2 ?? defaultClosingString;
       isLoading = false;
     });
   }
@@ -366,8 +366,8 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
     Utils.showLoader(context);
     setting.openClose =
         selectedDays.map((bool value) => value ? '1' : '0').join('');
-    setting.openTime = openingTime;
-    setting.closeTime = closingTime;
+    setting.openTime1 = openingTime;
+    setting.closeTime2 = closingTime;
     setting.itemDetails = jsonEncode(services);
     setting.doctorId = widget.userId;
     api.updateMr(setting).then((value) {

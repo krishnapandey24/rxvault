@@ -65,8 +65,8 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     setState(() {
       selectedDays = List<bool>.from(setting.getDaySelection());
-      openingTime = setting.openTime ?? defaultOpeningString;
-      closingTime = setting.closeTime ?? defaultClosingString;
+      openingTime = setting.openTime1 ?? defaultOpeningString;
+      closingTime = setting.closeTime2 ?? defaultClosingString;
       addressController =
           TextEditingController(text: setting.clinicAddress ?? "");
       services = Utils.getServicesFromString(setting.itemDetails);
@@ -684,8 +684,10 @@ class SettingsScreenState extends State<SettingsScreen> {
     }
     setting.openClose =
         selectedDays.map((bool value) => value ? '1' : '0').join('');
-    setting.openTime = openingTime;
-    setting.closeTime = closingTime;
+    setting.openTime1 = openingTime;
+    setting.closeTime1 = closingTime;
+    setting.closeTime2 = closingTime2;
+    setting.openTime2 = openingTime2;
     setting.clinicAddress = addressController.text;
     setting.itemDetails = jsonEncode(services);
     setting.doctorId = widget.userId;

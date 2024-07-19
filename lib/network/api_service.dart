@@ -470,8 +470,8 @@ class API {
     final formData = FormData.fromMap({
       "doctor_id": setting.doctorId,
       "mr_open_close": setting.openClose,
-      "mr_open_time": setting.openTime,
-      "mr_close_time": setting.closeTime,
+      "mr_open_time": setting.openTime1,
+      "mr_close_time": setting.closeTime2,
       "status": setting.status,
     });
     final response = await _dio.post(

@@ -5,8 +5,10 @@ class Setting {
   String? settingId;
   String? doctorId;
   String? openClose;
-  String? openTime;
-  String? closeTime;
+  String? openTime1;
+  String? closeTime2;
+  String? openTime2;
+  String? closeTime1;
   String? clinicAddress;
   String? itemDetails;
   String? status;
@@ -17,8 +19,10 @@ class Setting {
     this.settingId,
     this.doctorId,
     this.openClose,
-    this.openTime,
-    this.closeTime,
+    this.openTime1,
+    this.closeTime2,
+    this.openTime2,
+    this.closeTime1,
     this.clinicAddress,
     this.itemDetails,
     this.status,
@@ -32,8 +36,10 @@ class Setting {
       settingId: json['setting_id'] ?? json['mr_setting_id'],
       doctorId: json['user_id'],
       openClose: json['open_close'] ?? json['mr_open_close'],
-      openTime: json['open_time'] ?? json['mr_open_time'],
-      closeTime: json['close_time'] ?? json['mr_close_time'],
+      openTime1: json['open_time_slot_1'] ?? json['mr_open_time'],
+      closeTime1: json['close_time_slot_1'] ?? json['mr_close_time'],
+      openTime2: json['open_time_slot_2'],
+      closeTime2: json['close_time_slot_2'],
       clinicAddress: json['clinic_address'],
       itemDetails: json['item_details'],
       status: json['status'],
@@ -48,8 +54,10 @@ class Setting {
       'setting_id': settingId ?? "",
       'user_id': doctorId,
       'open_close': openClose ?? "",
-      'open_time': openTime ?? "",
-      'close_time': closeTime ?? "",
+      'open_time_slot_1': openTime1 ?? "",
+      'open_time_slot_2': openTime2 ?? "",
+      'close_time_slot_1': closeTime1 ?? "",
+      'close_time_slot2': closeTime2 ?? "",
       'clinic_address': clinicAddress ?? "",
       'item_details': itemDetails ?? "",
       'status': status ?? "",
@@ -74,8 +82,10 @@ class Setting {
     settingId = setting.settingId;
     doctorId = setting.doctorId;
     openClose = setting.openClose;
-    openTime = setting.openTime;
-    closeTime = setting.closeTime;
+    openTime1 = setting.openTime1;
+    openTime2 = setting.openTime2;
+    closeTime1 = setting.closeTime1;
+    closeTime2 = setting.closeTime2;
     clinicAddress = setting.clinicAddress;
     itemDetails = setting.itemDetails;
     status = setting.status;

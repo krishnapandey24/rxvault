@@ -39,8 +39,8 @@ class PreferencesScreenState extends State<PreferencesScreen> {
 
   void loadData() {
     selectedDays = List<bool>.from(widget.setting.getDaySelection());
-    openingTime = widget.setting.openTime ?? "--Select--";
-    closingTime = widget.setting.closeTime ?? "--Select--";
+    openingTime = widget.setting.openTime1 ?? "--Select--";
+    closingTime = widget.setting.closeTime2 ?? "--Select--";
     // openingTime2 = widget.setting.openTime2 ?? "--Select--";
     // closingTime2 = widget.setting.closeTime2 ?? "--Select--";
     addressController =
@@ -257,8 +257,8 @@ class PreferencesScreenState extends State<PreferencesScreen> {
 
   void updateSettings() {
     setting.openClose = getDaySelectionMap();
-    setting.openTime = openingTime;
-    setting.closeTime = closingTime;
+    setting.openTime1 = openingTime;
+    setting.closeTime2 = closingTime;
     setting.clinicAddress = addressController.text;
 
     // Add logic to update the settings

@@ -12,8 +12,8 @@ import '../../network/api_service.dart';
 import '../../utils/utils.dart';
 import '../mr_settings.dart';
 import 'analytics.dart';
-import 'drawer/drawer.dart';
 import 'clinic/settings_screen.dart';
+import 'drawer/drawer.dart';
 import 'home/home.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -195,7 +195,7 @@ class HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 4),
                   Icon(
                     icon,
-                    size: 20,
+                    size: 25,
                     color: color,
                   ),
                   const SizedBox(height: 4),
@@ -207,7 +207,7 @@ class HomeScreenState extends State<HomeScreen> {
               : [
                   Icon(
                     icon,
-                    size: 20,
+                    size: 25,
                     color: color,
                   ),
                 ],
