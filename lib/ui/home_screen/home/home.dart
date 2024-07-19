@@ -107,6 +107,7 @@ class HomeState extends State<Home> {
     screenHeight = size.height;
     return Scaffold(
       appBar: RxVaultAppBar(
+        userId: widget.userId,
         openDrawer: (isMobile) {
           if (isMobile) {
             widget.scaffoldKey.currentState?.openDrawer();

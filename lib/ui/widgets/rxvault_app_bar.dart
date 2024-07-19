@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:rxvault/ui/notifications_screen.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
 
 import '../../models/setting.dart';
@@ -14,6 +15,7 @@ class RxVaultAppBar extends StatefulWidget implements PreferredSizeWidget {
   final Function(bool) openDrawer;
   final Function(String) changeAppointmentDate;
   final Setting setting;
+  final String userId;
 
   const RxVaultAppBar({
     super.key,
@@ -21,6 +23,7 @@ class RxVaultAppBar extends StatefulWidget implements PreferredSizeWidget {
     required this.clinicName,
     required this.setting,
     required this.changeAppointmentDate,
+    required this.userId,
   });
 
   @override
@@ -112,6 +115,20 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
               ),
               const Spacer(),
               if (!isMobile) buildMenuButton(false),
+              IconButton(
+                onPressed: () =>
+                    Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        NotificationScreen(userId: widget.userId),
+                  ),
+                ),
+                iconSize: 24,
+                color: darkBlue,
+                icon: const Icon(
+                  Icons.notifications,
+                ),
+              )
             ],
           ),
         ],

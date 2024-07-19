@@ -12,6 +12,7 @@ import 'package:rxvault/models/update_staff_response.dart';
 import 'package:rxvault/utils/user_manager.dart';
 
 import '../models/login_response.dart';
+import '../models/notification_list_response.dart';
 import '../models/patient.dart';
 import '../models/patient_list_response.dart';
 import '../models/register_response.dart';
@@ -545,6 +546,47 @@ class API {
       Utils.toast(e.toString());
     } finally {
       if (context.mounted) Navigator.pop(context);
+    }
+  }
+
+  Future<List<NotificationModel>> getNotifications(String userId) async {
+    FormData formData = FormData.fromMap({
+      "user_id": userId,
+    });
+
+    try {
+      Response response = await _dio.post(
+        "NotificationsList",
+        data: formData,
+      );
+
+      NotificationListResponse notificationListResponse =
+          NotificationListResponse.fromJson(response.data);
+      final json = response.data;
+      if (json["success"] == failure) return [];
+      return notificationListResponse.notificationModels;
+    } catch (t) {
+      return [];
+    }
+  }
+
+  Future clearNotifications(String userId) async {
+    FormData formData = FormData.fromMap({
+      "user_id": userId,
+    });
+
+    try {
+      Response response = await _dio.post(
+        "ClearNotifications",
+        data: formData,
+      );
+
+      final json = response.data;
+      if (json["success"] == failure) {
+        throw Exception((json["message"].toString()));
+      }
+    } catch (e) {
+      throw Exception((e.toString()));
     }
   }
 

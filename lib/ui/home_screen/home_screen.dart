@@ -105,6 +105,7 @@ class HomeScreenState extends State<HomeScreen> {
       appBar: _bottomNavIndex == 0
           ? null
           : RxVaultAppBar(
+              userId: widget.userId,
               openDrawer: (isMobile) {
                 if (isMobile) {
                   _scaffoldKey.currentState?.openDrawer();
