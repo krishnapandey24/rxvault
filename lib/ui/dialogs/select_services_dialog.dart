@@ -45,6 +45,8 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
   String otherServiceName = "";
   String otherServiceAmount = "";
   bool otherServiceSelected = false;
+  Map<String, String>?
+      otherServiceCopy; // Custom services added by user that are not in clinic services
 
   @override
   void initState() {
@@ -193,9 +195,25 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
     List<Widget> children = displayedServices
         .map((service) => getListItem(service.key, service.value, false))
         .toList();
-    children.addAll(selectedServices.copy.entries
+
+    bool canUpdateOtherCopy = otherServiceCopy == null;
+
+    if (canUpdateOtherCopy) {
+      otherServiceCopy = <String, String>{};
+    }
+
+    otherServiceCopy ??= selectedServices.copy;
+    for (var entry in selectedServices.copy.entries) {
+      selectedServices.selectedServices[entry.key] = entry.value;
+      if (canUpdateOtherCopy) {
+        otherServiceCopy![entry.key] = entry.value;
+      }
+    }
+
+    children.addAll(otherServiceCopy!.entries
         .map((service) => getListItem(service.key, service.value, true))
         .toList());
+
     children.add(_otherServiceItem());
     return children;
   }
@@ -265,35 +283,42 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
     }
   }
 
-  Widget getListItem(
-      String serviceName, String servicePrice, bool alreadyAdded) {
-    bool isSelected = alreadyAdded || selectedServices.haveService(serviceName);
-    return InkWell(
-      onTap: () {
-        setState(() {
-          isSelected = !isSelected;
-        });
-      },
-      child: ListTile(
-        leading: Checkbox(
-          fillColor: Utils.getFillColor(),
-          checkColor: Colors.white,
-          value: isSelected,
-          onChanged: (bool? value) {
-            setState(() {
-              if (value == true) {
-                selectedServices.addService(serviceName, servicePrice);
-              } else {
-                selectedServices.removeService(serviceName);
-              }
-            });
-          },
-        ),
-        title: Text(serviceName),
-        trailing: Text(
-          "$rupee $servicePrice",
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-        ),
+  Widget getListItem(String serviceName, String servicePrice, bool fromCopy) {
+    bool isSelected = fromCopy
+        ? selectedServices.haveServiceInCopy(serviceName)
+        : selectedServices.haveService(serviceName);
+
+    void toggleServiceSelection() {
+      setState(() {
+        isSelected = !isSelected;
+        if (isSelected) {
+          if (fromCopy) {
+            selectedServices.addServiceFromCopy(serviceName, servicePrice);
+          }
+          selectedServices.addService(serviceName, servicePrice);
+        } else {
+          if (fromCopy) {
+            selectedServices.removeServiceFromCopy(serviceName);
+          }
+          selectedServices.removeService(serviceName);
+        }
+      });
+    }
+
+    return ListTile(
+      onTap: toggleServiceSelection,
+      leading: Checkbox(
+        fillColor: Utils.getFillColor(),
+        checkColor: Colors.white,
+        value: isSelected,
+        onChanged: (bool? value) {
+          toggleServiceSelection();
+        },
+      ),
+      title: Text(serviceName),
+      trailing: Text(
+        "$rupee $servicePrice",
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       ),
     );
   }

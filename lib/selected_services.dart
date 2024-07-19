@@ -16,9 +16,25 @@ class SelectedServices {
     selectedServices.remove(name);
   }
 
+  void addServiceFromCopy(String name, String value) {
+    copy[name] = value;
+  }
+
+  void removeServiceFromCopy(String name) {
+    copy.remove(name);
+  }
+
   bool haveService(String name) {
     if (selectedServices.containsKey(name)) {
       copy.remove(name);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  bool haveServiceInCopy(String name) {
+    if (copy.containsKey(name)) {
       return true;
     } else {
       return false;

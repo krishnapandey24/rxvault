@@ -1,77 +1,13 @@
 {
-  "status": "success",
-  "data": [
-    {
-      "staff_id": "29",
-      "doctor_id": "58",
-      "name": "Richard",
-      "email": "rich@gmail.com",
-      "mobile": "9011111111",
-      "gender": "Male",
-      "role": "Admin",
-      "permissions": "addPatient,updatePatient,addAppointment,updatePatientService,addPatientService,deletePatient,addImage",
-      "created_at": "2024-07-05 09:54:47",
-      "updated_at": "2024-07-05 09:54:47"
-    },
-    {
-      "staff_id": "30",
-      "doctor_id": "58",
-      "name": "Rahul",
-      "email": "agaga@gm.c",
-      "mobile": "9112345678",
-      "gender": "Male",
-      "role": "patient",
-      "permissions": "addPatient",
-      "created_at": "2024-07-05 15:11:32",
-      "updated_at": "2024-07-05 15:11:32"
-    },
-    {
-      "staff_id": "31",
-      "doctor_id": "58",
-      "name": "Gopi",
-      "email": "",
-      "mobile": "9212345678",
-      "gender": "Male",
-      "role": "good",
-      "permissions": "updatePatient,addPatient",
-      "created_at": "2024-07-05 15:11:52",
-      "updated_at": "2024-07-05 15:11:52"
-    },
-    {
-      "staff_id": "33",
-      "doctor_id": "58",
-      "name": "Asus",
-      "email": "frd@nj.com",
-      "mobile": "4708515875",
-      "gender": "Male",
-      "role": "Warer",
-      "permissions": "updatePatientService,addPatientService,updatePatient",
-      "created_at": "2024-07-06 13:39:12",
-      "updated_at": "2024-07-06 13:39:12"
-    },
-    {
-      "staff_id": "38",
-      "doctor_id": "58",
-      "name": "pascal",
-      "email": "sfdsffsdf@gmail.com",
-      "mobile": "3377888888",
-      "gender": "Female",
-      "role": "neo fetch",
-      "permissions": "updatePatient",
-      "created_at": "2024-07-08 11:08:16",
-      "updated_at": "2024-07-08 11:12:45"
-    },
-    {
-      "staff_id": "40",
-      "doctor_id": "58",
-      "name": "Me",
-      "email": "ajj@jsjd.sk",
-      "mobile": "9012345678",
-      "gender": "Male",
-      "role": "Me",
-      "permissions": "deletePatient,addImage,updatePatientService,addPatientService,addAppointment,updatePatient,addPatient",
-      "created_at": "2024-07-08 12:02:33",
-      "updated_at": "2024-07-08 12:02:33"
-    }
-  ]
+  "main": {
+    "s1": "4",
+    "s2": "4",
+    "s3": "4"
+  },
+  "others": {
+    "extra1": "1",
+    "extra2": "1",
+    "extra3": "1",
+    "extra4": "1"
+  }
 }
