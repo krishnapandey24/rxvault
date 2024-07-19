@@ -13,7 +13,7 @@ import '../../utils/utils.dart';
 import '../mr_settings.dart';
 import 'analytics.dart';
 import 'drawer/drawer.dart';
-import 'drawer/settings_screen.dart';
+import 'clinic/settings_screen.dart';
 import 'home/home.dart';
 
 class HomeScreen extends StatefulWidget {

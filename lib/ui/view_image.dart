@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../utils/utils.dart';
+
 class ViewImage extends StatelessWidget {
   final String imageUrl;
 
@@ -26,6 +28,7 @@ class ViewImage extends StatelessWidget {
       body: Center(
         child: InteractiveViewer(
           child: CachedNetworkImage(
+            placeholder: Utils.imagePlaceHolder,
             imageUrl: imageUrl,
             fit: BoxFit.contain,
             height: double.maxFinite,
