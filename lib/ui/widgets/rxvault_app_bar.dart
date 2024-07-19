@@ -7,6 +7,7 @@ import '../../models/setting.dart';
 import '../../models/user_info.dart';
 import '../../network/api_service.dart';
 import '../../utils/colors.dart';
+import '../../utils/utils.dart';
 
 class RxVaultAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String clinicName;
@@ -71,7 +72,7 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
                   Row(
                     children: [
                       Text(
-                        widget.clinicName,
+                        Utils.capitalizeFirstLetter(widget.clinicName),
                         style: const TextStyle(
                           fontSize: 18,
                           color: Colors.black,

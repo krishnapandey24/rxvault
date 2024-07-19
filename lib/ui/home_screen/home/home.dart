@@ -980,6 +980,9 @@ class HomeState extends State<Home> {
         update: (selectedServices, totalAmount) {
           setState(() {
             patient.selectedServices = selectedServices;
+            this.totalAmount = this.totalAmount +
+                parseNullableStringToInt(totalAmount) -
+                parseNullableStringToInt(patient.totalAmount);
             patient.totalAmount = totalAmount;
           });
         },
@@ -1023,5 +1026,9 @@ class HomeState extends State<Home> {
       searchController.clear();
     });
     searchFocusNode.unfocus();
+  }
+
+  int parseNullableStringToInt(String? nullableString) {
+    return int.tryParse(nullableString ?? '') ?? 0;
   }
 }

@@ -25,7 +25,6 @@ class AnalyticsBarChartState extends State<AnalyticsBarChart> {
   int touchedGroupIndex = -1;
 
   get showAmount => widget.showAmount;
-
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
@@ -35,7 +34,7 @@ class AnalyticsBarChartState extends State<AnalyticsBarChart> {
         child: BarChart(
           BarChartData(
             minY: 0,
-            maxY: getMaxY().toDouble(),
+            maxY: getMaxY(),
             barGroups: widget.data.asMap().entries.map((entry) {
               int index = entry.key;
               AnalyticsData data = entry.value;
@@ -90,15 +89,18 @@ class AnalyticsBarChartState extends State<AnalyticsBarChart> {
     }
   }
 
-  int getMaxY() {
+  double getMaxY() {
     double maxAmount = widget.maxAmount;
     double maxPatientCount = widget.maxPatientCount;
+    int maxY;
     if (showAmount) {
-      if (maxAmount == 0) return 10000;
-      return (widget.maxAmount + (widget.maxAmount * 0.2)).ceil();
+      if (maxAmount == 0) return 10000.0;
+      maxY = (widget.maxAmount + (widget.maxAmount * 0.2)).ceil();
     } else {
-      if (maxPatientCount < 10) return 10;
-      return (widget.maxPatientCount + (widget.maxPatientCount * 0.2)).ceil();
+      if (maxPatientCount < 10) return 10.0;
+      maxY = (widget.maxPatientCount + (widget.maxPatientCount * 0.2)).ceil();
     }
+
+    return maxY.toDouble();
   }
 }

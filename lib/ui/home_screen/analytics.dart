@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:rxvault/models/analytics_response.dart';
 import 'package:rxvault/ui/widgets/analytics_bar_chart.dart';
@@ -67,7 +68,7 @@ class AnalyticsState extends State<Analytics> {
     try {
       List<AnalyticsData> analyticsData =
           await api.getAnalytics(widget.userId, startDate, endDate);
-      await determineData();
+      determineData(analyticsData);
       setState(() {
         data = analyticsData;
         totalAmount = totalAmount;
@@ -209,15 +210,30 @@ class AnalyticsState extends State<Analytics> {
           child: InkWell(
             onTap: _generateAndDownloadExcelSheet,
             child: Container(
-              width: size.width * 0.5,
+              constraints: BoxConstraints(minWidth: size.width * 0.5),
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                  color: transparentBlue,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.black, width: 1)),
-              child: const Column(
+                color: transparentBlue,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.black, width: 1),
+              ),
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
-                children: [Text("Download Excel Sheet"), Icon(Icons.download)],
+                children: [
+                  const SizedBox(width: 10),
+                  SvgPicture.asset(
+                    "assets/icons/excel.svg",
+                    height: 21,
+                    width: 21,
+                    colorFilter: const ColorFilter.mode(
+                      excelGreen,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Text("Download Excel Sheet"),
+                  const SizedBox(width: 10),
+                ],
               ),
             ),
           ),
@@ -370,40 +386,15 @@ class AnalyticsState extends State<Analytics> {
   }
 
   _generateAndDownloadExcelSheet() {
-    final patient = Patient.newPatient("1");
-    patient.name = "Dane John";
-    patient.age = "16";
-    patient.allergic = "Yes";
-    patient.mobile = "9012345678";
-    final patients = [
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-      patient,
-    ];
     ExcelGenerator excelGenerator =
         ExcelGenerator(context, patients, "$startDate-$endDate");
     excelGenerator.generateAndSavePatientExcel();
   }
 
-  Future determineData() async {
+  void determineData(List<AnalyticsData> analyticsData) {
     double totalPatientCount = 0;
     double totalAmountCount = 0;
-    for (var analytic in data) {
+    for (var analytic in analyticsData) {
       double count = analytic.count;
       double amount = analytic.amount;
       totalPatientCount += count;

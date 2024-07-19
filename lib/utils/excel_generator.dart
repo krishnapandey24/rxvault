@@ -83,12 +83,10 @@ class ExcelGenerator {
       }
       await file.writeAsBytes(bytes);
       Utils.toast("File saved in the Downloads!");
-    } catch (e, t) {
+    } catch (e) {
       if (file != null && file.existsSync()) {
         file.deleteSync();
       }
-      print("$e $t");
-
       Utils.toast("Unable to save excel file!");
     }
   }

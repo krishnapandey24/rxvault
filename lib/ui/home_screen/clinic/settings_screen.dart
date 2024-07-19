@@ -258,6 +258,7 @@ class SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         buildFromToSelector(isDesktop, true),
+        const SizedBox(height: 20),
         const Padding(
           padding: EdgeInsets.all(8.0),
           child: Text(

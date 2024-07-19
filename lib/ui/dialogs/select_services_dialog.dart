@@ -146,9 +146,8 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
       if (!mounted) return;
       widget.update(selectedService, totalAmount);
       Navigator.pop(context);
-    } catch (e, t) {
+    } catch (e) {
       Utils.toast(e.toString());
-      print("$e $t");
     } finally {
       Navigator.pop(context);
     }

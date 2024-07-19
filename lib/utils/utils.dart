@@ -122,6 +122,14 @@ class Utils {
     return const Center(child: CircularProgressIndicator());
   }
 
+  static String capitalizeFirstLetter(String input) {
+    if (input.isEmpty) {
+      return input;
+    }
+
+    return input.substring(0, 1).toUpperCase() + input.substring(1);
+  }
+
   static Widget errorWidget(BuildContext context, String url, dynamic) {
     return const Center(
       child: Icon(
@@ -146,14 +154,6 @@ class Utils {
   static bool isInvalidName(String input) {
     RegExp regex = RegExp(r'[!@#&*(),.?":{}|<>\d]');
     return regex.hasMatch(input);
-  }
-
-  static String capitalizeFirstLetter(String input) {
-    if (input.isEmpty) {
-      return input;
-    }
-
-    return input.substring(0, 1).toUpperCase() + input.substring(1);
   }
 
   static void showAlertDialog(

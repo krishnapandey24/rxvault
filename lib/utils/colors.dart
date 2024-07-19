@@ -9,3 +9,4 @@ const darkBlue = Color(0xff2c3d8f);
 const teal = Color(0xff8de9c4);
 const green = Color(0xff32cd32);
 const grey = Color(0xff6a6e83);
+const excelGreen = Color(0xff178047);
