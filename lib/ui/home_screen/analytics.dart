@@ -25,7 +25,7 @@ class AnalyticsState extends State<Analytics> {
   final api = API();
   List<AnalyticsData> data = [];
   String startDate = "Select Start Date";
-  String endDate = "Select End Date";
+  String endDate = " Select End Date ";
   bool startSelected = false;
   bool endSelected = false;
   bool showAmount = true;
@@ -77,6 +77,7 @@ class AnalyticsState extends State<Analytics> {
         maxPatientCount = maxPatientCount;
         isChartLoading = false;
         isError = false;
+        patients = getPatientsList(analyticsData);
       });
     } catch (e) {
       setState(() {
@@ -133,9 +134,11 @@ class AnalyticsState extends State<Analytics> {
         const SizedBox(height: 10),
         if (isMobile) buildSwitch(),
         const SizedBox(height: 30),
+        const Text("Data Range: "),
+        const SizedBox(height: 10),
         Row(
           children: [
-            const Text("Data Range: From: "),
+            const Text("From: "),
             isMobile ? const Spacer() : const SizedBox(width: 25),
             InkWell(
               onTap: () {
@@ -159,17 +162,14 @@ class AnalyticsState extends State<Analytics> {
         const SizedBox(height: 10),
         Row(
           children: [
-            const Text("Data Range: To: "),
-            isMobile ? const Spacer() : const SizedBox(width: 25),
+            const Text("To:  "),
+            isMobile ? const Spacer() : const SizedBox(width: 35),
             InkWell(
               onTap: () {
                 pickDate(false);
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 7,
-                  vertical: 5,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
                   color: primary,
                   borderRadius: BorderRadius.circular(4),
@@ -404,5 +404,13 @@ class AnalyticsState extends State<Analytics> {
     }
     totalPatients = totalPatientCount;
     totalAmount = totalAmountCount;
+  }
+
+  List<Patient> getPatientsList(List<AnalyticsData> analyticsData) {
+    List<Patient> patients = [];
+    for (var analytic in analyticsData) {
+      patients.addAll(analytic.patients);
+    }
+    return patients;
   }
 }

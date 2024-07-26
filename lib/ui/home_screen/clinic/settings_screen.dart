@@ -65,8 +65,10 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     setState(() {
       selectedDays = List<bool>.from(setting.getDaySelection());
-      openingTime = setting.openTime1 ?? defaultOpeningString;
-      closingTime = setting.closeTime2 ?? defaultClosingString;
+      openingTime = setting.openTime1 ?? defaultTimeString;
+      closingTime = setting.closeTime2 ?? defaultTimeString;
+      openingTime2 = setting.openTime2 ?? defaultTimeString;
+      closingTime2 = setting.closeTime2 ?? defaultTimeString;
       addressController =
           TextEditingController(text: setting.clinicAddress ?? "");
       services = Utils.getServicesFromString(setting.itemDetails);

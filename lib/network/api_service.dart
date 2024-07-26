@@ -591,8 +591,8 @@ class API {
   }
 
   submitFeedback(String text, String userId, String type) async {
-    FormData formData =
-        FormData.fromMap({"user_id": userId, "text": text, "type": type});
+    FormData formData = FormData.fromMap(
+        {"user_id": userId, "message": text, "type": type, "subject": type});
     final response = (await _dio.post("SubmitFeedback", data: formData)).data;
     String success = response["success"];
     String message = response["message"];

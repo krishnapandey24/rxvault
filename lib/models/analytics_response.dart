@@ -1,3 +1,5 @@
+import 'package:rxvault/models/patient.dart';
+
 class AnalyticsResponse {
   final String success;
   final String message;
@@ -39,11 +41,13 @@ class AnalyticsData {
   final DateTime date;
   final double count;
   final double amount;
+  final List<Patient> patients;
 
   AnalyticsData({
     required this.date,
     required this.count,
     required this.amount,
+    required this.patients,
   });
 
   factory AnalyticsData.fromJson(Map<String, dynamic> json) {
@@ -73,6 +77,9 @@ class AnalyticsData {
       date: date,
       count: count,
       amount: amount,
+      patients: (json['patients'] as List<dynamic>)
+          .map((e) => Patient.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 

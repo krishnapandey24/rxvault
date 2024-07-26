@@ -14,5 +14,4 @@ const List<bool> defaultSelection = [
 ];
 const rupee = '₹';
 const profileImageSize = 50.0;
-String defaultOpeningString = "--Select--";
-String defaultClosingString = "--Select--";
+String defaultTimeString = "--Select--";

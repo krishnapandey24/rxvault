@@ -49,8 +49,8 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
     setState(() {
       mrOnOff = setting.status == "open";
       selectedDays = List<bool>.from(setting.getDaySelection());
-      openingTime = setting.openTime1 ?? defaultOpeningString;
-      closingTime = setting.closeTime2 ?? defaultClosingString;
+      openingTime = setting.openTime1 ?? defaultTimeString;
+      closingTime = setting.closeTime2 ?? defaultTimeString;
       isLoading = false;
     });
   }
