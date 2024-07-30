@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:rxvault/ui/home_screen/home_screen.dart';
 import 'package:rxvault/ui/login/create_update_user.dart';
@@ -12,11 +13,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models/user_info.dart';
 
+Future<void> initPlatformState() async {
+  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  OneSignal.Debug.setAlertLevel(OSLogLevel.none);
+  OneSignal.initialize(oneSignalAppId);
+  OneSignal.Notifications.requestPermission(true);
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
-  // await FirebaseMessaging.instance.setAutoInitEnabled(true);
-  // setupFirebaseMessaging(); // Initialize Firebase Messaging
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
+  await initPlatformState();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isLoggedIn = prefs.getBool(UserManager.isLoggedIn) ?? false;
   String userId = prefs.getString(UserManager.userId) ?? "";

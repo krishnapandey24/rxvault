@@ -39,34 +39,23 @@ class Home extends StatefulWidget {
 class HomeState extends State<Home> {
   final searchController = TextEditingController();
   final fileNameController = TextEditingController();
-
   final searchFocusNode = FocusNode();
-
   bool clinicOpen = true;
   bool isSearching = false;
   bool isFirst = true;
   bool isLoading = false;
-
   int totalAmount = 0;
-
   String? permission;
   String? selectedDate;
-
   final api = API();
-
   late Future<List<Patient>> patientsFuture;
-
   List<Patient> patients = [];
   List<Patient> searchResults = [];
-
   late User user;
   late Setting setting;
-
   late Size size;
-
   late double screenWidth;
   late double screenHeight;
-
   String get userId => widget.userId;
 
   @override
@@ -412,7 +401,7 @@ class HomeState extends State<Home> {
     return ListView.builder(
       itemCount: patients.length,
       itemBuilder: (context, index) =>
-          getPatientListItems(context, index, false, length),
+          buildPatientListItem(context, index, false, length),
     );
   }
 
@@ -425,7 +414,7 @@ class HomeState extends State<Home> {
       ),
       itemCount: patients.length,
       itemBuilder: (context, index) =>
-          getPatientListItems(context, index, true, length),
+          buildPatientListItem(context, index, true, length),
     );
   }
 
@@ -512,7 +501,7 @@ class HomeState extends State<Home> {
   }
 
 // Patient List Item
-  Widget? getPatientListItems(
+  Widget? buildPatientListItem(
       BuildContext context, int index, bool isGrid, int size) {
     final GlobalKey key = GlobalKey();
 
@@ -921,16 +910,6 @@ class HomeState extends State<Home> {
         return;
       }
     }
-
-    // if (setting.itemDetails == null) {
-    //   Utils.toast("Unable to load services!");
-    //   return;
-    // }
-    //
-    // if (setting.itemDetails!.isEmpty) {
-    //   Utils.toast("Add Services First!");
-    //   return;
-    // }
 
     showDialog(
       context: context,

@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:rxvault/ui/view_image.dart';
-import 'package:rxvault/utils/colors.dart';
 import 'package:rxvault/utils/utils.dart';
 
 import '../../../network/api_service.dart';
@@ -25,7 +24,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
   late Future<List<Document>> documentsFuture;
   List<Document> documents = [];
   final api = API();
-  int currentIndex = 0;
+  int _currentIndex = 0;
   late Size size;
 
   @override
@@ -86,18 +85,54 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
         Expanded(
           child: Swiper(
             loop: documents.length > 3,
+            onIndexChanged: (index) {
+              _currentIndex = index;
+            },
             itemBuilder: (BuildContext context, int index) {
-              String url = documents[index].imageUrl;
+              Document document = documents[index];
               return InkWell(
                 onTap: () => Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(
-                    builder: (context) => ViewImage(url),
+                    builder: (context) => ViewImage(document.imageUrl),
                   ),
                 ),
-                child: CachedNetworkImage(
-                  placeholder: Utils.imagePlaceHolder,
-                  imageUrl: documents[index].imageUrl,
-                  fit: BoxFit.cover,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 10,
+                      bottom: 0,
+                      left: 0,
+                      right: 10,
+                      child: CachedNetworkImage(
+                        placeholder: Utils.imagePlaceHolder,
+                        imageUrl: document.imageUrl,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    if (_currentIndex == index)
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.red,
+                          radius: 20,
+                          child: IconButton(
+                            onPressed: () => Utils.showAlertDialog(context,
+                                "Are you sure you want delete this document?",
+                                () {
+                              _deleteDocument(document.id);
+                            }, () {
+                              Navigator.pop(context);
+                            }),
+                            iconSize: 24,
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               );
             },
@@ -118,28 +153,6 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
     );
   }
 
-  Widget? buildListViewItem(BuildContext context, int index) {
-    bool isSelected = currentIndex == index;
-    return InkWell(
-      onTap: () {
-        controller.jumpToPage(index);
-      },
-      child: Container(
-        margin: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          border: isSelected ? Border.all(color: primary, width: 2) : null,
-        ),
-        child: AspectRatio(
-          aspectRatio: 9.0 / 16.0,
-          child: CachedNetworkImage(
-            imageUrl: documents[index].imageUrl,
-            fit: BoxFit.fill,
-          ),
-        ),
-      ),
-    );
-  }
-
   InteractiveViewer buildInteractiveViewer(BuildContext context, int index) {
     Document document = documents[index];
     return InteractiveViewer(
@@ -150,5 +163,17 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
         width: double.maxFinite,
       ),
     );
+  }
+
+  void _deleteDocument(String documentId) async {
+    try {
+      Utils.showLoader(context);
+      await api.deleteDoctorsPatientDocument(documentId);
+      Utils.toast("Document Delete Successfully");
+    } catch (e) {
+      Utils.toast(e.toString());
+    } finally {
+      if (mounted) Navigator.pop(context);
+    }
   }
 }

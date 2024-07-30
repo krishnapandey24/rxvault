@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:rxvault/models/doctor_info.dart';
 
@@ -245,7 +246,7 @@ class _CreateUpdateUserState extends State<CreateUpdateUser> {
                       userInfo.email = value;
                     },
                     validator: (value) {
-                      if (value!.isEmpty || !Utils.isEmailValid(value)) {
+                      if (value!.isNotEmpty && !Utils.isEmailValid(value)) {
                         return "Please Enter a valid email";
                       }
                       return null;
@@ -369,6 +370,8 @@ class _CreateUpdateUserState extends State<CreateUpdateUser> {
   }
 
   void registerUser() {
+    final playerId = OneSignal.User.pushSubscription.id;
+    userInfo.playerId = playerId;
     api.registerUser(userInfo).then(
       (value) {
         api.login(userInfo.mobile!, "Login").then(

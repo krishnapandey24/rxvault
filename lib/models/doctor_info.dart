@@ -12,6 +12,7 @@ class DoctorInfo {
   String? gender;
   String? permissions;
   bool? isStaff;
+  String? playerId;
 
   DoctorInfo({
     required this.name,
@@ -46,6 +47,7 @@ class DoctorInfo {
       "hospital_name": clinicName,
       "speciality": speciality,
       "image": image,
+      "app_id": playerId
     };
   }
 
