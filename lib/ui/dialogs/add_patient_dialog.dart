@@ -180,41 +180,78 @@ class AddPatientDialogState extends State<AddPatientDialog> {
                   },
                 ),
                 const SizedBox(height: 25),
-                const Text(
-                  "Age",
-                  style: TextStyle(color: darkBlue),
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _ageController,
-                  maxLength: 3,
-                  maxLines: 1,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    counterText: '',
-                    contentPadding: const EdgeInsets.all(15),
-                    labelText: "Enter Patient's Age",
-                    labelStyle: TextStyle(color: Colors.grey.shade500),
-                    floatingLabelBehavior: FloatingLabelBehavior.never,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(color: Colors.transparent),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            "Age",
+                            style: TextStyle(color: darkBlue),
+                          ),
+                          const SizedBox(height: 10),
+                          TextFormField(
+                            controller: _ageController,
+                            maxLength: 3,
+                            maxLines: 1,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              counterText: '',
+                              contentPadding: const EdgeInsets.all(15),
+                              labelText: "Age",
+                              labelStyle:
+                                  TextStyle(color: Colors.grey.shade500),
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.never,
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                                borderSide:
+                                    const BorderSide(color: Colors.transparent),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                                borderSide:
+                                    const BorderSide(color: Colors.transparent),
+                              ),
+                              fillColor: transparentBlue,
+                              filled: true,
+                            ),
+                            style: const TextStyle(color: Colors.black),
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return "Please Enter a valid age";
+                              }
+                              patient.age = value;
+                              return null;
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(color: Colors.transparent),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Allergic",
+                            style: TextStyle(color: darkBlue),
+                          ),
+                          const SizedBox(height: 10),
+                          buildAllergySelector(),
+                        ],
+                      ),
                     ),
-                    fillColor: transparentBlue,
-                    filled: true,
-                  ),
-                  style: const TextStyle(color: Colors.black),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return "Please Enter a valid age";
-                    }
-                    patient.age = value;
-                    return null;
-                  },
+                  ],
                 ),
                 const SizedBox(height: 25),
                 const Text(
@@ -224,13 +261,6 @@ class AddPatientDialogState extends State<AddPatientDialog> {
                 const SizedBox(height: 10),
                 buildGenderSelector(),
                 const SizedBox(height: 25),
-                const Text(
-                  "Allergic",
-                  style: TextStyle(color: darkBlue),
-                ),
-                const SizedBox(height: 10),
-                buildAllergySelector(),
-                const SizedBox(height: 70),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.maxFinite, 30),

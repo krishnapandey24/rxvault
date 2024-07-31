@@ -1,6 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:rxvault/ui/view_image.dart';
 import 'package:rxvault/utils/utils.dart';
 
@@ -10,9 +14,10 @@ import '../models/patient_document_response.dart';
 class ViewAllDocuments extends StatefulWidget {
   final String patientId;
   final String doctorId;
+  final String? date;
 
   const ViewAllDocuments(
-      {super.key, required this.patientId, required this.doctorId});
+      {super.key, required this.patientId, required this.doctorId, this.date});
 
   @override
   State<ViewAllDocuments> createState() => _ViewAllDocumentsState();
@@ -22,9 +27,10 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
   String title = "";
   late PageController controller;
   late Future<List<Document>> documentsFuture;
-  List<Document> documents = [];
+  List<Document> _documents = [];
   final api = API();
   int _currentIndex = 0;
+  int _documentsCount = 0;
   late Size size;
 
   @override
@@ -32,7 +38,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
     super.initState();
     controller = PageController(initialPage: 0);
     documentsFuture =
-        api.getPatientDocuments(widget.patientId, widget.doctorId, null);
+        api.getPatientDocuments(widget.patientId, widget.doctorId, widget.date);
   }
 
   @override
@@ -44,6 +50,23 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: const SizedBox.shrink(),
+        centerTitle: true,
+        title: widget.date != null
+            ? ElevatedButton(
+                onPressed: _generatePdf,
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.download,
+                      color: Colors.white,
+                    ),
+                    Text("Download All")
+                  ],
+                ),
+              )
+            : null,
         actions: [
           InkWell(
             onTap: () => Navigator.pop(context),
@@ -63,13 +86,15 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
-            documents = snapshot.data!;
-            if (documents.isEmpty) {
+            _documents = snapshot.data!;
+            _documentsCount = _documents.length;
+            if (_documents.isEmpty) {
               Utils.toast("No Documents Found");
               Navigator.pop(context);
               return const SizedBox();
             }
-            title = documents.first.title;
+            _currentIndex = _documentsCount - 1;
+            title = _documents.first.title;
             return buildSwiper();
           }
         },
@@ -84,12 +109,14 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
         emptyAreaWidget,
         Expanded(
           child: Swiper(
-            loop: documents.length > 3,
+            loop: _documents.length > 3,
             onIndexChanged: (index) {
+              index = _documentsCount - 1 - index;
               _currentIndex = index;
             },
             itemBuilder: (BuildContext context, int index) {
-              Document document = documents[index];
+              index = _documentsCount - 1 - index;
+              Document document = _documents[_documentsCount - 1 - index];
               return InkWell(
                 onTap: () => Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(
@@ -136,7 +163,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
                 ),
               );
             },
-            itemCount: documents.length,
+            itemCount: _documents.length,
             viewportFraction: 0.8,
             scale: 0.9,
           ),
@@ -154,7 +181,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
   }
 
   InteractiveViewer buildInteractiveViewer(BuildContext context, int index) {
-    Document document = documents[index];
+    Document document = _documents[index];
     return InteractiveViewer(
       child: CachedNetworkImage(
         imageUrl: document.imageUrl,
@@ -169,11 +196,53 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
     try {
       Utils.showLoader(context);
       await api.deleteDoctorsPatientDocument(documentId);
-      Utils.toast("Document Delete Successfully");
+      Utils.toast("Document Deleted Successfully");
+      if (mounted) Navigator.pop(context);
     } catch (e) {
       Utils.toast(e.toString());
     } finally {
       if (mounted) Navigator.pop(context);
     }
+  }
+
+  void _generatePdf() async {
+    Utils.showLoader(context, "Generating PDFs, Please wait...");
+    if (_documents.isEmpty && mounted) {
+      Utils.toast("No Document Found!");
+      Navigator.pop(context);
+      return;
+    }
+
+    List<String> imageUrls = [];
+    _documents.asMap().forEach(
+          (index, value) => imageUrls.add(_documents[index].imageUrl),
+        );
+
+    _createPdfFromListOfImages(imageUrls);
+  }
+
+  Future<void> _createPdfFromListOfImages(List<String> imageUrls) async {
+    final pdf = pw.Document();
+
+    for (final url in imageUrls) {
+      final response = await http.get(Uri.parse(url));
+
+      final image = pw.MemoryImage(response.bodyBytes);
+      pdf.addPage(
+        pw.Page(
+          build: (pw.Context context) {
+            return pw.Center(
+              child: pw.Image(image),
+            );
+          },
+        ),
+      );
+    }
+    await Printing.layoutPdf(
+      name: "RxVault Doc - ",
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+    );
+    Utils.toast("Pdf generated successfully");
+    if (mounted) Navigator.pop(context);
   }
 }

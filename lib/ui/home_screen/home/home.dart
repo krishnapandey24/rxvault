@@ -56,6 +56,7 @@ class HomeState extends State<Home> {
   late Size size;
   late double screenWidth;
   late double screenHeight;
+
   String get userId => widget.userId;
 
   @override
@@ -423,9 +424,7 @@ class HomeState extends State<Home> {
       Utils.noPermission();
       return;
     }
-    setState(() {
-      searchResults.clear();
-    });
+    clearSearch();
     Utils.showLoader(context, "Adding Patient to the list...");
     api.addDoctorsPatient(userId, patient.patientId).then((value) {
       Navigator.pop(context);
@@ -552,10 +551,10 @@ class HomeState extends State<Home> {
                       color: darkBlue,
                       size: 18,
                     ),
-                    Text(
-                      patient.getTotalAmount,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 14, color: Colors.black),
+                    Responsive(
+                      mobile: buildAmountText(patient, true),
+                      tablet: buildAmountText(patient, false),
+                      desktop: buildAmountText(patient, false),
                     ),
                   ],
                 ),
@@ -595,6 +594,39 @@ class HomeState extends State<Home> {
         ],
       ),
     );
+  }
+
+  Text buildAmountText(Patient patient, bool isMobile) {
+    return Text(
+      _getFormattedAmount(patient.getTotalAmount, isMobile),
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontSize: 14, color: Colors.black),
+    );
+  }
+
+  String _getFormattedAmount(String amount, bool isMobile) {
+    if (isMobile && amount.length > 8) {
+      return "${_formatIndianNumber(amount.substring(0, 6))}...";
+    }
+    return _formatIndianNumber(amount);
+  }
+
+  String _formatIndianNumber(String amount) {
+    amount = amount.replaceAll(',', '');
+
+    if (amount.isEmpty || !RegExp(r'^\d+$').hasMatch(amount)) {
+      return amount;
+    }
+
+    List<String> chars = amount.split('');
+    chars = chars.reversed.toList();
+
+    for (int i = 3; i < chars.length; i += 2) {
+      chars.insert(i, ',');
+      i++;
+    }
+
+    return chars.reversed.join('');
   }
 
   void showDropdownMenu(BuildContext context, GlobalKey key,
@@ -814,7 +846,7 @@ class HomeState extends State<Home> {
       builder: (BuildContext context) {
         return Responsive(
           mobile: addPatientDialog(
-            const EdgeInsets.all(15),
+            EdgeInsets.symmetric(horizontal: 25, vertical: size.height * 0.2),
           ),
           desktop: addPatientDialog(
             const EdgeInsets.symmetric(
@@ -1004,6 +1036,7 @@ class HomeState extends State<Home> {
     setState(() {
       searchResults.clear();
       searchController.clear();
+      isSearching = false;
     });
     searchFocusNode.unfocus();
   }

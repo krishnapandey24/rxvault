@@ -234,6 +234,8 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
                 otherServiceAddition = 0;
               }
             });
+          } else {
+            Utils.toast("Please add amount first!");
           }
         },
       ),
@@ -253,6 +255,8 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
       trailing: SizedBox(
         width: 55,
         child: TextField(
+          maxLines: 1,
+          maxLength: 8,
           onChanged: (value) {
             otherServiceAmount = value;
             if (otherServiceSelected) {

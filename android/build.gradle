@@ -4,6 +4,8 @@ allprojects {
         mavenCentral()
     }
 }
+ext.kotlin_version = '1.6.0'
+
 
 
 rootProject.buildDir = "../build"

@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:rxvault/models/patient.dart';
+import 'package:rxvault/ui/view_all_documents.dart';
 import 'package:rxvault/utils/colors.dart';
 import 'package:rxvault/utils/constants.dart';
 
@@ -45,12 +47,12 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                optionButton(
+                _buildOptionsButton(
                   "Download\nAll Documents",
                   Icons.download,
-                  _downloadAllDocuments,
+                  _generatePdf,
                 ),
-                optionButton(
+                _buildOptionsButton(
                   "Delete\nAll Documents",
                   Icons.delete,
                   _confirmDelete,
@@ -114,8 +116,48 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
     );
   }
 
-  _downloadAllDocuments() {
-    createPdf(null);
+  void _generatePdf() async {
+    Utils.showLoader(context, "Generating PDFs, Please wait...");
+    final documents = await api.getPatientDocuments(
+        widget.patient.patientId, widget.doctorId, null);
+
+    if (documents.isEmpty && mounted) {
+      Utils.toast("No Document Found!");
+      Navigator.pop(context);
+      return;
+    }
+
+    List<String> imageUrls = [];
+    documents.asMap().forEach(
+          (index, value) => imageUrls.add(documents[index].imageUrl),
+        );
+
+    _createPdfFromListOfImages(imageUrls);
+  }
+
+  Future<void> _createPdfFromListOfImages(List<String> imageUrls) async {
+    final pdf = pw.Document();
+
+    for (final url in imageUrls) {
+      final response = await http.get(Uri.parse(url));
+
+      final image = pw.MemoryImage(response.bodyBytes);
+      pdf.addPage(
+        pw.Page(
+          build: (pw.Context context) {
+            return pw.Center(
+              child: pw.Image(image),
+            );
+          },
+        ),
+      );
+    }
+    await Printing.layoutPdf(
+      name: "RxVault Doc - ",
+      onLayout: (PdfPageFormat format) async => pdf.save(),
+    );
+    Utils.toast("Pdf generated successfully");
+    if (mounted) Navigator.pop(context);
   }
 
   _confirmDelete() async {
@@ -140,7 +182,7 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
     }
   }
 
-  optionButton(String text, IconData iconData, Function() onTap) {
+  _buildOptionsButton(String text, IconData iconData, Function() onTap) {
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -231,7 +273,7 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
                   ),
                 ),
               ],
-              rows: getRows(data),
+              rows: _buildRows(data),
             ),
           );
         }
@@ -261,71 +303,69 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
     );
   }
 
-  getRows(List<Patient> data) {
-    return data
-        .map(
-          (patient) => DataRow(cells: [
-            DataCell(
-              Text(patient.date ?? "--"),
-            ),
-            DataCell(
-              Text("$rupee${patient.getTotalAmount}"),
-            ),
-            DataCell(
-              InkWell(
-                onTap: () => createPdf(patient.date),
-                child: const Icon(
-                  CupertinoIcons.arrow_down_doc_fill,
-                  color: primary,
-                ),
+  _buildRows(List<Patient> data) {
+    List<DataRow> rows = [];
+    int size = data.length;
+    for (int i = size - 1; i >= 0; i--) {
+      Patient patient = data[i];
+      rows.add(
+        DataRow(cells: [
+          DataCell(
+            Text(formatDateTime(patient.date)),
+          ),
+          DataCell(
+            Text("$rupee${patient.getTotalAmount}"),
+          ),
+          DataCell(
+            InkWell(
+              onTap: () =>
+                  _showDocumentsDialog(patient.patientId, patient.date),
+              child: const Icon(
+                CupertinoIcons.arrow_down_doc_fill,
+                color: primary,
               ),
             ),
-          ]),
-        )
-        .toList();
-  }
-
-  void createPdf(String? date) async {
-    Utils.showLoader(context, "Generating PDFs, Please wait...");
-    final documents = await api.getPatientDocuments(
-        widget.patient.patientId, widget.doctorId, date);
-
-    if (documents.isEmpty && mounted) {
-      Utils.toast("No Document Found!");
-      Navigator.pop(context);
-      return;
-    }
-
-    List<String> imageUrls = [];
-    documents.asMap().forEach(
-          (index, value) => imageUrls.add(documents[index].imageUrl),
-        );
-
-    _createPdfFromListOfImages(imageUrls);
-  }
-
-  Future<void> _createPdfFromListOfImages(List<String> imageUrls) async {
-    final pdf = pw.Document();
-
-    for (final url in imageUrls) {
-      final response = await http.get(Uri.parse(url));
-
-      final image = pw.MemoryImage(response.bodyBytes);
-      pdf.addPage(
-        pw.Page(
-          build: (pw.Context context) {
-            return pw.Center(
-              child: pw.Image(image),
-            );
-          },
-        ),
+          ),
+        ]),
       );
     }
-    await Printing.layoutPdf(
-      name: "RxVault Doc - ",
-      onLayout: (PdfPageFormat format) async => pdf.save(),
+    return rows;
+  }
+
+  String formatDateTime(String? input) {
+    if (input == null || input.isEmpty) {
+      return '--';
+    }
+
+    try {
+      // Parse the input date string
+      DateTime dateTime = DateTime.parse(input);
+
+      // Define the output format
+      DateFormat outputFormat = DateFormat('d MMM yyyy, h:mm a', 'en_US');
+
+      // Format the parsed DateTime
+      return outputFormat.format(dateTime);
+    } catch (e) {
+      // Handle parsing error by returning the first 10 characters of the input
+      return input.substring(0, 10);
+    }
+  }
+
+  void _showDocumentsDialog(String patientId, String? date) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(0),
+          child: ViewAllDocuments(
+            patientId: patientId,
+            doctorId: widget.doctorId,
+            date: date,
+          ),
+        );
+      },
     );
-    Utils.toast("Pdf generated successfully");
-    if (mounted) Navigator.pop(context);
   }
 }
