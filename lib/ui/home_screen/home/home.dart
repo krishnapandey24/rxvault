@@ -532,18 +532,19 @@ class HomeState extends State<Home> {
             onTap: () => showAddDiagnosis(patient),
             child: buildItemColumn1(patient),
           ),
-          const SizedBox(width: 15),
-          Flexible(
-            child: InkWell(
-              onTap: () {
-                showSelectServicesDialog(widget.setting, patient);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-                decoration: BoxDecoration(
-                  border: Border.all(color: teal, width: 1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+          const Spacer(),
+          InkWell(
+            onTap: () {
+              showSelectServicesDialog(widget.setting, patient);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+              decoration: BoxDecoration(
+                border: Border.all(color: teal, width: 1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: SizedBox(
+                width: screenWidth * (isGrid ? 0.11 : 0.22),
                 child: Row(
                   children: [
                     const Icon(
@@ -791,22 +792,21 @@ class HomeState extends State<Home> {
       );
     }
 
-    if (patient.isAllergic) {
-      children.add(const SizedBox(width: 8));
-      children.add(
-        Container(
-          padding: const EdgeInsets.all(1),
-          decoration: BoxDecoration(
-            color: Colors.red,
-            borderRadius: BorderRadius.circular(2),
-          ),
-          child: const Text(
-            " A ",
-            style: TextStyle(color: Colors.white, fontSize: 11),
-          ),
+    children.add(const SizedBox(width: 8));
+    children.add(
+      Container(
+        padding: const EdgeInsets.all(1),
+        decoration: BoxDecoration(
+          color: patient.isAllergic ? Colors.red : Colors.transparent,
+          borderRadius: BorderRadius.circular(2),
         ),
-      );
-    }
+        child: Text(
+          " ${patient.isAllergic ? "A" : "B"} ",
+          style: const TextStyle(color: Colors.white, fontSize: 11),
+        ),
+      ),
+    );
+    children.add(const SizedBox(width: 8));
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -846,7 +846,7 @@ class HomeState extends State<Home> {
       builder: (BuildContext context) {
         return Responsive(
           mobile: addPatientDialog(
-            EdgeInsets.symmetric(horizontal: 25, vertical: size.height * 0.2),
+            EdgeInsets.symmetric(horizontal: 25, vertical: size.height * 0.1),
           ),
           desktop: addPatientDialog(
             const EdgeInsets.symmetric(

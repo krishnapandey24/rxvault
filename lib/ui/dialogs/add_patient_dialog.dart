@@ -386,7 +386,6 @@ class AddPatientDialogState extends State<AddPatientDialog> {
         _buildAllergyOption('Yes'),
         const SizedBox(width: 30),
         _buildAllergyOption('No'),
-        const SizedBox(width: 30),
       ],
     );
   }

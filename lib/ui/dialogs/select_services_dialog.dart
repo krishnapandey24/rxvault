@@ -267,6 +267,7 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
           },
           keyboardType: TextInputType.phone,
           decoration: const InputDecoration(
+            counterText: '',
             prefixText: rupee,
           ),
         ),

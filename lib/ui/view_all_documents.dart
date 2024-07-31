@@ -62,7 +62,11 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
                       Icons.download,
                       color: Colors.white,
                     ),
-                    Text("Download All")
+                    SizedBox(width: 10),
+                    Text(
+                      "Download All",
+                      style: TextStyle(color: Colors.white),
+                    )
                   ],
                 ),
               )
