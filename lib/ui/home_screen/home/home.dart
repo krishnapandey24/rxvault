@@ -289,7 +289,6 @@ class HomeState extends State<Home> {
               } else {
                 showAddPatientDialog();
               }
-              isSearching = !isSearching;
             },
             child: Icon(
               isSearching ? Icons.cancel : Icons.add_circle,

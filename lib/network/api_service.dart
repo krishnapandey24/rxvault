@@ -185,7 +185,7 @@ class API {
 
   Future<void> deleteDoctorsPatientDocument(String documentId) async {
     final responseData = (await _dio.post(
-      "DeletePatientDocument",
+      "DeleteDocument",
       data: FormData.fromMap(
         {
           "document_id": documentId,
@@ -214,31 +214,27 @@ class API {
     if (success == failure) throw CustomException(message);
   }
 
-  Future<Patient?> checkPatient(String mobile) async {
-    try {
-      final response = await _dio.post(
-        "ChkPatient",
-        data: FormData.fromMap(
-          {
-            "patient_mobile": mobile,
-          },
-        ),
-      );
+  Future<List<Patient>?> checkPatient(String mobile) async {
+    final response = await _dio.post(
+      "ChkPatient",
+      data: FormData.fromMap(
+        {
+          "patient_mobile": mobile,
+        },
+      ),
+    );
 
-      PatientListResponse patientListResponse =
-          PatientListResponse.fromJson(response.data);
-      if (patientListResponse.success == failure) {
-        if (patientListResponse.message == "Patient not available!") {
-          return null;
-        } else {
-          throw CustomException("Patient Not Found");
-        }
+    PatientListResponse patientListResponse =
+        PatientListResponse.fromJson(response.data);
+    if (patientListResponse.success == failure) {
+      if (patientListResponse.message == "Patient not available!") {
+        return null;
+      } else {
+        throw CustomException("Patient Not Found");
       }
-
-      return patientListResponse.patientList.first;
-    } catch (e) {
-      throw CustomException("Patient Not Found");
     }
+
+    return patientListResponse.patientList;
   }
 
   Future<void> deleteSelectedPatient(

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:rxvault/models/patient.dart';
+import 'package:rxvault/ui/dialogs/view_patients_dialog.dart';
 import 'package:rxvault/utils/colors.dart';
 
 import '../../network/api_service.dart';
 import '../../utils/utils.dart';
+import '../widgets/responsive.dart';
 
 class AddPatientDialog extends StatefulWidget {
   final String userId;
@@ -22,9 +24,10 @@ class AddPatientDialogState extends State<AddPatientDialog> {
   final api = API();
   late Patient patient;
   late bool isUpdate;
-
-  bool alreadyAddedPatient = false;
-
+  late Size size;
+  final FocusNode _nameFocusNode = FocusNode();
+  final FocusNode _phoneFocusNode = FocusNode();
+  late bool _isNumberChecked;
   final TextEditingController _mobileController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
@@ -33,6 +36,7 @@ class AddPatientDialogState extends State<AddPatientDialog> {
   void initState() {
     super.initState();
     isUpdate = widget.patient != null;
+    _isNumberChecked = isUpdate;
     patient = widget.patient ?? Patient.newPatient(widget.userId);
     setPatientData(widget.patient);
   }
@@ -50,18 +54,21 @@ class AddPatientDialogState extends State<AddPatientDialog> {
     _mobileController.dispose();
     _nameController.dispose();
     _ageController.dispose();
+    _nameFocusNode.dispose();
+    _phoneFocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: Utils.getDefaultAppBar(
         "${isUpdate ? "Update" : "Add"} New Patient",
         [
           IconButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => pop(),
             icon: const Icon(
               Icons.cancel,
               color: darkBlue,
@@ -88,6 +95,7 @@ class AddPatientDialogState extends State<AddPatientDialog> {
                   children: [
                     Expanded(
                       child: TextFormField(
+                        focusNode: _phoneFocusNode,
                         controller: _mobileController,
                         maxLength: 10,
                         maxLines: 1,
@@ -148,36 +156,46 @@ class AddPatientDialogState extends State<AddPatientDialog> {
                   style: TextStyle(color: darkBlue),
                 ),
                 const SizedBox(height: 10),
-                TextFormField(
-                  controller: _nameController,
-                  maxLength: 30,
-                  maxLines: 1,
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    counterText: '',
-                    contentPadding: const EdgeInsets.all(15),
-                    labelText: "Enter Full Patient Name",
-                    labelStyle: TextStyle(color: Colors.grey.shade500),
-                    floatingLabelBehavior: FloatingLabelBehavior.never,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(color: Colors.transparent),
+                InkWell(
+                  onTap: _isNumberChecked ? null : _disableToast,
+                  child: TextFormField(
+                    focusNode: _nameFocusNode,
+                    controller: _nameController,
+                    maxLength: 30,
+                    maxLines: 1,
+                    enabled: _isNumberChecked,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      counterText: '',
+                      contentPadding: const EdgeInsets.all(15),
+                      labelText: "Enter Full Patient Name",
+                      labelStyle: TextStyle(color: Colors.grey.shade500),
+                      floatingLabelBehavior: FloatingLabelBehavior.never,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.transparent),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.transparent),
+                      ),
+                      disabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.transparent),
+                      ),
+                      fillColor: transparentBlue,
+                      filled: true,
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(color: Colors.transparent),
-                    ),
-                    fillColor: transparentBlue,
-                    filled: true,
+                    style: const TextStyle(color: Colors.black),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "Please Enter a valid name";
+                      }
+                      patient.name = value;
+                      return null;
+                    },
                   ),
-                  style: const TextStyle(color: Colors.black),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return "Please Enter a valid name";
-                    }
-                    patient.name = value;
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 25),
                 Row(
@@ -196,40 +214,49 @@ class AddPatientDialogState extends State<AddPatientDialog> {
                             style: TextStyle(color: darkBlue),
                           ),
                           const SizedBox(height: 10),
-                          TextFormField(
-                            controller: _ageController,
-                            maxLength: 3,
-                            maxLines: 1,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              counterText: '',
-                              contentPadding: const EdgeInsets.all(15),
-                              labelText: "Age",
-                              labelStyle:
-                                  TextStyle(color: Colors.grey.shade500),
-                              floatingLabelBehavior:
-                                  FloatingLabelBehavior.never,
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide:
-                                    const BorderSide(color: Colors.transparent),
+                          InkWell(
+                            onTap: _isNumberChecked ? null : _disableToast,
+                            child: TextFormField(
+                              enabled: _isNumberChecked,
+                              controller: _ageController,
+                              maxLength: 3,
+                              maxLines: 1,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                counterText: '',
+                                contentPadding: const EdgeInsets.all(15),
+                                labelText: "Age",
+                                labelStyle:
+                                    TextStyle(color: Colors.grey.shade500),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.never,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: const BorderSide(
+                                      color: Colors.transparent),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: const BorderSide(
+                                      color: Colors.transparent),
+                                ),
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderSide: const BorderSide(
+                                      color: Colors.transparent),
+                                ),
+                                fillColor: transparentBlue,
+                                filled: true,
                               ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide:
-                                    const BorderSide(color: Colors.transparent),
-                              ),
-                              fillColor: transparentBlue,
-                              filled: true,
+                              style: const TextStyle(color: Colors.black),
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return "Please Enter a valid age";
+                                }
+                                patient.age = value;
+                                return null;
+                              },
                             ),
-                            style: const TextStyle(color: Colors.black),
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "Please Enter a valid age";
-                              }
-                              patient.age = value;
-                              return null;
-                            },
                           ),
                         ],
                       ),
@@ -259,7 +286,7 @@ class AddPatientDialogState extends State<AddPatientDialog> {
                   style: TextStyle(color: darkBlue),
                 ),
                 const SizedBox(height: 10),
-                buildGenderSelector(),
+                _buildGenderSelector(),
                 const SizedBox(height: 25),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -269,7 +296,7 @@ class AddPatientDialogState extends State<AddPatientDialog> {
                       borderRadius: BorderRadius.circular(16), // Border radius
                     ),
                   ),
-                  onPressed: handleContinue,
+                  onPressed: _handleContinue,
                   child: Text(
                     isUpdate ? "Update" : "Continue",
                     style: const TextStyle(color: Colors.white, fontSize: 15),
@@ -283,7 +310,7 @@ class AddPatientDialogState extends State<AddPatientDialog> {
     );
   }
 
-  Future<void> handleContinue() async {
+  Future<void> _handleContinue() async {
     if (_formKey.currentState!.validate()) {
       if (isUpdate) {
         await _updatePatient();
@@ -306,33 +333,37 @@ class AddPatientDialogState extends State<AddPatientDialog> {
   }
 
   Future<void> _addPatient() async {
-    bool patientAdded = false;
     try {
       Utils.showLoader(context, "Adding Patient...");
-      int? newPatientId = await api.addPatient(patient, widget.userId);
-      if (newPatientId != null || (patient.patientId.isNotEmpty)) {
-        await api.addDoctorsPatient(
-            widget.userId, (newPatientId ?? patient.patientId).toString());
+
+      int? newPatientId;
+      if (patient.patientId.isEmpty) {
+        newPatientId = await api.addPatient(patient, widget.userId);
+        if (newPatientId == null) {
+          Utils.toast("Patient already exists");
+          return;
+        }
       }
+      await api.addDoctorsPatient(
+          widget.userId, (newPatientId ?? patient.patientId).toString());
 
       Utils.toast("Patient Added Successfully!");
-      patientAdded = true;
+      _closeLoaderAndDialog(patientAdded: true);
     } catch (e) {
       Utils.toast("$e \n Please try again");
-    } finally {
-      _closeLoaderAndDialog(patientAdded: patientAdded);
+      pop();
     }
   }
 
   void _closeLoaderAndDialog({bool patientAdded = false}) {
     if (mounted) {
-      Navigator.pop(context); // Close the loader
+      pop(); // Close the loader
       Navigator.pop(context,
           patientAdded); // Navigate back, passing the patientAdded status
     }
   }
 
-  buildGenderSelector() {
+  _buildGenderSelector() {
     return Wrap(
       children: [
         _buildGenderOption('Male'),
@@ -361,7 +392,13 @@ class AddPatientDialogState extends State<AddPatientDialog> {
   Widget _buildGenderOption(String gender) {
     bool isSelected = _selectedGender == gender;
     return GestureDetector(
-      onTap: () => _selectGender(gender),
+      onTap: () {
+        if (_isNumberChecked) {
+          _selectGender(gender);
+        } else {
+          _disableToast();
+        }
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
         decoration: BoxDecoration(
@@ -393,7 +430,13 @@ class AddPatientDialogState extends State<AddPatientDialog> {
   Widget _buildAllergyOption(String yesOrNo) {
     bool isSelected = _allergic == yesOrNo;
     return GestureDetector(
-      onTap: () => _changeAllergic(yesOrNo),
+      onTap: () {
+        if (_isNumberChecked) {
+          _changeAllergic(yesOrNo);
+        } else {
+          _disableToast();
+        }
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20.0),
         decoration: BoxDecoration(
@@ -412,21 +455,85 @@ class AddPatientDialogState extends State<AddPatientDialog> {
   }
 
   void _checkPatientMobile() async {
+    if (_mobileController.text.isEmpty) {
+      Utils.toast("Number can't be empty");
+      return;
+    }
+
     Utils.showLoader(context, "Checking if patient already exits...");
+
     try {
-      Patient? patient = await api.checkPatient(this.patient.mobile);
-      if (patient == null) {
+      List<Patient>? patients = await api.checkPatient(patient.mobile);
+      pop();
+      if (patients == null || patients.isEmpty) {
         Utils.toast("No patient found!");
       } else {
-        setState(() {
-          setPatientData(patient);
-          this.patient.copyFrom(patient);
-        });
+        _showViewPatientsDialog(patients);
       }
-    } catch (e) {
-      Utils.toast(e.toString());
-    } finally {
-      if (mounted) Navigator.pop(context);
+    } catch (t) {
+      pop();
+      Utils.toast("Patient Not Found");
     }
+    setState(() {
+      _isNumberChecked = true;
+    });
+  }
+
+  void _showViewPatientsDialog(List<Patient> patients) async {
+    Patient? newPatient = await showDialog(
+      context: context,
+      builder: (b) {
+        return Responsive(
+          mobile: _viewPatientDialog(
+            EdgeInsets.symmetric(horizontal: 25, vertical: size.height * 0.1),
+            patients,
+          ),
+          desktop: _viewPatientDialog(
+            const EdgeInsets.symmetric(
+              horizontal: 85,
+              vertical: 15,
+            ),
+            patients,
+          ),
+          tablet: _viewPatientDialog(
+            const EdgeInsets.symmetric(
+              horizontal: 85,
+              vertical: 50,
+            ),
+            patients,
+          ),
+        );
+      },
+    );
+
+    if (newPatient == null) {
+      setState(() {
+        FocusScope.of(context).requestFocus(_nameFocusNode);
+      });
+    } else {
+      _phoneFocusNode.unfocus();
+      setState(() {
+        setPatientData(newPatient);
+        patient.copyFrom(newPatient);
+      });
+    }
+  }
+
+  Dialog _viewPatientDialog(EdgeInsets insetPadding, List<Patient> patients) {
+    return Dialog(
+      insetPadding: insetPadding,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      child: ViewPatientsDialog(patients: patients),
+    );
+  }
+
+  void _disableToast() {
+    Utils.toast("Check number first!");
+  }
+
+  void pop() {
+    Navigator.pop(context);
   }
 }

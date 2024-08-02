@@ -163,6 +163,10 @@ class _CreateUpdateUserState extends State<CreateUpdateUser> {
                         borderRadius: BorderRadius.circular(10.0),
                         borderSide: const BorderSide(color: Colors.transparent),
                       ),
+                      disabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.transparent),
+                      ),
                       fillColor: transparentBlue,
                       filled: true,
                     ),
@@ -202,6 +206,10 @@ class _CreateUpdateUserState extends State<CreateUpdateUser> {
                         borderRadius: BorderRadius.circular(10.0),
                         borderSide: const BorderSide(color: Colors.transparent),
                       ),
+                      disabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.transparent),
+                      ),
                       fillColor: transparentBlue,
                       filled: true,
                     ),
@@ -235,6 +243,10 @@ class _CreateUpdateUserState extends State<CreateUpdateUser> {
                         borderSide: const BorderSide(color: Colors.transparent),
                       ),
                       enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: const BorderSide(color: Colors.transparent),
+                      ),
+                      disabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                         borderSide: const BorderSide(color: Colors.transparent),
                       ),
