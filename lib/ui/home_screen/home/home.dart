@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:rxvault/enums/permission.dart';
 import 'package:rxvault/ui/dialogs/add_diagnosis_dialog.dart';
@@ -48,7 +49,6 @@ class HomeState extends State<Home> {
   String? permission;
   String? selectedDate;
   final api = API();
-  late Future<List<Patient>> patientsFuture;
   List<Patient> patients = [];
   List<Patient> searchResults = [];
   late User user;
@@ -64,10 +64,10 @@ class HomeState extends State<Home> {
     super.initState();
     setting = widget.setting;
     clinicOpen = setting.status == "open";
-    loadData();
+    _loadData();
   }
 
-  Future<void> loadData() async {
+  Future<void> _loadData() async {
     setState(() {
       isLoading = true;
     });
@@ -109,7 +109,7 @@ class HomeState extends State<Home> {
         setting: setting,
         changeAppointmentDate: (date) {
           selectedDate = date;
-          loadData();
+          _loadData();
         },
       ),
       backgroundColor: Colors.white,
@@ -258,7 +258,7 @@ class HomeState extends State<Home> {
       maxLength: 10,
       maxLines: 1,
       focusNode: searchFocusNode,
-      onChanged: searchPatient,
+      onChanged: _searchPatient,
       keyboardType: TextInputType.text,
       controller: searchController,
       decoration: InputDecoration(
@@ -348,7 +348,7 @@ class HomeState extends State<Home> {
     );
   }
 
-  void searchPatient(String value) {
+  void _searchPatient(String value) {
     setState(() {
       isSearching = true;
     });
@@ -397,24 +397,30 @@ class HomeState extends State<Home> {
     );
   }
 
-  ListView buildListView(int length) {
-    return ListView.builder(
-      itemCount: patients.length,
-      itemBuilder: (context, index) =>
-          buildPatientListItem(context, index, false, length),
+  RefreshIndicator buildListView(int length) {
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: ListView.builder(
+        itemCount: patients.length,
+        itemBuilder: (context, index) =>
+            buildPatientListItem(context, index, false, length),
+      ),
     );
   }
 
-  GridView buildGridView(int length) {
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisExtent: 60,
-        crossAxisSpacing: 20,
+  RefreshIndicator buildGridView(int length) {
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisExtent: 60,
+          crossAxisSpacing: 20,
+        ),
+        itemCount: patients.length,
+        itemBuilder: (context, index) =>
+            buildPatientListItem(context, index, true, length),
       ),
-      itemCount: patients.length,
-      itemBuilder: (context, index) =>
-          buildPatientListItem(context, index, true, length),
     );
   }
 
@@ -427,7 +433,7 @@ class HomeState extends State<Home> {
     Utils.showLoader(context, "Adding Patient to the list...");
     api.addDoctorsPatient(userId, patient.patientId).then((value) {
       Navigator.pop(context);
-      loadData();
+      _loadData();
     }).catchError((e) {
       Navigator.pop(context);
       Utils.toast(e.toString());
@@ -681,6 +687,7 @@ class HomeState extends State<Home> {
           child: ViewAllDocuments(
             patientId: patientId,
             doctorId: widget.userId,
+            date: selectedDate,
           ),
         );
       },
@@ -864,7 +871,7 @@ class HomeState extends State<Home> {
     );
 
     if (patientAdded != null) {
-      loadData();
+      _loadData();
     }
   }
 
@@ -1009,7 +1016,7 @@ class HomeState extends State<Home> {
     Utils.showLoader(context, "Deleting Entry...");
     api.deleteSelectedPatient(doctorPatientId, widget.userId).then((value) {
       Navigator.pop(context);
-      loadData();
+      _loadData();
       Utils.toast("Patient Removed");
     }).catchError((e) {
       Utils.toast("Unable to remove patient!");
@@ -1042,5 +1049,11 @@ class HomeState extends State<Home> {
 
   int parseNullableStringToInt(String? nullableString) {
     return int.tryParse(nullableString ?? '') ?? 0;
+  }
+
+  String getCurrentDate() {
+    final now = DateTime.now();
+    final DateFormat formatter = DateFormat("yyyy-MM-dd");
+    return formatter.format(now);
   }
 }

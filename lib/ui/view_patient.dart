@@ -342,7 +342,7 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
       DateTime dateTime = DateTime.parse(input);
 
       // Define the output format
-      DateFormat outputFormat = DateFormat('d MMM yyyy, h:mm a', 'en_US');
+      DateFormat outputFormat = DateFormat('d MMM yyyy', 'en_US');
 
       // Format the parsed DateTime
       return outputFormat.format(dateTime);

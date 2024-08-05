@@ -9,8 +9,9 @@ import '../widgets/responsive.dart';
 
 class Verification extends StatefulWidget {
   final DoctorInfo doctorInfo;
+  final String? clinicName;
 
-  const Verification({super.key, required this.doctorInfo});
+  const Verification({super.key, required this.doctorInfo, this.clinicName});
 
   @override
   State<Verification> createState() => _VerificationState();
@@ -32,7 +33,8 @@ class _VerificationState extends State<Verification> {
         MaterialPageRoute(
           builder: (context) => HomeScreen(
             userId: widget.doctorInfo.doctorId ?? "1",
-            clinicName: widget.doctorInfo.clinicName ?? "Clinic",
+            clinicName:
+                widget.clinicName ?? widget.doctorInfo.clinicName ?? "Clinic",
           ),
         ),
       );

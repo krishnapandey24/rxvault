@@ -53,16 +53,16 @@ class DoctorInfo {
 
   factory DoctorInfo.fromJson(Map<String, dynamic> json, bool? isStaff) {
     return DoctorInfo(
-        isStaff: isStaff ?? json['isStaff'],
-        doctorId: json['user_id'] ?? json['doctor_id'],
-        name: json['name'],
-        mobile: json['mobile'],
-        staffId: json['staff_id'],
-        email: json['email'],
-        address: json['address'],
-        clinicName: json['hospital_name'],
-        permissions: json['permissions'],
-        speciality: json['speciality'],
-        image: json['image']);
+      isStaff: isStaff ?? json['isStaff'],
+      doctorId: json['user_id'] ?? json['doctor_id'],
+      name: json['name'],
+      mobile: json['mobile'],
+      staffId: json['staff_id'],
+      email: json['email'],
+      address: json['address'],
+      clinicName: json['hospital_name'],
+      permissions: json['permissions'],
+      speciality: json['speciality'],
+      image: json['image'],);
   }
 }

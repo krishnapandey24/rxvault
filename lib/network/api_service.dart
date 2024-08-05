@@ -43,17 +43,41 @@ class API {
   );
 
   Future<AddDocumentResponse> addDocument(
-      String patientId, String doctorPatientId, String doctorId, String title,
-      [String? filePath, Uint8List? imageBytes]) async {
-    final formData = FormData.fromMap({
-      'patient_id': patientId,
-      'doctor_id': doctorId,
-      'title': title,
-      'document': kIsWeb
-          ? MultipartFile.fromBytes(imageBytes!, filename: title)
-          : await MultipartFile.fromFile(filePath!, filename: title),
-      'doctor_patient_id': doctorPatientId
-    });
+      String patientId,
+      String doctorPatientId,
+      String doctorId,
+      String title,
+      List<String> filePaths,
+      List<Uint8List>? imageBytesList) async {
+    final formData = FormData();
+
+    formData.fields.add(MapEntry('patient_id', patientId));
+    formData.fields.add(MapEntry('doctor_id', doctorId));
+    formData.fields.add(MapEntry('title', title));
+    formData.fields.add(MapEntry('doctor_patient_id', doctorPatientId));
+
+    if (kIsWeb) {
+      for (int i = 0; i < imageBytesList!.length; i++) {
+        formData.files.add(MapEntry(
+          'document[]',
+          MultipartFile.fromBytes(
+            imageBytesList[i],
+            filename: '$title-$i',
+          ),
+        ));
+      }
+    } else {
+      for (int i = 0; i < filePaths.length; i++) {
+        formData.files.add(MapEntry(
+          'document[]',
+          await MultipartFile.fromFile(
+            filePaths[i],
+            filename: '$title-$i',
+          ),
+        ));
+      }
+    }
+
     final response = await _dio.post(
       'AddDocuments',
       data: formData,
@@ -111,7 +135,6 @@ class API {
 
       loginResponse.userInfo!.isStaff = isStaffLogin;
       UserManager.saveUserInfo(loginResponse.userInfo!);
-
       return loginResponse.userInfo!;
     } on DioException catch (e) {
       if (e.response != null && e.response?.statusCode == 404) {
@@ -397,7 +420,7 @@ class API {
       };
 
       if (date != null) {
-        map['date'] = Utils.reverseDate(date);
+        map['date'] = date;
       }
       final formData = FormData.fromMap(map);
 

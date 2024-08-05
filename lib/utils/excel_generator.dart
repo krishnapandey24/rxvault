@@ -4,24 +4,33 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxvault/utils/utils.dart';
 import 'package:universal_html/html.dart' as html;
 
+import '../models/analytics_response.dart';
 import '../models/patient.dart';
 
 class ExcelGenerator {
   final BuildContext context;
-  final List<Patient> patients;
+  final List<AnalyticsData> analytics;
   final String fromTo;
+  late Excel excel;
 
-  ExcelGenerator(this.context, this.patients, this.fromTo);
+  ExcelGenerator(this.context, this.analytics, this.fromTo);
 
   Future<void> generateAndSavePatientExcel() async {
-    Utils.showLoader(context, "Generating Excel");
-    var excel = Excel.createExcel();
-    Sheet sheetObject = excel['Sheet1'];
+    excel = Excel.createExcel();
+    for (var analytic in analytics) {
+      addSheet(analytic.date, analytic.patients);
+    }
+    await saveExcelFile(excel);
+  }
+
+  void addSheet(DateTime date, List<Patient> patients) {
+    Sheet sheetObject = excel[getDateTimeAsString(date)];
     CellStyle boldStyle = CellStyle(
       fontFamily: getFontFamily(FontFamily.Calibri),
       bold: true,
@@ -54,8 +63,6 @@ class ExcelGenerator {
       sheetObject.cell(CellIndex.indexByString("D${i + 2}")).value =
           TextCellValue(isAllergic);
     }
-    Navigator.pop(context);
-    await saveExcelFile(excel);
   }
 
   Future saveForPhone(String fileName, List<int> bytes) async {
@@ -83,11 +90,18 @@ class ExcelGenerator {
       }
       await file.writeAsBytes(bytes);
       Utils.toast("File saved in the Downloads!");
+      if (context.mounted) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      }
     } catch (e) {
       if (file != null && file.existsSync()) {
         file.deleteSync();
       }
       Utils.toast("Unable to save excel file!");
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 
@@ -110,6 +124,8 @@ class ExcelGenerator {
       ..setAttribute('download', outputPath)
       ..click();
     html.Url.revokeObjectUrl(url);
+    Navigator.pop(context);
+    Navigator.pop(context);
   }
 
   Future<bool> isAndroidVersionLessThan10() async {
@@ -134,6 +150,15 @@ class ExcelGenerator {
         Utils.toast("Permission denied");
         return false;
       }
+    }
+  }
+
+  String getDateTimeAsString(DateTime date) {
+    try {
+      DateFormat dateFormat = DateFormat('MM/dd/yy');
+      return dateFormat.format(date);
+    } catch (e) {
+      return "?";
     }
   }
 }

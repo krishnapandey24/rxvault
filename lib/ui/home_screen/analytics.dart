@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:rxvault/models/analytics_response.dart';
+import 'package:rxvault/ui/dialogs/generate_excel_dialog.dart';
 import 'package:rxvault/ui/widgets/analytics_bar_chart.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
-import 'package:rxvault/utils/excel_generator.dart';
 
 import '../../models/patient.dart';
 import '../../network/api_service.dart';
@@ -386,9 +386,19 @@ class AnalyticsState extends State<Analytics> {
   }
 
   _generateAndDownloadExcelSheet() {
-    ExcelGenerator excelGenerator =
-        ExcelGenerator(context, patients, "$startDate-$endDate");
-    excelGenerator.generateAndSavePatientExcel();
+    showDialog(
+      context: context,
+      builder: (b) {
+        return Dialog(
+          insetPadding: EdgeInsets.symmetric(
+              horizontal: size.width * 0.1, vertical: size.height * 0.3),
+          child: GenerateExcelDialog(
+            userId: widget.userId,
+            fromTo: "doc",
+          ),
+        );
+      },
+    );
   }
 
   void determineData(List<AnalyticsData> analyticsData) {

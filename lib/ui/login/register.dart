@@ -238,12 +238,13 @@ class RegisterState extends State<Register> {
   }
 
   void verifyOtp(String phoneNumber) async {
+    bool isStaff = selectedOption == "staff";
     Utils.showLoader(context, "Please wait");
     api.login(phoneNumber, selectedOption).then(
       (value) {
         Navigator.pop(context);
         user.updateIsStaffAndPermission(
-          selectedOption == "staff",
+          isStaff,
           value.permissions ?? "",
         );
         user.updateName(value.name ?? "");

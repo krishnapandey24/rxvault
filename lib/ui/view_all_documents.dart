@@ -120,7 +120,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
             },
             itemBuilder: (BuildContext context, int index) {
               index = _documentsCount - 1 - index;
-              Document document = _documents[_documentsCount - 1 - index];
+              Document document = _documents[index];
               return InkWell(
                 onTap: () => Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(
@@ -201,6 +201,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
       Utils.showLoader(context);
       await api.deleteDoctorsPatientDocument(documentId);
       Utils.toast("Document Deleted Successfully");
+      if (mounted) Navigator.pop(context);
       if (mounted) Navigator.pop(context);
     } catch (e) {
       Utils.toast(e.toString());

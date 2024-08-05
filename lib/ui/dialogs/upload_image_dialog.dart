@@ -3,11 +3,11 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rxvault/models/patient_document_response.dart';
-import 'package:rxvault/ui/widgets/responsive.dart';
 import 'package:rxvault/utils/colors.dart';
 import 'package:rxvault/utils/utils.dart';
 
 import '../../network/api_service.dart';
+import '../widgets/responsive.dart';
 
 class UploadImageDialogs extends StatefulWidget {
   final bool isMobile;
@@ -50,9 +50,12 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
 
   BuildContext get parentContext => widget.parentContext;
 
+  List<Uint8List> imagesBytes = [];
   late Uint8List imageBytes;
-  late String imageFileName;
+  List<String> imagesFileNames = [];
+  String imageFileName = "";
   double progressValue = 0.0;
+  List<String> filesPath = [];
   String filePath = "";
 
   final api = API();
@@ -78,7 +81,7 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 InkWell(
-                  onTap: () => _handleImageSelection(ImageSource.camera),
+                  onTap: () => _handleCamera(),
                   child: Column(
                     children: [
                       Image.asset(
@@ -91,7 +94,7 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
                   ),
                 ),
                 InkWell(
-                  onTap: () => _handleImageSelection(ImageSource.gallery),
+                  onTap: () => _handleGalleryImageSelection(),
                   child: Column(
                     children: [
                       Image.asset(
@@ -111,16 +114,52 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
     );
   }
 
-  void _handleImageSelection(ImageSource imageSource) async {
+  void _handleGalleryImageSelection() async {
+    List<XFile> results = await ImagePicker().pickMultiImage();
+
+    if (!mounted) return;
+    imagesBytes.clear();
+    imagesFileNames.clear();
+    filesPath.clear();
+    for (var result in results) {
+      imagesBytes.add(await result.readAsBytes());
+      imagesFileNames.add(result.name);
+      filesPath.add(result.path);
+    }
+
+    _uploadImageArray(false);
+
+  }
+
+  void _handleCamera() async {
     final result = await ImagePicker().pickImage(
-      source: imageSource,
+      source: ImageSource.camera,
     );
 
     if (result != null && mounted) {
       imageBytes = await result.readAsBytes();
       imageFileName = result.name;
       filePath = result.path;
+      imagesBytes.clear();
+      imagesFileNames.clear();
+      filesPath.clear();
+      imagesBytes.add(imageBytes);
+      imagesFileNames.add(imageFileName);
+      filesPath.add(filePath);
       showSelectedImage();
+    }
+  }
+
+  void _uploadImageArray(bool forCamera) async {
+    Utils.showLoader(context, "Uploading images...");
+    try {
+      await api.addDocument(
+          patientId, doctorPatientId, doctorId, "doc", filesPath, imagesBytes);
+      Utils.toast("Images uploaded");
+    } catch (e) {
+      Utils.toast(e.toString());
+    } finally {
+      closeDialogs(1, "", forCamera);
     }
   }
 
@@ -215,17 +254,7 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
                     ),
               child: ElevatedButton(
                 onPressed: () {
-                  Utils.showLoader(
-                      context, "Your Image is uploading, Please wait...");
-                  api
-                      .addDocument(patientId, doctorPatientId, doctorId,
-                          fileNameController.text, filePath, imageBytes)
-                      .then((value) {
-                    closeDialogs(value.imageId, value.documentImage);
-                  }).catchError((e) {
-                    Navigator.pop(parentContext);
-                    Utils.toast(e.toString());
-                  });
+                  _uploadImageArray(true);
                 },
                 child: const Text(
                   "Upload Image",
@@ -273,29 +302,33 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
     );
   }
 
-  closeDialogs(int id, String imageUrl) {
-    Navigator.pop(parentContext);
-    Navigator.pop(parentContext);
-    Navigator.pop(parentContext);
-    if (widget.fromViewDocuments) {
-      widget.addDocument!(
-        Document(
-          id: id.toString(),
-          doctorId: doctorId,
-          patientId: patientId,
-          doctorPatientId: '1',
-          title: imageFileName,
-          imageUrl: imageUrl,
-          created: "",
-        ),
-      );
-      return;
+  closeDialogs(int id, String imageUrl, bool forCamera) {
+    // Navigator.pop(parentContext);
+    if (forCamera) {
+      Navigator.pop(parentContext);
     }
-    // Navigator.of(parentContext, rootNavigator: true).push(
-    //   MaterialPageRoute(
-    //     builder: (context) =>
-    //         ViewAllDocuments(doctorId: doctorId, patientId: patientId),
-    //   ),
-    // );
+
+    Navigator.pop(parentContext);
+    Navigator.pop(parentContext);
   }
+// if (widget.fromViewDocuments) {
+//   widget.addDocument!(
+//     Document(
+//       id: id.toString(),
+//       doctorId: doctorId,
+//       patientId: patientId,
+//       doctorPatientId: '1',
+//       title: "doc",
+//       imageUrl: imageUrl,
+//       created: "",
+//     ),
+//   );
+//   return;
+// }
+// Navigator.of(parentContext, rootNavigator: true).push(
+//   MaterialPageRoute(
+//     builder: (context) =>
+//         ViewAllDocuments(doctorId: doctorId, patientId: patientId),
+//   ),
+// );
 }

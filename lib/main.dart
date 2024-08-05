@@ -85,6 +85,17 @@ class RxVault extends StatelessWidget {
         '/signup': (context) => const CreateUpdateUser(phoneNumber: ''),
       },
       theme: ThemeData(
+        colorScheme: const ColorScheme(
+          primary: darkBlue, // Primary color
+          secondary: Color(0xFF33FF57), // Secondary color
+          surface: Colors.white, // Surface color
+          error: Colors.red, // Error color
+          onPrimary: Colors.white, // Color for text/icons on primary color
+          onSecondary: Colors.black, // Color for text/icons on secondary color
+          onSurface: Colors.black, // Color for text/icons on surface color
+          onError: Colors.white, // Color for text/icons on error color
+          brightness: Brightness.light, // Light or dark theme
+        ),
         appBarTheme: const AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
@@ -92,6 +103,7 @@ class RxVault extends StatelessWidget {
             statusBarBrightness: Brightness.dark,
           ),
         ),
+
         switchTheme: SwitchThemeData(
           trackOutlineColor: WidgetStateProperty.all(Colors.white),
           trackColor: WidgetStateProperty.resolveWith((states) {

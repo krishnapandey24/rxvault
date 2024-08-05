@@ -29,11 +29,12 @@ class Staff {
   String? gender;
   String role;
   String doctorId;
+  String? clinicName;
   List<Permission> permissions;
   String? image;
 
   Staff(this.id, this.name, this.email, this.mobile, this.gender, this.role,
-      this.doctorId, this.permissions, this.image);
+      this.doctorId, this.permissions, this.image, this.clinicName);
 
   Staff.empty()
       : id = '',
@@ -92,7 +93,8 @@ class Staff {
         json['role'] as String,
         json['doctor_id'] as String,
         permission,
-        json['image'] as String?);
+        json['image'] as String?,
+        json['clinic_name'] as String?);
   }
 
   List<Permission> getPermissionsFromJson(dynamic json) {
