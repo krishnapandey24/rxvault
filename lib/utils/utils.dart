@@ -319,9 +319,3 @@ class Utils {
     });
   }
 }
-
-pop(BuildContext context) {
-  if (context.mounted) {
-    Navigator.pop(context);
-  }
-}

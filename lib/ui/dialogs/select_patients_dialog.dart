@@ -5,16 +5,16 @@ import '../../network/api_service.dart';
 import '../../utils/colors.dart';
 import '../../utils/utils.dart';
 
-class ViewPatientsDialog extends StatefulWidget {
+class SelectPatientsDialog extends StatefulWidget {
   final List<Patient> patients;
 
-  const ViewPatientsDialog({super.key, required this.patients});
+  const SelectPatientsDialog({super.key, required this.patients});
 
   @override
-  State<ViewPatientsDialog> createState() => ViewPatientsDialogState();
+  State<SelectPatientsDialog> createState() => SelectPatientsDialogState();
 }
 
-class ViewPatientsDialogState extends State<ViewPatientsDialog> {
+class SelectPatientsDialogState extends State<SelectPatientsDialog> {
   late Size size;
   late List<Patient> patients = widget.patients;
   final api = API();
@@ -24,7 +24,7 @@ class ViewPatientsDialogState extends State<ViewPatientsDialog> {
     size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: Utils.getDefaultAppBar(
-        "Related Patients",
+        "Select Patient",
         [
           IconButton(
             onPressed: () => Navigator.pop(context),

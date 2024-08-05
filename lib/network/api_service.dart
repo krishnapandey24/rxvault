@@ -22,6 +22,7 @@ import '../models/staff.dart';
 import '../utils/constants.dart';
 import '../utils/exceptions/custom_exception.dart';
 import '../utils/exceptions/registration_required.dart';
+import '../utils/image_compressor.dart';
 import '../utils/utils.dart';
 
 class API {
@@ -61,7 +62,7 @@ class API {
         formData.files.add(MapEntry(
           'document[]',
           MultipartFile.fromBytes(
-            imageBytesList[i],
+            await ImageCompressor.compressImageFromBytes(imageBytesList[i]),
             filename: '$title-$i',
           ),
         ));
@@ -71,7 +72,7 @@ class API {
         formData.files.add(MapEntry(
           'document[]',
           await MultipartFile.fromFile(
-            filePaths[i],
+            await ImageCompressor.compressImageFromFile(filePaths[i]),
             filename: '$title-$i',
           ),
         ));

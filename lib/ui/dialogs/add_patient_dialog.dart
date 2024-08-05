@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rxvault/models/patient.dart';
-import 'package:rxvault/ui/dialogs/view_patients_dialog.dart';
+import 'package:rxvault/ui/dialogs/select_patients_dialog.dart';
 import 'package:rxvault/utils/colors.dart';
 
 import '../../network/api_service.dart';
@@ -484,18 +484,18 @@ class AddPatientDialogState extends State<AddPatientDialog> {
       context: context,
       builder: (b) {
         return Responsive(
-          mobile: _viewPatientDialog(
+          mobile: _selectPatientDialog(
             EdgeInsets.symmetric(horizontal: 25, vertical: size.height * 0.1),
             patients,
           ),
-          desktop: _viewPatientDialog(
+          desktop: _selectPatientDialog(
             const EdgeInsets.symmetric(
               horizontal: 85,
               vertical: 15,
             ),
             patients,
           ),
-          tablet: _viewPatientDialog(
+          tablet: _selectPatientDialog(
             const EdgeInsets.symmetric(
               horizontal: 85,
               vertical: 50,
@@ -519,13 +519,13 @@ class AddPatientDialogState extends State<AddPatientDialog> {
     }
   }
 
-  Dialog _viewPatientDialog(EdgeInsets insetPadding, List<Patient> patients) {
+  Dialog _selectPatientDialog(EdgeInsets insetPadding, List<Patient> patients) {
     return Dialog(
       insetPadding: insetPadding,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
       ),
-      child: ViewPatientsDialog(patients: patients),
+      child: SelectPatientsDialog(patients: patients),
     );
   }
 
