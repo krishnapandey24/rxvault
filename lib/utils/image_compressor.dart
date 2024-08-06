@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
-const quality = 50;
+const quality = 30;
 
 class ImageCompressor {
   static Future<String> compressImageFromFile(String filePath) async {

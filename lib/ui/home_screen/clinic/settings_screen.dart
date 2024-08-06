@@ -1,11 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:rxvault/ui/dialogs/add_staff_dialog.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
-import 'package:rxvault/utils/constants.dart';
+import 'package:rxvault/ui/widgets/time_picker.dart';
 
 import '../../../enums/day.dart';
 import '../../../models/setting.dart';
@@ -20,11 +19,12 @@ class SettingsScreen extends StatefulWidget {
   final Setting setting;
   final Function(Setting) updateSettingObject;
 
-  const SettingsScreen(
-      {super.key,
-      required this.userId,
-      required this.setting,
-      required this.updateSettingObject});
+  const SettingsScreen({
+    super.key,
+    required this.userId,
+    required this.setting,
+    required this.updateSettingObject,
+  });
 
   @override
   State<SettingsScreen> createState() => SettingsScreenState();
@@ -34,10 +34,10 @@ class SettingsScreenState extends State<SettingsScreen> {
   late Size size;
   late User user;
   Map<String, String> services = {};
-  String openingTime = "--Select--";
-  String closingTime = "--Select--";
-  String openingTime2 = "--Select--";
-  String closingTime2 = "--Select--";
+  String? openingTime;
+  String? closingTime;
+  String? openingTime2;
+  String? closingTime2;
   late List<bool> selectedDays;
   late TextEditingController addressController;
   List<DataRow> serviceTableRows = [];
@@ -65,12 +65,11 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     setState(() {
       selectedDays = List<bool>.from(setting.getDaySelection());
-      openingTime = setting.openTime1 ?? defaultTimeString;
-      closingTime = setting.closeTime2 ?? defaultTimeString;
-      openingTime2 = setting.openTime2 ?? defaultTimeString;
-      closingTime2 = setting.closeTime2 ?? defaultTimeString;
-      addressController =
-          TextEditingController(text: setting.clinicAddress ?? "");
+      openingTime = setting.openTime1;
+      closingTime = setting.closeTime2;
+      openingTime2 = setting.openTime2;
+      closingTime2 = setting.closeTime2;
+      addressController = TextEditingController(text: setting.clinicAddress);
       services = Utils.getServicesFromString(setting.itemDetails);
       serviceTableRows = services.entries.map((entry) {
         return DataRow(cells: [
@@ -107,14 +106,17 @@ class SettingsScreenState extends State<SettingsScreen> {
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : mainView(),
+          : _buildMainBody(),
     );
   }
 
-  DefaultTabController mainView() {
-    List<Widget> pages = [buildPreferences(), buildServices()];
+  DefaultTabController _buildMainBody() {
+    List<Widget> pages = [
+      buildPreferences(),
+      buildStaff(),
+    ];
     if (user.isDoctor) {
-      pages.add(buildStaff());
+      pages.add(buildServices());
     }
     return DefaultTabController(
       length: user.isStaff ? 2 : 3,
@@ -140,17 +142,18 @@ class SettingsScreenState extends State<SettingsScreen> {
         text: "Preferences",
       ),
       const Tab(
-        text: "Services",
+        text: "Staff",
       ),
     ];
 
     if (user.isDoctor) {
       tabs.add(
         const Tab(
-          text: "Staff",
+          text: "Services",
         ),
       );
     }
+
     return TabBar(
       indicatorColor: darkBlue,
       labelStyle: const TextStyle(color: darkBlue),
@@ -234,22 +237,18 @@ class SettingsScreenState extends State<SettingsScreen> {
         const Padding(
           padding: EdgeInsets.all(8.0),
           child: Text(
-            "Open/Close (Select working day)",
+            "Select working days: ",
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            buildDaySelector(Day.monday),
-            buildDaySelector(Day.tuesday),
-            buildDaySelector(Day.wednesday),
-            buildDaySelector(Day.thursday),
-            buildDaySelector(Day.friday),
-            buildDaySelector(Day.saturday),
-            buildDaySelector(Day.sunday),
-          ],
+        const SizedBox(height: 7),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: Day.values.map((day) => buildDaySelector(day)).toList(),
+          ),
         ),
         const SizedBox(height: 20),
         const Padding(
@@ -259,7 +258,27 @@ class SettingsScreenState extends State<SettingsScreen> {
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
         ),
-        buildFromToSelector(isDesktop, true),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            const SizedBox(width: 25),
+            TimePicker(
+                title: "Opens At",
+                time: openingTime,
+                isStaff: user.isStaff,
+                onPicked: (time) {
+                  openingTime = time;
+                }),
+            const SizedBox(width: 25),
+            TimePicker(
+                title: "Closes At",
+                time: closingTime,
+                isStaff: user.isStaff,
+                onPicked: (time) {
+                  closingTime = time;
+                }),
+          ],
+        ),
         const SizedBox(height: 20),
         const Padding(
           padding: EdgeInsets.all(8.0),
@@ -268,9 +287,28 @@ class SettingsScreenState extends State<SettingsScreen> {
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
         ),
-        buildFromToSelector(isDesktop, false),
-        const SizedBox(height: 20),
         const SizedBox(height: 10),
+        Row(
+          children: [
+            const SizedBox(width: 25),
+            TimePicker(
+                title: "Opens At",
+                time: openingTime2,
+                isStaff: user.isStaff,
+                onPicked: (time) {
+                  openingTime2 = time;
+                }),
+            const SizedBox(width: 25),
+            TimePicker(
+                title: "Closes At",
+                time: closingTime2,
+                isStaff: user.isStaff,
+                onPicked: (time) {
+                  closingTime2 = time;
+                }),
+          ],
+        ),
+        const SizedBox(height: 20),
         Align(
           alignment: Alignment.center,
           child: Padding(
@@ -337,7 +375,7 @@ class SettingsScreenState extends State<SettingsScreen> {
         child: Text(
           " ${day.text} ",
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             color: selectedDays[index] ? Colors.white : Colors.black,
           ),
         ),
@@ -347,124 +385,6 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   String getDaySelectionMap() {
     return selectedDays.map((bool value) => value ? '1' : '0').join('');
-  }
-
-  buildFromToSelector(bool isDesktop, bool forSlot1) {
-    return isDesktop
-        ? Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(width: 20),
-              fromSelector(forSlot1),
-              const SizedBox(width: 20),
-              toSelector(forSlot1),
-            ],
-          )
-        : Wrap(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                child: fromSelector(forSlot1),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                child: toSelector(forSlot1),
-              ),
-            ],
-          );
-  }
-
-  Column toSelector(bool forSlot1) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5),
-          child: Text("Closing Time: "),
-        ),
-        const SizedBox(height: 10),
-        InkWell(
-          onTap: () {
-            if (user.isStaff) {
-              Utils.noPermission();
-              return;
-            }
-            pickTime(false, forSlot1);
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              forSlot1 ? closingTime : closingTime2,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Column fromSelector(bool forSlot1) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5),
-          child: Text("Opening Time: "),
-        ),
-        const SizedBox(height: 10),
-        InkWell(
-          onTap: () {
-            if (user.isStaff) {
-              Utils.noPermission();
-              return;
-            }
-            pickTime(true, forSlot1);
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              forSlot1 ? openingTime : openingTime2,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Future<void> pickTime(bool isFrom, bool forSlot1) async {
-    final TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-
-    if (pickedTime != null) {
-      final DateTime selectedTime = DateTime(
-        0,
-        1,
-        1,
-        pickedTime.hour,
-        pickedTime.minute,
-      );
-
-      final String formattedTime = DateFormat('hh:mm a').format(selectedTime);
-
-      (context as Element).markNeedsBuild();
-      if (forSlot1) {
-        isFrom ? openingTime = formattedTime : closingTime = formattedTime;
-      } else {
-        isFrom ? openingTime2 = formattedTime : closingTime2 = formattedTime;
-      }
-    }
   }
 
   Future<void> showAddUpdateServiceDialog([String? key]) async {

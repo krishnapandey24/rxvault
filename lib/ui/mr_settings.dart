@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
-import 'package:rxvault/utils/constants.dart';
+import 'package:rxvault/ui/widgets/time_picker.dart';
 
 import '../../../enums/day.dart';
 import '../../../models/setting.dart';
@@ -26,8 +26,8 @@ class MrSettingsScreen extends StatefulWidget {
 class MrSettingsScreenState extends State<MrSettingsScreen> {
   late Size size;
   Map<String, String> services = {};
-  String openingTime = "--Select--";
-  String closingTime = "--Select--";
+  String? openingTime;
+  String? closingTime;
   late List<bool> selectedDays;
   late Future<Setting> settingFuture;
   late Setting setting;
@@ -49,8 +49,8 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
     setState(() {
       mrOnOff = setting.status == "open";
       selectedDays = List<bool>.from(setting.getDaySelection());
-      openingTime = setting.openTime1 ?? defaultTimeString;
-      closingTime = setting.closeTime1 ?? defaultTimeString;
+      openingTime = setting.openTime1;
+      closingTime = setting.closeTime1;
       isLoading = false;
     });
   }
@@ -99,7 +99,7 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
                 } else {
                   List<MR> data = snapshot.data!;
                   return Column(
-                    children: getMrList(data),
+                    children: _getMrList(data),
                   );
                 }
               },
@@ -110,7 +110,7 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
     );
   }
 
-  getMrList(List<MR> list) {
+  _getMrList(List<MR> list) {
     List<Widget> children = [];
     for (int i = 0; i < list.length; i++) {
       MR mr = list[i];
@@ -121,13 +121,24 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: transparentBlue,
+            border: Border.all(color: darkBlue),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("From MR: ${mr.mrName ?? mr.mrId}"),
-              Text("For Products: ${mr.products}"),
+              Text("MR: ${Utils.capitalizeFirstLetter(mr.mrName)}"),
+              Row(
+                children: [
+                  const Text("Products: "),
+                  if (mr.products != null)
+                    Expanded(
+                      child: _buildProductsChips(
+                        mr.products!.split(","),
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
         ),
@@ -135,6 +146,34 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
     }
 
     return children;
+  }
+
+  Widget _buildProductsChips(List<String> products) {
+    if (products.length == 1) {
+      return Text(products[0]);
+    }
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children:
+            products.map((product) => _buildProductChip(product)).toList(),
+      ),
+    );
+  }
+
+  Widget _buildProductChip(String product) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      decoration: BoxDecoration(
+        color: darkBlue,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+      child: Text(
+        product,
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+      ),
+    );
   }
 
   buildPreferences() {
@@ -203,7 +242,27 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
         ),
-        buildFromToSelector(isDesktop),
+        const SizedBox(height: 7),
+        Row(
+          children: [
+            const SizedBox(width: 25),
+            TimePicker(
+                title: "From",
+                time: openingTime,
+                isStaff: user.isStaff,
+                onPicked: (time) {
+                  openingTime = time;
+                }),
+            const SizedBox(width: 25),
+            TimePicker(
+                title: "To",
+                time: closingTime,
+                isStaff: user.isStaff,
+                onPicked: (time) {
+                  closingTime = time;
+                }),
+          ],
+        ),
         const SizedBox(height: 20),
       ],
     );
@@ -243,93 +302,6 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
 
   String getDaySelectionMap() {
     return selectedDays.map((bool value) => value ? '1' : '0').join('');
-  }
-
-  buildFromToSelector(bool isDesktop) {
-    return isDesktop
-        ? Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(width: 20),
-              fromSelector(),
-              const SizedBox(width: 20),
-              toSelector(),
-            ],
-          )
-        : Wrap(
-            children: [
-              const SizedBox(width: 20),
-              fromSelector(),
-              const SizedBox(width: 20),
-              toSelector(),
-            ],
-          );
-  }
-
-  Column toSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5),
-          child: Text("To: "),
-        ),
-        const SizedBox(height: 10),
-        InkWell(
-          onTap: () {
-            if (user.isStaff) {
-              Utils.noPermission();
-              return;
-            }
-            pickTime(false);
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              closingTime,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Column fromSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5),
-          child: Text("From: "),
-        ),
-        const SizedBox(height: 10),
-        InkWell(
-          onTap: () {
-            if (user.isStaff) {
-              Utils.noPermission();
-              return;
-            }
-            pickTime(true);
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: primary,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              openingTime,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        )
-      ],
-    );
   }
 
   Future<void> pickTime(bool isFrom) async {

@@ -178,7 +178,7 @@ class HomeState extends State<Home> {
             child: Text(
               quantity,
               style: const TextStyle(
-                color: teal,
+                color: darkBlue,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),

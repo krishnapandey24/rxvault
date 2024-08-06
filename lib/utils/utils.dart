@@ -122,7 +122,8 @@ class Utils {
     return const Center(child: CircularProgressIndicator());
   }
 
-  static String capitalizeFirstLetter(String input) {
+  static String capitalizeFirstLetter(String? input) {
+    if (input == null) return "";
     if (input.isEmpty) {
       return input;
     }
