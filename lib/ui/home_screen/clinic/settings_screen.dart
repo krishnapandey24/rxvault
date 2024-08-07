@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rxvault/ui/dialogs/add_staff_dialog.dart';
+import 'package:rxvault/ui/home_screen/clinic/staff_screen.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
 import 'package:rxvault/ui/widgets/time_picker.dart';
 
@@ -113,7 +114,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   DefaultTabController _buildMainBody() {
     List<Widget> pages = [
       buildPreferences(),
-      buildStaff(),
+      StaffScreen(userId: widget.userId)
     ];
     if (user.isDoctor) {
       pages.add(buildServices());
@@ -464,7 +465,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Future<void> showAddUpdateStaffDialog([Staff? staff]) async {
+  Future<void> _showAddUpdateStaffDialog([Staff? staff]) async {
     if (user.isStaff) {
       Utils.noPermission();
       return;
@@ -576,7 +577,7 @@ class SettingsScreenState extends State<SettingsScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
-          onPressed: () => showAddUpdateStaffDialog(staff),
+          onPressed: () => _showAddUpdateStaffDialog(staff),
           icon: const Icon(
             Icons.edit,
             color: darkBlue,
@@ -643,7 +644,7 @@ class SettingsScreenState extends State<SettingsScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           InkWell(
-            onTap: showAddUpdateStaffDialog,
+            onTap: _showAddUpdateStaffDialog,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -654,7 +655,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(width: 5),
                 Text(
-                  "Add${(serviceTableRows.isNotEmpty) ? " More" : ""}",
+                  "Add${(staffTableRows.isNotEmpty) ? " More" : ""}",
                   style: const TextStyle(
                     color: darkBlue,
                     fontWeight: FontWeight.w500,
