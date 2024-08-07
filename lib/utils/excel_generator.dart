@@ -29,8 +29,8 @@ class ExcelGenerator {
     await saveExcelFile(excel);
   }
 
-  void addSheet(DateTime date, List<Patient> patients) {
-    Sheet sheetObject = excel[getDateTimeAsString(date)];
+  void addSheet(String date, List<Patient> patients) {
+    Sheet sheetObject = excel[date];
     CellStyle boldStyle = CellStyle(
       fontFamily: getFontFamily(FontFamily.Calibri),
       bold: true,
@@ -92,7 +92,6 @@ class ExcelGenerator {
       Utils.toast("File saved in the Downloads!");
       if (context.mounted) {
         Navigator.pop(context);
-        Navigator.pop(context);
       }
     } catch (e) {
       if (file != null && file.existsSync()) {
@@ -124,7 +123,6 @@ class ExcelGenerator {
       ..setAttribute('download', outputPath)
       ..click();
     html.Url.revokeObjectUrl(url);
-    Navigator.pop(context);
     Navigator.pop(context);
   }
 

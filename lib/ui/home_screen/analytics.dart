@@ -40,7 +40,12 @@ class AnalyticsState extends State<Analytics> {
   @override
   void initState() {
     super.initState();
-    refreshData();
+    DateTime today = DateTime.now();
+    DateTime sevenDaysBefore = today.subtract(const Duration(days: 7));
+    String endDate = DateFormat('yyyy-MM-dd').format(today);
+    String startDate = DateFormat('yyyy-MM-dd').format(sevenDaysBefore);
+
+    refreshData(startDate, endDate);
   }
 
   @override
@@ -60,7 +65,7 @@ class AnalyticsState extends State<Analytics> {
     );
   }
 
-  refreshData([String? startDate, String? endDate]) async {
+  refreshData(String? startDate, String? endDate) async {
     setState(() {
       isChartLoading = true;
       isError = false;

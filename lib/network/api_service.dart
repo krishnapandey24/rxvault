@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:rxvault/models/add_document_response.dart';
 import 'package:rxvault/models/analytics_response.dart';
 import 'package:rxvault/models/doctor_info.dart';
@@ -22,7 +23,6 @@ import '../models/staff.dart';
 import '../utils/constants.dart';
 import '../utils/exceptions/custom_exception.dart';
 import '../utils/exceptions/registration_required.dart';
-import '../utils/image_compressor.dart';
 import '../utils/utils.dart';
 
 class API {
@@ -44,39 +44,24 @@ class API {
   );
 
   Future<AddDocumentResponse> addDocument(
-      String patientId,
-      String doctorPatientId,
-      String doctorId,
-      String title,
-      List<String> filePaths,
-      List<Uint8List>? imageBytesList) async {
+    String patientId,
+    String doctorPatientId,
+    String doctorId,
+    String title,
+    List<Uint8List> imageBytesList,
+  ) async {
     final formData = FormData();
-
     formData.fields.add(MapEntry('patient_id', patientId));
     formData.fields.add(MapEntry('doctor_id', doctorId));
     formData.fields.add(MapEntry('title', title));
     formData.fields.add(MapEntry('doctor_patient_id', doctorPatientId));
 
-    if (kIsWeb) {
-      for (int i = 0; i < imageBytesList!.length; i++) {
-        formData.files.add(MapEntry(
-          'document[]',
-          MultipartFile.fromBytes(
-            await ImageCompressor.compressImageFromBytes(imageBytesList[i]),
-            filename: '$title-$i',
-          ),
-        ));
-      }
-    } else {
-      for (int i = 0; i < filePaths.length; i++) {
-        formData.files.add(MapEntry(
-          'document[]',
-          await MultipartFile.fromFile(
-            await ImageCompressor.compressImageFromFile(filePaths[i]),
-            filename: '$title-$i',
-          ),
-        ));
-      }
+    for (int i = 0; i < imageBytesList.length; i++) {
+      final compressedImage = await compressList(imageBytesList[i]);
+      formData.files.add(MapEntry(
+        'document[]',
+        MultipartFile.fromBytes(compressedImage, filename: '$title-$i'),
+      ));
     }
 
     final response = await _dio.post(
@@ -172,7 +157,15 @@ class API {
           },
         ),
       );
-      return PatientListResponse.fromJson(response.data).patientList;
+      List<Patient> patients =
+          PatientListResponse.fromJson(response.data).patientList;
+      List<Patient> filteredPatients = [];
+      for (var patient in patients) {
+        if (patient.createdBy != "patient") {
+          filteredPatients.add(patient);
+        }
+      }
+      return filteredPatients;
     } catch (e) {
       return [];
     }
@@ -198,7 +191,8 @@ class API {
               "patient_id": patientId,
               "selected_services": selectedServices ?? "",
               "total_amount": totalAmount ?? "0",
-              "date": getCurrentDate()
+              "date": getCurrentDate(),
+              "created_by": "doctor",
             })))
         .data;
 
@@ -619,5 +613,13 @@ class API {
     if (success == failure) {
       throw CustomException(message);
     }
+  }
+
+  Future<Uint8List> compressList(Uint8List list) async {
+    var result = await FlutterImageCompress.compressWithList(
+      list,
+      quality: 50,
+    );
+    return result;
   }
 }

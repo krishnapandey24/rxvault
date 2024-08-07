@@ -116,8 +116,11 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
 
   void _handleGalleryImageSelection() async {
     List<XFile> results = await ImagePicker().pickMultiImage();
-
     if (!mounted) return;
+    _handleResults(results);
+  }
+
+  void _handleResults(List<XFile> results) async {
     imagesBytes.clear();
     imagesFileNames.clear();
     filesPath.clear();
@@ -128,7 +131,6 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
     }
 
     _uploadImageArray(false);
-
   }
 
   void _handleCamera() async {
@@ -151,16 +153,17 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
   }
 
   void _uploadImageArray(bool forCamera) async {
-    Utils.showLoader(context, "Uploading images...");
-    try {
-      await api.addDocument(
-          patientId, doctorPatientId, doctorId, "doc", filesPath, imagesBytes);
+    Utils.showLoader(context, "uploading images...");
+
+    api
+        .addDocument(patientId, doctorPatientId, doctorId, "doc", imagesBytes)
+        .then((value) {
       Utils.toast("Images uploaded");
-    } catch (e) {
-      Utils.toast(e.toString());
-    } finally {
       closeDialogs(1, "", forCamera);
-    }
+    }).catchError((e) {
+      Utils.toast(e.toString());
+      closeDialogs(1, "", forCamera);
+    });
   }
 
   void showSelectedImage() {

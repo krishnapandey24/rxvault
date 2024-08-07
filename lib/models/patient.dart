@@ -11,6 +11,7 @@ class Patient {
   String? selectedServices;
   String? totalAmount;
   String? doctorPatientId;
+  String? createdBy;
 
   get isAllergic => allergic == "Yes";
 
@@ -32,19 +33,21 @@ class Patient {
     );
   }
 
-  Patient(
-      {required this.patientId,
-      required this.name,
-      required this.age,
-      required this.mobile,
-      required this.gender,
-      required this.allergic,
-      required this.diagnosis,
-      this.userId,
-      this.date,
-      this.doctorPatientId,
-      this.totalAmount,
-      this.selectedServices});
+  Patient({
+    required this.patientId,
+    required this.name,
+    required this.age,
+    required this.mobile,
+    required this.gender,
+    required this.allergic,
+    required this.diagnosis,
+    this.userId,
+    this.date,
+    this.doctorPatientId,
+    this.totalAmount,
+    this.selectedServices,
+    this.createdBy,
+  });
 
   factory Patient.fromJson(Map<String, dynamic> json) {
     return Patient(
@@ -59,6 +62,7 @@ class Patient {
       selectedServices: json['selected_services'],
       totalAmount: json['total_amount'],
       date: json['date'],
+      createdBy: json['created_by'],
     );
   }
 

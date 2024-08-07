@@ -508,7 +508,6 @@ class HomeState extends State<Home> {
   Widget? buildPatientListItem(
       BuildContext context, int index, bool isGrid, int size) {
     final GlobalKey key = GlobalKey();
-
     Patient patient = patients[(size - 1 - index)];
     return Container(
       height: isGrid ? 70 : 60,

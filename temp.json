@@ -1,13 +1,21 @@
 {
-  "main": {
-    "s1": "4",
-    "s2": "4",
-    "s3": "4"
-  },
-  "others": {
-    "extra1": "1",
-    "extra2": "1",
-    "extra3": "1",
-    "extra4": "1"
-  }
+  "success": "success",
+  "message": "Summary of records",
+  "data": [
+    {
+      "date": "2024-08-07",
+      "count": 1,
+      "amount": 0,
+      "patients": [
+        {
+          "patient_id": "252",
+          "patient_name": "Aa",
+          "patient_age": "33",
+          "patient_mobile": "9012345678",
+          "patient_gender": "Male",
+          "patient_allergic": "No"
+        }
+      ]
+    }
+  ]
 }
