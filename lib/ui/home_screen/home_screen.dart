@@ -38,7 +38,7 @@ class HomeScreenState extends State<HomeScreen> {
       scaffoldKey: _scaffoldKey,
       clinicName: widget.clinicName,
     ),
-    SettingsScreen(
+    ClinicScreen(
       userId: widget.userId,
       setting: setting,
       updateSettingObject: (setting) {

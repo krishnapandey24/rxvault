@@ -118,6 +118,7 @@ class StaffScreenState extends State<StaffScreen> {
             children: [
               Text(
                 staff.name,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
                   color: darkBlue,
@@ -126,6 +127,7 @@ class StaffScreenState extends State<StaffScreen> {
               ),
               Text(
                 staff.role,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   fontWeight: FontWeight.w400,
                   color: Colors.black,

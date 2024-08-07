@@ -2,25 +2,24 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:rxvault/ui/dialogs/add_staff_dialog.dart';
+import 'package:rxvault/ui/home_screen/clinic/service_screen.dart';
 import 'package:rxvault/ui/home_screen/clinic/staff_screen.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
 import 'package:rxvault/ui/widgets/time_picker.dart';
 
 import '../../../enums/day.dart';
 import '../../../models/setting.dart';
-import '../../../models/staff.dart';
 import '../../../models/user_info.dart';
 import '../../../network/api_service.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/utils.dart';
 
-class SettingsScreen extends StatefulWidget {
+class ClinicScreen extends StatefulWidget {
   final String userId;
   final Setting setting;
   final Function(Setting) updateSettingObject;
 
-  const SettingsScreen({
+  const ClinicScreen({
     super.key,
     required this.userId,
     required this.setting,
@@ -28,13 +27,12 @@ class SettingsScreen extends StatefulWidget {
   });
 
   @override
-  State<SettingsScreen> createState() => SettingsScreenState();
+  State<ClinicScreen> createState() => ClinicScreenState();
 }
 
-class SettingsScreenState extends State<SettingsScreen> {
+class ClinicScreenState extends State<ClinicScreen> {
   late Size size;
   late User user;
-  Map<String, String> services = {};
   String? openingTime;
   String? closingTime;
   String? openingTime2;
@@ -42,12 +40,10 @@ class SettingsScreenState extends State<SettingsScreen> {
   late List<bool> selectedDays;
   late TextEditingController addressController;
   List<DataRow> serviceTableRows = [];
-  List<DataRow> staffTableRows = [];
-  late Future<Setting> settingFuture;
   late Setting setting;
-  List<Staff> staffList = [];
   final API api = API();
   var isLoading = true;
+  Map<String, String> services = {};
 
   @override
   void initState() {
@@ -62,8 +58,6 @@ class SettingsScreenState extends State<SettingsScreen> {
       setting = await api.getSettings(widget.userId);
     }
 
-    staffList = await api.getStaff(widget.userId);
-
     setState(() {
       selectedDays = List<bool>.from(setting.getDaySelection());
       openingTime = setting.openTime1;
@@ -71,30 +65,9 @@ class SettingsScreenState extends State<SettingsScreen> {
       openingTime2 = setting.openTime2;
       closingTime2 = setting.closeTime2;
       addressController = TextEditingController(text: setting.clinicAddress);
-      services = Utils.getServicesFromString(setting.itemDetails);
-      serviceTableRows = services.entries.map((entry) {
-        return DataRow(cells: [
-          DataCell(Text(entry.key)),
-          DataCell(Text(entry.value)),
-          DataCell(getActionsForService(entry.key)),
-        ]);
-      }).toList();
 
-      refreshStaff();
       isLoading = false;
     });
-  }
-
-  void refreshStaff() {
-    int index = -1;
-    staffTableRows = staffList.map((staff) {
-      index++;
-      return DataRow(cells: [
-        DataCell(Text(staff.name)),
-        DataCell(Text(staff.role)),
-        DataCell(getStaffActionsForService(staff, index)),
-      ]);
-    }).toList();
   }
 
   @override
@@ -117,7 +90,14 @@ class SettingsScreenState extends State<SettingsScreen> {
       StaffScreen(userId: widget.userId)
     ];
     if (user.isDoctor) {
-      pages.add(buildServices());
+      pages.add(
+        ServiceScreen(
+          setting: setting,
+          userId: widget.userId,
+          isStaff: user.isStaff,
+          updateSettings: updateSettings,
+        ),
+      );
     }
     return DefaultTabController(
       length: user.isStaff ? 2 : 3,
@@ -168,65 +148,6 @@ class SettingsScreenState extends State<SettingsScreen> {
         desktop: buildMainColumn(true),
         mobile: buildMainColumn(false),
         tablet: buildMainColumn(false),
-      ),
-    );
-  }
-
-  buildServices() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          InkWell(
-            onTap: showAddUpdateServiceDialog,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(width: 5),
-                const Icon(
-                  Icons.add,
-                  color: darkBlue,
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  "Add${(serviceTableRows.isNotEmpty) ? " More" : ""}",
-                  style: const TextStyle(
-                    color: darkBlue,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 1),
-            ),
-            child: DataTable(
-              border: const TableBorder(
-                horizontalInside: BorderSide(width: 1, color: Colors.grey),
-                verticalInside: BorderSide(width: 1, color: Colors.grey),
-              ),
-              columnSpacing: 60,
-              headingRowColor: WidgetStateColor.resolveWith(
-                  (states) => Colors.grey.shade200),
-              columns: const [
-                DataColumn(
-                  label: Text('Service'),
-                ),
-                DataColumn(
-                  label: Text('Amount'),
-                ),
-                DataColumn(
-                  label: Text('Action'),
-                ),
-              ],
-              rows: serviceTableRows,
-            ),
-          )
-        ],
       ),
     );
   }
@@ -322,7 +243,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   borderRadius: BorderRadius.circular(16), // Border radius
                 ),
               ),
-              onPressed: () => updateSettings(false),
+              onPressed: () => updateSettings(forDelete: false),
               child: const Text(
                 "Save",
                 style: TextStyle(color: Colors.white, fontSize: 15),
@@ -332,22 +253,6 @@ class SettingsScreenState extends State<SettingsScreen> {
         ),
       ],
     );
-  }
-
-  void deleteStaff(Staff staff, int index) async {
-    Utils.showLoader(context, "Deleting staff...");
-    try {
-      await api.deleteStaff("delete_staff", staff.id);
-      Utils.toast("Staff Delete Successfully");
-      setState(() {
-        staffList.removeAt(index);
-        refreshStaff();
-      });
-    } catch (e) {
-      Utils.toast(e.toString());
-    } finally {
-      if (mounted) Navigator.pop(context);
-    }
   }
 
   void onDayClick(int index) {
@@ -388,216 +293,15 @@ class SettingsScreenState extends State<SettingsScreen> {
     return selectedDays.map((bool value) => value ? '1' : '0').join('');
   }
 
-  Future<void> showAddUpdateServiceDialog([String? key]) async {
-    if (user.isStaff) {
-      Utils.noPermission();
-      return;
+  void updateSettings({
+    required bool forDelete,
+    bool? forService,
+    bool? isUpdate,
+    Map<String, String>? givenServices,
+  }) async {
+    if (givenServices != null) {
+      services = givenServices;
     }
-    bool isUpdate = key != null;
-    String addOrUpdate = isUpdate ? "Update" : "Add";
-    String name;
-    String value;
-    if (isUpdate) {
-      name = key;
-      value = services[key]!;
-    } else {
-      name = "";
-      value = "";
-    }
-
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('$addOrUpdate Service'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                initialValue: name,
-                decoration: const InputDecoration(
-                  labelText: 'Service Name',
-                  prefixIcon: Icon(Icons.local_hospital),
-                ),
-                onChanged: (input) {
-                  name = input;
-                },
-              ),
-              TextFormField(
-                initialValue: value,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.currency_rupee),
-                  labelText: 'Amount',
-                ),
-                onChanged: (input) {
-                  value = input;
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (name.isNotEmpty && value.isNotEmpty) {
-                  if (key != name) {
-                    services.remove(key);
-                  }
-                  addUpdateService(name, value, isUpdate);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Please enter both service name and value.'),
-                  ));
-                }
-              },
-              child: Text(addOrUpdate),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _showAddUpdateStaffDialog([Staff? staff]) async {
-    if (user.isStaff) {
-      Utils.noPermission();
-      return;
-    }
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Responsive(
-          mobile: buildAppUpdateStaffDialog(const EdgeInsets.all(15), staff),
-          desktop: buildAppUpdateStaffDialog(
-            const EdgeInsets.symmetric(
-              horizontal: 85,
-              vertical: 15,
-            ),
-            staff,
-          ),
-          tablet: buildAppUpdateStaffDialog(
-            const EdgeInsets.symmetric(
-              horizontal: 85,
-              vertical: 50,
-            ),
-            staff,
-          ),
-        );
-      },
-    );
-  }
-
-  Dialog buildAppUpdateStaffDialog(EdgeInsets insetPadding, Staff? staff) {
-    return Dialog(
-      insetPadding: insetPadding,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      child: AddStaffDialog(
-        staff: staff,
-        userId: widget.userId,
-        addStaff: (staff) {
-          setState(() {
-            staffTableRows.add(DataRow(cells: [
-              DataCell(Text(staff.name)),
-              DataCell(Text(staff.role)),
-              DataCell(getStaffActionsForService(staff, staffList.length)),
-            ]));
-          });
-        },
-        updateStaff: (staff) {
-          setState(() {
-            refreshStaff();
-          });
-        },
-      ),
-    );
-  }
-
-  void addUpdateService(String name, String value, bool isUpdate) {
-    name = Utils.capitalizeFirstLetter(name);
-    Utils.showLoader(
-        context, "${isUpdate ? "Updating" : "Adding new"} service...");
-
-    setState(() {
-      services[name] = value;
-      if (!isUpdate) {
-        serviceTableRows.add(DataRow(cells: [
-          DataCell(Text(name)),
-          DataCell(Text(value)),
-          DataCell(getActionsForService(name))
-        ]));
-      }
-    });
-    updateSettings(false, true);
-  }
-
-  getActionsForService(String key) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          onPressed: () => showAddUpdateServiceDialog(key),
-          icon: const Icon(
-            Icons.edit,
-            color: darkBlue,
-          ),
-        ),
-        IconButton(
-          onPressed: () {
-            if (user.isStaff) {
-              Utils.noPermission();
-              return;
-            }
-            Utils.showLoader(context, "Deleting service...");
-            setState(() {
-              services.remove(key);
-            });
-            updateSettings(true, true, true);
-          },
-          icon: const Icon(
-            Icons.delete,
-            color: Colors.red,
-          ),
-        ),
-      ],
-    );
-  }
-
-  getStaffActionsForService(Staff staff, int index) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          onPressed: () => _showAddUpdateStaffDialog(staff),
-          icon: const Icon(
-            Icons.edit,
-            color: darkBlue,
-          ),
-        ),
-        IconButton(
-          onPressed: () {
-            deleteStaff(staff, index);
-          },
-          icon: const Icon(
-            Icons.delete,
-            color: Colors.red,
-          ),
-        ),
-      ],
-    );
-  }
-
-  void updateSettings(bool forDelete,
-      [bool? forService, bool? isUpdate]) async {
     if (user.isStaff) {
       Utils.noPermission();
       return;
@@ -618,13 +322,6 @@ class SettingsScreenState extends State<SettingsScreen> {
     try {
       await api.updateSettings(setting);
       setState(() {
-        serviceTableRows = services.entries.map((entry) {
-          return DataRow(cells: [
-            DataCell(Text(entry.key)),
-            DataCell(Text(entry.value)),
-            DataCell(getActionsForService(entry.key)),
-          ]);
-        }).toList();
         widget.updateSettingObject(setting);
         Utils.toast("Settings updated successfully");
       });
@@ -636,64 +333,5 @@ class SettingsScreenState extends State<SettingsScreen> {
         if (!forDelete) Navigator.pop(context);
       }
     }
-  }
-
-  buildStaff() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          InkWell(
-            onTap: _showAddUpdateStaffDialog,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(width: 5),
-                const Icon(
-                  Icons.add,
-                  color: darkBlue,
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  "Add${(staffTableRows.isNotEmpty) ? " More" : ""}",
-                  style: const TextStyle(
-                    color: darkBlue,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 1),
-            ),
-            child: DataTable(
-              border: const TableBorder(
-                horizontalInside: BorderSide(width: 1, color: Colors.grey),
-                verticalInside: BorderSide(width: 1, color: Colors.grey),
-              ),
-              columnSpacing: 20,
-              headingRowColor: WidgetStateColor.resolveWith(
-                  (states) => Colors.grey.shade200),
-              columns: const [
-                DataColumn(
-                  label: Text('Name'),
-                ),
-                DataColumn(
-                  label: Text('Role'),
-                ),
-                DataColumn(
-                  label: Text('Actions'),
-                ),
-              ],
-              rows: staffTableRows,
-            ),
-          )
-        ],
-      ),
-    );
   }
 }
