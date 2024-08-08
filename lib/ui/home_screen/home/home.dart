@@ -1,5 +1,6 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:rxvault/enums/permission.dart';
 import 'package:rxvault/ui/dialogs/add_diagnosis_dialog.dart';
@@ -13,6 +14,7 @@ import '../../../models/patient.dart';
 import '../../../models/setting.dart';
 import '../../../models/user_info.dart';
 import '../../../network/api_service.dart';
+import '../../../utils/constants.dart';
 import '../../../utils/utils.dart';
 import '../../dialogs/upload_image_dialog.dart';
 import '../../view_patient.dart';
@@ -548,7 +550,7 @@ class HomeState extends State<Home> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: SizedBox(
-                width: screenWidth * (isGrid ? 0.11 : 0.22),
+                width: screenWidth * (isGrid ? 0.08 : 0.18),
                 child: Row(
                   children: [
                     const Icon(
@@ -610,8 +612,11 @@ class HomeState extends State<Home> {
   }
 
   String _getFormattedAmount(String amount, bool isMobile) {
-    if (isMobile && amount.length > 8) {
-      return "${_formatIndianNumber(amount.substring(0, 6))}...";
+    if (isMobile && amount.length > maxAmountLength) {
+      int endIndex = amount.length < (maxAmountLength + 1)
+          ? amount.length
+          : (maxAmountLength + 1);
+      return _formatIndianNumber(amount.substring(0, endIndex));
     }
     return _formatIndianNumber(amount);
   }
@@ -619,6 +624,7 @@ class HomeState extends State<Home> {
   String _formatIndianNumber(String amount) {
     amount = amount.replaceAll(',', '');
 
+    // Handle edge cases where amount is empty or not a valid number
     if (amount.isEmpty || !RegExp(r'^\d+$').hasMatch(amount)) {
       return amount;
     }
@@ -626,6 +632,7 @@ class HomeState extends State<Home> {
     List<String> chars = amount.split('');
     chars = chars.reversed.toList();
 
+    // Insert commas at appropriate positions for Indian numbering format
     for (int i = 3; i < chars.length; i += 2) {
       chars.insert(i, ',');
       i++;
@@ -661,7 +668,7 @@ class HomeState extends State<Home> {
     ).then((value) {
       if (value != null) {
         if (value == 'delete') {
-          deleteSelectedPatient(doctorPatientId, index);
+          _deleteSelectedPatient(doctorPatientId, index);
         } else {
           Navigator.of(context, rootNavigator: true).push(
             MaterialPageRoute(
@@ -686,7 +693,7 @@ class HomeState extends State<Home> {
           child: ViewAllDocuments(
             patientId: patientId,
             doctorId: widget.userId,
-            date: selectedDate,
+            date: selectedDate ?? Utils.getCurrentDate(),
           ),
         );
       },
@@ -784,15 +791,15 @@ class HomeState extends State<Home> {
       children.add(const SizedBox(width: 4));
       children.add(
         Text(
-          patient.diagnosis!.substring(0, 4),
-          style: const TextStyle(color: Colors.black, fontSize: 13),
+          safeSubstring(patient.diagnosis!),
+          style: const TextStyle(color: Colors.black, fontSize: 11),
         ),
       );
     } else {
       children.add(
         const Text(
-          "DIAG",
-          style: TextStyle(color: Colors.black, fontSize: 13),
+          "DIAGNOSIS",
+          style: TextStyle(color: Colors.black, fontSize: 11),
         ),
       );
     }
@@ -837,6 +844,10 @@ class HomeState extends State<Home> {
         ),
       ],
     );
+  }
+
+  String safeSubstring(String str) {
+    return str.substring(0, min(8, str.length));
   }
 
   void showAddPatientDialog() async {
@@ -1007,12 +1018,16 @@ class HomeState extends State<Home> {
     );
   }
 
-  void deleteSelectedPatient(String doctorPatientId, int index) {
+  void _deleteSelectedPatient(String doctorPatientId, int index) async {
     if (user.doNotHavePermission(Permission.deletePatient)) {
       Utils.noPermission();
       return;
     }
+
+    if (!await _confirmSelectedPatientDelete()) return;
+    if (!mounted) return;
     Utils.showLoader(context, "Deleting Entry...");
+
     api.deleteSelectedPatient(doctorPatientId, widget.userId).then((value) {
       Navigator.pop(context);
       _loadData();
@@ -1021,6 +1036,15 @@ class HomeState extends State<Home> {
       Utils.toast("Unable to remove patient!");
       Navigator.pop(context);
     });
+  }
+
+  Future<bool> _confirmSelectedPatientDelete() async {
+    bool? canDelete = await Utils.showAlertDialog(
+        context, "Are you sure you want to delete this appointment?", () {
+      Navigator.pop(context, true);
+    }, () => Navigator.pop(context, false));
+
+    return canDelete!;
   }
 
   int setTotalAmount(List<Patient> patients) {
@@ -1048,11 +1072,5 @@ class HomeState extends State<Home> {
 
   int parseNullableStringToInt(String? nullableString) {
     return int.tryParse(nullableString ?? '') ?? 0;
-  }
-
-  String getCurrentDate() {
-    final now = DateTime.now();
-    final DateFormat formatter = DateFormat("yyyy-MM-dd");
-    return formatter.format(now);
   }
 }

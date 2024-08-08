@@ -256,7 +256,7 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
         width: 55,
         child: TextField(
           maxLines: 1,
-          maxLength: 8,
+          maxLength: maxAmountLength,
           onChanged: (value) {
             otherServiceAmount = value;
             if (otherServiceSelected) {

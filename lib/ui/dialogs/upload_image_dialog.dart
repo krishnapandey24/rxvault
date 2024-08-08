@@ -130,7 +130,7 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
       filesPath.add(result.path);
     }
 
-    _uploadImageArray(false);
+    _uploadImageArray();
   }
 
   void _handleCamera() async {
@@ -152,17 +152,17 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
     }
   }
 
-  void _uploadImageArray(bool forCamera) async {
+  void _uploadImageArray() async {
     Utils.showLoader(context, "uploading images...");
 
     api
         .addDocument(patientId, doctorPatientId, doctorId, "doc", imagesBytes)
         .then((value) {
       Utils.toast("Images uploaded");
-      closeDialogs(1, "", forCamera);
+      closeDialogs(1, "");
     }).catchError((e) {
       Utils.toast(e.toString());
-      closeDialogs(1, "", forCamera);
+      closeDialogs(1, "");
     });
   }
 
@@ -257,7 +257,8 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
                     ),
               child: ElevatedButton(
                 onPressed: () {
-                  _uploadImageArray(true);
+                  Navigator.pop(context);
+                  _uploadImageArray();
                 },
                 child: const Text(
                   "Upload Image",
@@ -305,12 +306,7 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
     );
   }
 
-  closeDialogs(int id, String imageUrl, bool forCamera) {
-    // Navigator.pop(parentContext);
-    if (forCamera) {
-      Navigator.pop(parentContext);
-    }
-
+  closeDialogs(int id, String imageUrl) {
     Navigator.pop(parentContext);
     Navigator.pop(parentContext);
   }

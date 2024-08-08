@@ -24,8 +24,8 @@ class AnalyticsState extends State<Analytics> {
   late Future analyticsFuture;
   final api = API();
   List<AnalyticsData> data = [];
-  String startDate = "Select Start Date";
-  String endDate = " Select End Date ";
+  String _startDate = "Select Start Date";
+  String _endDate = " Select End Date ";
   bool startSelected = false;
   bool endSelected = false;
   bool showAmount = true;
@@ -56,9 +56,9 @@ class AnalyticsState extends State<Analytics> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Responsive(
-            mobile: mainColumn(true),
-            tablet: mainColumn(false),
-            desktop: mainColumn(false),
+            mobile: _buildMainColumn(true),
+            tablet: _buildMainColumn(false),
+            desktop: _buildMainColumn(false),
           ),
         ),
       ),
@@ -92,7 +92,7 @@ class AnalyticsState extends State<Analytics> {
     }
   }
 
-  getChart(bool isMobile) {
+  _buildAnalytics(bool isMobile) {
     if (isError) {
       return Center(
         child: Container(
@@ -131,11 +131,11 @@ class AnalyticsState extends State<Analytics> {
           );
   }
 
-  Column mainColumn(bool isMobile) {
+  Column _buildMainColumn(bool isMobile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        getChart(isMobile),
+        _buildAnalytics(isMobile),
         const SizedBox(height: 10),
         if (isMobile) buildSwitch(),
         const SizedBox(height: 30),
@@ -156,7 +156,7 @@ class AnalyticsState extends State<Analytics> {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  startDate,
+                  _startDate,
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
@@ -180,7 +180,7 @@ class AnalyticsState extends State<Analytics> {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  endDate,
+                  _endDate,
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
@@ -290,26 +290,27 @@ class AnalyticsState extends State<Analytics> {
       setState(() {
         if (isStart) {
           if (endSelected) {
-            DateTime endDateParsed = DateFormat('yyyy-MM-dd').parse(endDate);
+            DateTime endDateParsed = DateFormat('yyyy-MM-dd').parse(_endDate);
             if (pickedDate.isAfter(endDateParsed) ||
-                endDateParsed.difference(pickedDate).inDays > 7) {
+                endDateParsed.difference(pickedDate).inDays > daysDifference) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text(
                       'Start date must be before the end date and within a week.'),
                 ),
               );
-              return; // Exit the function if the condition is not met
+              return;
             }
           }
-          startDate = formattedDate;
+          _startDate = formattedDate;
           startSelected = true;
         } else {
           if (startSelected) {
             DateTime startDateParsed =
-                DateFormat('yyyy-MM-dd').parse(startDate);
+                DateFormat('yyyy-MM-dd').parse(_startDate);
             if (pickedDate.isBefore(startDateParsed) ||
-                pickedDate.difference(startDateParsed).inDays > 7) {
+                pickedDate.difference(startDateParsed).inDays >
+                    daysDifference) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text(
@@ -319,12 +320,12 @@ class AnalyticsState extends State<Analytics> {
               return;
             }
           }
-          endDate = formattedDate;
+          _endDate = formattedDate;
           endSelected = true;
         }
 
         if (startSelected && endSelected) {
-          refreshData(startDate, endDate);
+          refreshData(_startDate, _endDate);
         }
       });
     }
@@ -429,3 +430,5 @@ class AnalyticsState extends State<Analytics> {
     return patients;
   }
 }
+
+const daysDifference = 30;

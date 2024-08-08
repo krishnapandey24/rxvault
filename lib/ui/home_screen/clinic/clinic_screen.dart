@@ -120,7 +120,7 @@ class ClinicScreenState extends State<ClinicScreen> {
   Widget buildTabBar() {
     final tabs = [
       const Tab(
-        text: "Preferences",
+        text: "Preference",
       ),
       const Tab(
         text: "Staff",

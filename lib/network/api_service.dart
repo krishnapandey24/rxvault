@@ -153,7 +153,7 @@ class API {
         data: FormData.fromMap(
           {
             "user_id": userId,
-            "date": date ?? getCurrentDate(),
+            "date": date ?? Utils.getCurrentDate(),
           },
         ),
       );
@@ -191,7 +191,7 @@ class API {
               "patient_id": patientId,
               "selected_services": selectedServices ?? "",
               "total_amount": totalAmount ?? "0",
-              "date": getCurrentDate(),
+              "date": Utils.getCurrentDate(),
               "created_by": "doctor",
             })))
         .data;
@@ -515,11 +515,6 @@ class API {
     }
 
     return mrListResponse.mrList ?? [];
-  }
-
-  String getCurrentDate() {
-    final now = DateTime.now();
-    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 
   Future<List<AnalyticsData>> getAnalytics(String userId,

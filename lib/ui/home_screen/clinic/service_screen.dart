@@ -127,30 +127,32 @@ class ServiceScreenState extends State<ServiceScreen> {
         children: [
           const Icon(Icons.local_hospital),
           const SizedBox(width: 10),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                service.key,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: darkBlue,
-                  fontSize: 16,
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  service.key,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: darkBlue,
+                    fontSize: 16,
+                  ),
                 ),
-              ),
-              Text(
-                "$rupee${service.value}",
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black,
-                  fontSize: 13,
+                Text(
+                  "$rupee${service.value}",
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black,
+                    fontSize: 13,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const Spacer(),
           IconButton(
@@ -219,8 +221,10 @@ class ServiceScreenState extends State<ServiceScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
+                maxLength: 20,
                 initialValue: name,
                 decoration: const InputDecoration(
+                  counterText: '',
                   labelText: 'Service Name',
                   prefixIcon: Icon(Icons.local_hospital),
                 ),
@@ -229,9 +233,11 @@ class ServiceScreenState extends State<ServiceScreen> {
                 },
               ),
               TextFormField(
+                maxLength: maxAmountLength,
                 initialValue: value,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
+                  counterText: '',
                   prefixIcon: Icon(Icons.currency_rupee),
                   labelText: 'Amount',
                 ),

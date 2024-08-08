@@ -16,3 +16,4 @@ const rupee = '₹';
 const profileImageSize = 50.0;
 String defaultTimeString = "--Select--";
 const oneSignalAppId = "";
+const maxAmountLength = 5;

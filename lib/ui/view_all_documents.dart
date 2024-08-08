@@ -113,7 +113,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
         emptyAreaWidget,
         Expanded(
           child: Swiper(
-            loop: _documents.length > 3,
+            loop: false,
             onIndexChanged: (index) {
               index = _documentsCount - 1 - index;
               _currentIndex = index;

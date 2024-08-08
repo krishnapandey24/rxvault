@@ -94,7 +94,7 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
                     children: [
                       const SizedBox(width: 10),
                       Text(
-                        formattedDate ?? getCurrentDate(),
+                        formattedDate ?? Utils.getCurrentDate(),
                         style: const TextStyle(
                           fontSize: 15,
                           color: Colors.black,
@@ -134,12 +134,6 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
         ],
       ),
     );
-  }
-
-  String getCurrentDate() {
-    final now = DateTime.now();
-    final DateFormat formatter = DateFormat("dd.MM.yy");
-    return formatter.format(now);
   }
 
   IconButton buildMenuButton(bool isMobile) {

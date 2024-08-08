@@ -4,9 +4,11 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:rxvault/utils/native_bridge.dart';
 import 'package:rxvault/utils/utils.dart';
 import 'package:universal_html/html.dart' as html;
 
@@ -30,7 +32,7 @@ class ExcelGenerator {
   }
 
   void addSheet(String date, List<Patient> patients) {
-    Sheet sheetObject = excel[date];
+    Sheet sheetObject = excel["Sheet1"];
     CellStyle boldStyle = CellStyle(
       fontFamily: getFontFamily(FontFamily.Calibri),
       bold: true,
@@ -93,6 +95,7 @@ class ExcelGenerator {
       if (context.mounted) {
         Navigator.pop(context);
       }
+      _openDefaultDownloadFolder();
     } catch (e) {
       if (file != null && file.existsSync()) {
         file.deleteSync();
@@ -106,7 +109,7 @@ class ExcelGenerator {
 
   Future<void> saveExcelFile(Excel excel) async {
     List<int> bytes = excel.encode()!;
-    String filename = "patients_$fromTo";
+    String filename = "patients";
     if (kIsWeb) {
       saveForWeb(filename, bytes);
     } else {
@@ -157,6 +160,15 @@ class ExcelGenerator {
       return dateFormat.format(date);
     } catch (e) {
       return "?";
+    }
+  }
+
+  Future<void> _openDefaultDownloadFolder() async {
+    if (kIsWeb) {
+      return;
+    }
+    if (Platform.isAndroid) {
+      NativeBridge().openDownloadFolder();
     }
   }
 }

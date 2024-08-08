@@ -12,7 +12,7 @@ import '../../network/api_service.dart';
 import '../../utils/utils.dart';
 import '../mr_settings.dart';
 import 'analytics.dart';
-import 'clinic/settings_screen.dart';
+import 'clinic/clinic_screen.dart';
 import 'drawer/drawer.dart';
 import 'home/home.dart';
 
