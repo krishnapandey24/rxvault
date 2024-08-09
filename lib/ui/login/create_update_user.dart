@@ -268,9 +268,10 @@ class _CreateUpdateUserState extends State<CreateUpdateUser> {
                   if (user.isDoctor) ...[
                     TextFormField(
                       maxLength: 250,
-                      maxLines: 1,
+ minLines: 1,//Normal textInputField will be displayed
+    maxLines: 5,// when user presses enter it will adapt to it
                       initialValue: userInfo.address,
-                      keyboardType: TextInputType.text,
+  keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
                         counterText: '',
                         contentPadding: const EdgeInsets.all(15),

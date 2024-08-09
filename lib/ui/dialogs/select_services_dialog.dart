@@ -45,8 +45,7 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
   String otherServiceName = "";
   String otherServiceAmount = "";
   bool otherServiceSelected = false;
-  Map<String, String>?
-      otherServiceCopy; // Custom services added by user that are not in clinic services
+  Map<String, String>? otherServiceCopy; // Custom services added by user that are not in clinic services
 
   @override
   void initState() {

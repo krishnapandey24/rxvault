@@ -613,9 +613,9 @@ class HomeState extends State<Home> {
 
   String _getFormattedAmount(String amount, bool isMobile) {
     if (isMobile && amount.length > maxAmountLength) {
-      int endIndex = amount.length < (maxAmountLength + 1)
+      int endIndex = amount.length < 5
           ? amount.length
-          : (maxAmountLength + 1);
+          : 5;
       return _formatIndianNumber(amount.substring(0, endIndex));
     }
     return _formatIndianNumber(amount);
