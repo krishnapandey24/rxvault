@@ -1,21 +1,114 @@
 {
-  "success": "success",
-  "message": "Summary of records",
-  "data": [
+  "AllDocuments": [
     {
-      "date": "2024-08-07",
-      "count": 1,
-      "amount": 0,
-      "patients": [
-        {
-          "patient_id": "252",
-          "patient_name": "Aa",
-          "patient_age": "33",
-          "patient_mobile": "9012345678",
-          "patient_gender": "Male",
-          "patient_allergic": "No"
-        }
-      ]
+      "document_id": "22",
+      "doctor_id": "3",
+      "patient_id": "2",
+      "doctor_patient_id": "5",
+      "title": "",
+      "document": "http:\/\/122.170.7.173\/RxVault\/uploads\/documents\/1441_doc-1",
+      "created": "09-08-2024 03:30 PM"
+    },
+    {
+      "document_id": "21",
+      "doctor_id": "3",
+      "patient_id": "2",
+      "doctor_patient_id": "5",
+      "title": "",
+      "document": "http:\/\/122.170.7.173\/RxVault\/uploads\/documents\/1101_doc-0",
+      "created": "09-08-2024 03:30 PM"
+    },
+    {
+      "document_id": "20",
+      "doctor_id": "3",
+      "patient_id": "2",
+      "doctor_patient_id": "5",
+      "title": "",
+      "document": "http:\/\/122.170.7.173\/RxVault\/uploads\/documents\/1311_doc-0",
+      "created": "09-08-2024 03:30 PM"
+    },
+    {
+      "document_id": "19",
+      "doctor_id": "3",
+      "patient_id": "2",
+      "doctor_patient_id": "16",
+      "title": "",
+      "document": "http:\/\/122.170.7.173\/RxVault\/uploads\/documents\/5410_doc-0",
+      "created": "09-08-2024 03:29 PM"
+    },
+    {
+      "document_id": "18",
+      "doctor_id": "3",
+      "patient_id": "2",
+      "doctor_patient_id": "16",
+      "title": "",
+      "document": "http:\/\/122.170.7.173\/RxVault\/uploads\/documents\/3530_doc-0",
+      "created": "09-08-2024 03:29 PM"
+    },
+    {
+      "document_id": "17",
+      "doctor_id": "3",
+      "patient_id": "2",
+      "doctor_patient_id": "16",
+      "title": "",
+      "document": "http:\/\/122.170.7.173\/RxVault\/uploads\/documents\/9152_doc-0",
+      "created": "09-08-2024 12:51 PM"
+    },
+    {
+      "document_id": "15",
+      "doctor_id": "3",
+      "patient_id": "2",
+      "doctor_patient_id": "16",
+      "title": "",
+      "document": "http:\/\/122.170.7.173\/RxVault\/uploads\/documents\/8568_doc-2",
+      "created": "09-08-2024 11:36 AM"
+    },
+    {
+      "document_id": "14",
+      "doctor_id": "3",
+      "patient_id": "2",
+      "doctor_patient_id": "16",
+      "title": "",
+      "document": "http:\/\/122.170.7.173\/RxVault\/uploads\/documents\/8745_doc-1",
+      "created": "09-08-2024 11:36 AM"
+    },
+    {
+      "document_id": "13",
+      "doctor_id": "3",
+      "patient_id": "2",
+      "doctor_patient_id": "16",
+      "title": "",
+      "document": "http:\/\/122.170.7.173\/RxVault\/uploads\/documents\/8168_doc-0",
+      "created": "09-08-2024 11:36 AM"
+    },
+    {
+      "document_id": "7",
+      "doctor_id": "3",
+      "patient_id": "2",
+      "doctor_patient_id": "5",
+      "title": "",
+      "document": "http:\/\/122.170.7.173\/RxVault\/uploads\/documents\/3761_doc-0",
+      "created": "08-08-2024 05:35 PM"
+    },
+    {
+      "document_id": "6",
+      "doctor_id": "3",
+      "patient_id": "2",
+      "doctor_patient_id": "5",
+      "title": "",
+      "document": "http:\/\/122.170.7.173\/RxVault\/uploads\/documents\/5505_doc-1",
+      "created": "08-08-2024 04:54 PM"
+    },
+    {
+      "document_id": "5",
+      "doctor_id": "3",
+      "patient_id": "2",
+      "doctor_patient_id": "5",
+      "title": "",
+      "document": "http:\/\/122.170.7.173\/RxVault\/uploads\/documents\/4517_doc-0",
+      "created": "08-08-2024 04:54 PM"
     }
-  ]
+  ],
+  "success": "success",
+  "message": "All Documents List"
 }

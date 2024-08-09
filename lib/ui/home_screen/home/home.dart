@@ -613,9 +613,7 @@ class HomeState extends State<Home> {
 
   String _getFormattedAmount(String amount, bool isMobile) {
     if (isMobile && amount.length > maxAmountLength) {
-      int endIndex = amount.length < 5
-          ? amount.length
-          : 5;
+      int endIndex = amount.length < 5 ? amount.length : 5;
       return _formatIndianNumber(amount.substring(0, endIndex));
     }
     return _formatIndianNumber(amount);
@@ -1004,6 +1002,7 @@ class HomeState extends State<Home> {
         setting: setting,
         doctorId: widget.userId,
         patientId: patient.patientId,
+        doctorPatientId: patient.doctorPatientId!,
         selectedServices: patient.selectedServices ?? "",
         update: (selectedServices, totalAmount) {
           setState(() {

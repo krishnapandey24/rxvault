@@ -431,4 +431,4 @@ class AnalyticsState extends State<Analytics> {
   }
 }
 
-const daysDifference = 30;
+const daysDifference = 31;

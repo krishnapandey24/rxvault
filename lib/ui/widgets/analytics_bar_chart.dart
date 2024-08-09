@@ -25,12 +25,13 @@ class AnalyticsBarChartState extends State<AnalyticsBarChart> {
   int touchedGroupIndex = -1;
 
   get showAmount => widget.showAmount;
+
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 1,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
         child: BarChart(
           BarChartData(
             minY: 0,
@@ -52,7 +53,34 @@ class AnalyticsBarChartState extends State<AnalyticsBarChart> {
             }).toList(),
             titlesData: FlTitlesData(
               topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
+                sideTitles: SideTitles(
+                  showTitles: false,
+                ),
+              ),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (double value, TitleMeta meta) {
+                    return Text(
+                      meta.formattedValue,
+                      style: const TextStyle(fontSize: 8),
+                    );
+                  },
+                ),
+              ),
+              rightTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (double value, TitleMeta meta) {
+                    return SideTitleWidget(
+                      axisSide: meta.axisSide,
+                      child: Text(
+                        meta.formattedValue,
+                        style: const TextStyle(fontSize: 8),
+                      ),
+                    );
+                  },
+                ),
               ),
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
@@ -62,7 +90,10 @@ class AnalyticsBarChartState extends State<AnalyticsBarChart> {
                     if (index < 0 || index >= widget.data.length) {
                       return const Text('');
                     }
-                    return Text("${index + 1}");
+                    return Text(
+                      "${index + 1}",
+                      style: const TextStyle(fontSize: 8),
+                    );
                   },
                 ),
               ),

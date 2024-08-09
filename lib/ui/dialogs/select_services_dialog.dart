@@ -15,6 +15,7 @@ class SelectServicesDialog extends StatefulWidget {
   final String patientId;
   final String doctorId;
   final String selectedServices;
+  final String doctorPatientId;
   final Function(String, String) update;
 
   const SelectServicesDialog(
@@ -23,7 +24,8 @@ class SelectServicesDialog extends StatefulWidget {
       required this.patientId,
       required this.update,
       required this.selectedServices,
-      required this.doctorId});
+      required this.doctorId,
+      required this.doctorPatientId});
 
   @override
   State<SelectServicesDialog> createState() => SelectServicesDialogState();
@@ -45,7 +47,8 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
   String otherServiceName = "";
   String otherServiceAmount = "";
   bool otherServiceSelected = false;
-  Map<String, String>? otherServiceCopy; // Custom services added by user that are not in clinic services
+  Map<String, String>?
+      otherServiceCopy; // Custom services added by user that are not in clinic services
 
   @override
   void initState() {
@@ -138,7 +141,8 @@ class SelectServicesDialogState extends State<SelectServicesDialog> {
     String selectedService = getSelectedServiceAsString();
     String totalAmount = selectedServices.total.toString();
     try {
-      await api.addDoctorsPatient(
+      await api.updateDoctorPatient(
+        widget.doctorPatientId,
         widget.doctorId,
         widget.patientId,
         selectedService,

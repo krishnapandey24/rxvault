@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class PatientDocumentResponse {
   List<Document> allDocuments;
   String success;
@@ -36,6 +38,7 @@ class Document {
   String title;
   String imageUrl;
   String created;
+  DateTime? date;
 
   Document({
     required this.id,
@@ -45,7 +48,10 @@ class Document {
     required this.title,
     required this.imageUrl,
     required this.created,
-  });
+    this.date,
+  }) {
+    date ??= parseCreatedDate(created);
+  }
 
   factory Document.fromJson(Map<String, dynamic> json) {
     return Document(
@@ -56,7 +62,13 @@ class Document {
       title: json['title'] as String,
       imageUrl: json['document'] as String,
       created: json['created'] as String,
+      date: parseCreatedDate(json['created'] as String),
     );
+  }
+
+  static DateTime parseCreatedDate(String created) {
+    final dateFormat = DateFormat('MM-dd-yyyy hh:mm a');
+    return dateFormat.parse(created);
   }
 
   Map<String, dynamic> toJson() {

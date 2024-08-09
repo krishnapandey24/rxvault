@@ -201,6 +201,26 @@ class API {
     if (success == failure) throw CustomException(message);
   }
 
+  Future<void> updateDoctorPatient(
+      String doctorPatientId, String userId, String patientId,
+      [String? selectedServices, String? totalAmount]) async {
+    final responseData = (await _dio.post("UpdateDoctorsPatient",
+            data: FormData.fromMap({
+              "user_id": userId,
+              "patient_id": patientId,
+              "doctor_patient_id": doctorPatientId,
+              "selected_services": selectedServices ?? "",
+              "total_amount": totalAmount ?? "0",
+              "date": Utils.getCurrentDate(),
+              "created_by": "doctor",
+            })))
+        .data;
+
+    String success = responseData["success"];
+    String message = responseData["message"];
+    if (success == failure) throw CustomException(message);
+  }
+
   Future<void> deleteDoctorsPatientDocument(String documentId) async {
     final responseData = (await _dio.post(
       "DeleteDocument",

@@ -10,6 +10,7 @@ import 'package:rxvault/ui/view_all_documents.dart';
 import 'package:rxvault/utils/colors.dart';
 import 'package:rxvault/utils/constants.dart';
 
+import '../models/patient_document_response.dart';
 import '../network/api_service.dart';
 import '../utils/utils.dart';
 
@@ -127,12 +128,40 @@ class _ViewPatientState extends State<ViewPatient> with WidgetsBindingObserver {
       return;
     }
 
-    List<String> imageUrls = [];
-    documents.asMap().forEach(
-          (index, value) => imageUrls.add(documents[index].imageUrl),
-        );
+    List<String> imageUrls = _getSortedImageUrls(documents);
 
     _createPdfFromListOfImages(imageUrls);
+  }
+
+  List<String> _getSortedImageUrls(List<Document> documents) {
+    if (documents.isEmpty) return [];
+    List<String> imageUrls = [];
+    List<String> tempUrls = [];
+    DateTime prev = documents.first.date!;
+
+    for (var document in documents) {
+      DateTime currDate = document.date!;
+      String currUrl = document.imageUrl;
+      if (!areDatesEqual(currDate, prev)) {
+        int size = tempUrls.length;
+        for (int i = size - 1; i >= 0; i--) {
+          imageUrls.add(tempUrls[i]);
+        }
+        tempUrls.clear();
+      }
+      tempUrls.add(currUrl);
+      prev = currDate;
+    }
+
+    imageUrls.addAll(tempUrls.reversed);
+
+    return imageUrls;
+  }
+
+  bool areDatesEqual(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 
   Future<void> _createPdfFromListOfImages(List<String> imageUrls) async {

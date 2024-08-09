@@ -219,9 +219,10 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
     }
 
     List<String> imageUrls = [];
-    _documents.asMap().forEach(
-          (index, value) => imageUrls.add(_documents[index].imageUrl),
-        );
+
+    for (var document in _documents) {
+      imageUrls.insert(0, document.imageUrl);
+    }
 
     _createPdfFromListOfImages(imageUrls);
   }

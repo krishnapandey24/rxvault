@@ -160,7 +160,8 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
         .then((value) {
       Utils.toast("Images uploaded");
       closeDialogs(1, "");
-    }).catchError((e) {
+    }).catchError((e, t) {
+      print("$e $t");
       Utils.toast(e.toString());
       closeDialogs(1, "");
     });
