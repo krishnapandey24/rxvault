@@ -17,13 +17,18 @@ class MainActivity : FlutterActivity() {
                     openDownloadFolder()
                     result.success(null)
                 }
-                else -> result.notImplemented()
+                else -> {
+                }
             }
         }
     }
 
     private fun openDownloadFolder() {
-        startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+        try {
+            startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+        } catch (e: Exception) {
+            print("exce;")
+        }
     }
 
 }

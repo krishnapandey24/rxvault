@@ -32,22 +32,23 @@ class MR {
   String? userId;
   String? mrId;
   String? mrName;
+  String? company;
   String? products;
   String? date;
   String? status;
   String? created;
-  List<DoctorsList>? doctorsList;
 
-  MR(
-      {this.doctorMrId,
-      this.userId,
-      this.mrId,
-      this.mrName,
-      this.products,
-      this.date,
-      this.status,
-      this.created,
-      this.doctorsList});
+  MR({
+    this.doctorMrId,
+    this.userId,
+    this.mrId,
+    this.mrName,
+    this.products,
+    this.date,
+    this.status,
+    this.created,
+    this.company,
+  });
 
   MR.fromJson(Map<String, dynamic> json) {
     doctorMrId = json['doctor_mr_id'];
@@ -57,13 +58,8 @@ class MR {
     date = json['date'];
     mrName = json['mr_name'];
     status = json['status'];
+    company = json['mr_company'];
     created = json['created'];
-    if (json['DoctorsList'] != null) {
-      doctorsList = <DoctorsList>[];
-      json['DoctorsList'].forEach((v) {
-        doctorsList!.add(DoctorsList.fromJson(v));
-      });
-    }
   }
 
   Map<String, dynamic> toJson() {
@@ -75,70 +71,7 @@ class MR {
     data['date'] = date;
     data['status'] = status;
     data['created'] = created;
-    if (doctorsList != null) {
-      data['DoctorsList'] = doctorsList!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-}
-
-class DoctorsList {
-  String? userId;
-  String? role;
-  String? name;
-  String? email;
-  String? mobile;
-  String? address;
-  String? gender;
-  String? hospitalName;
-  String? speciality;
-  String? paidStatus;
-  String? image;
-  String? status;
-
-  DoctorsList(
-      {this.userId,
-      this.role,
-      this.name,
-      this.email,
-      this.mobile,
-      this.address,
-      this.gender,
-      this.hospitalName,
-      this.speciality,
-      this.paidStatus,
-      this.image,
-      this.status});
-
-  DoctorsList.fromJson(Map<String, dynamic> json) {
-    userId = json['user_id'];
-    role = json['role'];
-    name = json['name'];
-    email = json['email'];
-    mobile = json['mobile'];
-    address = json['address'];
-    gender = json['gender'];
-    hospitalName = json['hospital_name'];
-    speciality = json['speciality'];
-    paidStatus = json['paid_status'];
-    image = json['image'];
-    status = json['status'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['user_id'] = userId;
-    data['role'] = role;
-    data['name'] = name;
-    data['email'] = email;
-    data['mobile'] = mobile;
-    data['address'] = address;
-    data['gender'] = gender;
-    data['hospital_name'] = hospitalName;
-    data['speciality'] = speciality;
-    data['paid_status'] = paidStatus;
-    data['image'] = image;
-    data['status'] = status;
+    data['company'] = company;
     return data;
   }
 }

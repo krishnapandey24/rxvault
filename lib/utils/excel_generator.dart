@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:downloadsfolder/downloadsfolder.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -43,13 +44,14 @@ class ExcelGenerator {
 
     sheetObject.cell(CellIndex.indexByString("B1")).value =
         const TextCellValue("Age");
+    sheetObject.cell(CellIndex.indexByString("B1")).cellStyle = boldStyle;
+
     sheetObject.cell(CellIndex.indexByString("C1")).value =
         const TextCellValue("Mobile");
+    sheetObject.cell(CellIndex.indexByString("C1")).cellStyle = boldStyle;
+
     sheetObject.cell(CellIndex.indexByString("D1")).value =
         const TextCellValue("Allergic");
-    sheetObject.cell(CellIndex.indexByString("A1")).cellStyle = boldStyle;
-    sheetObject.cell(CellIndex.indexByString("B1")).cellStyle = boldStyle;
-    sheetObject.cell(CellIndex.indexByString("C1")).cellStyle = boldStyle;
     sheetObject.cell(CellIndex.indexByString("D1")).cellStyle = boldStyle;
 
     for (int i = 0; i < patients.length; i++) {
@@ -67,39 +69,47 @@ class ExcelGenerator {
     }
   }
 
-  Future saveForPhone(String fileName, List<int> bytes) async {
-    if (await isAndroidVersionLessThan10()) {
-      bool havePermission = await requestWriteExternalStoragePermission();
-      if (!havePermission) return;
-    }
+  Future<void> saveForPhone(String fileName, List<int> bytes) async {
     Directory? directory;
     File? file;
     try {
       if (defaultTargetPlatform == TargetPlatform.android) {
-        directory = Directory('/storage/emulated/0/Download');
+        if (await isAndroidVersionLessThan10()) {
+          bool havePermission = await requestWriteExternalStoragePermission();
+          if (!havePermission) return;
+          directory = Directory('/storage/emulated/0/Download');
+        } else {
+          directory = await getExternalStorageDirectory();
+        }
       } else {
         directory = await getApplicationDocumentsDirectory();
       }
 
-      bool hasExisted = await directory.exists();
+      // Debugging: Print directory path
+      print('Directory path: ${directory?.path}');
+
+      bool hasExisted = await directory?.exists() ?? false;
       if (!hasExisted) {
-        directory.create();
+        await directory?.create(recursive: true);
       }
 
-      file = File("${directory.path}${Platform.pathSeparator}$fileName.xlsx");
-      if (!file.existsSync()) {
-        await file.create();
-      }
+      file = File(
+          "${directory?.path}${Platform.pathSeparator}${fileName}_yoyuoy.xlsx");
+
+      // Debugging: Print file path
+      print('File path: ${file.path}');
+
       await file.writeAsBytes(bytes);
+
+      await copyFileIntoDownloadFolder(file.path, fileName);
+
       Utils.toast("File saved in the Downloads!");
       if (context.mounted) {
         Navigator.pop(context);
       }
       _openDefaultDownloadFolder();
-    } catch (e) {
-      if (file != null && file.existsSync()) {
-        file.deleteSync();
-      }
+    } catch (e, t) {
+      print("$e $t");
       Utils.toast("Unable to save excel file!");
       if (context.mounted) {
         Navigator.pop(context);
@@ -113,11 +123,11 @@ class ExcelGenerator {
     if (kIsWeb) {
       saveForWeb(filename, bytes);
     } else {
-      saveForPhone(filename, bytes);
+      await saveForPhone(filename, bytes); // Added await to ensure completion
     }
   }
 
-  saveForWeb(String filename, List<int> bytes) {
+  void saveForWeb(String filename, List<int> bytes) {
     String outputPath = '$filename.xlsx';
     final blob = html.Blob([bytes],
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

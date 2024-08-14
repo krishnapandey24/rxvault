@@ -12,6 +12,7 @@ import 'package:rxvault/models/patient_document_response.dart';
 import 'package:rxvault/models/update_staff_response.dart';
 import 'package:rxvault/utils/user_manager.dart';
 
+import '../enums/day.dart';
 import '../models/login_response.dart';
 import '../models/notification_list_response.dart';
 import '../models/patient.dart';
@@ -519,9 +520,10 @@ class API {
     }
   }
 
-  Future<List<MR>> getMRList(String doctorId) async {
+  Future<List<MR>> getMRList(String doctorId, Day day) async {
     final formData = FormData.fromMap({
       "user_id": doctorId,
+      "days": day.name,
     });
     final response = await _dio.post(
       'MrDoctorList',

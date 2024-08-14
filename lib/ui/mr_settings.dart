@@ -40,7 +40,8 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
   @override
   void initState() {
     super.initState();
-    mrListFuture = api.getMRList(widget.userId);
+
+    mrListFuture = api.getMRList(widget.userId, getTodayWeekday());
     loadData();
   }
 
@@ -128,6 +129,7 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text("MR: ${Utils.capitalizeFirstLetter(mr.mrName)}"),
+              Text("Company: ${Utils.capitalizeFirstLetter(mr.company)}"),
               Row(
                 children: [
                   const Text("Products: "),
@@ -351,5 +353,10 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
       Navigator.pop(context);
       Utils.toast(e.toString());
     });
+  }
+
+  Day getTodayWeekday() {
+    int todayIndex = DateTime.now().weekday - 1;
+    return Day.values[todayIndex];
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../enums/permission.dart';
 import '../../../models/staff.dart';
 import '../../../network/api_service.dart';
 import '../../../utils/colors.dart';
@@ -61,28 +62,21 @@ class StaffScreenState extends State<StaffScreen> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Responsive(
-        desktop: _buildStaffGridView(length),
-        mobile: _buildStaffListView(length),
-        tablet: _buildStaffGridView(length),
+        desktop: _buildStaffGridView(length, 4),
+        mobile: _buildStaffGridView(length, 2),
+        tablet: _buildStaffGridView(length, 3),
       ),
     );
   }
 
-  ListView _buildStaffListView(int length) {
-    return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 100),
-      itemCount: length,
-      itemBuilder: (context, index) => _buildStaffItem(context, index, false),
-    );
-  }
-
-  GridView _buildStaffGridView(int length) {
+  GridView _buildStaffGridView(int length, int crossAxisCount) {
     return GridView.builder(
-      padding: const EdgeInsets.only(bottom: 100),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisExtent: 65,
+      padding: const EdgeInsets.only(bottom: 250),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        mainAxisExtent: 260,
         crossAxisSpacing: 20,
+        mainAxisSpacing: 20,
       ),
       itemCount: length,
       itemBuilder: (context, index) => _buildStaffItem(context, index, true),
@@ -92,68 +86,114 @@ class StaffScreenState extends State<StaffScreen> {
   Widget _buildStaffItem(BuildContext context, int index, bool isGrid) {
     Staff staff = _staffList[index];
     return Container(
-      height: isGrid ? 65 : 60,
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
-      width: double.maxFinite,
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: darkBlue, width: 1),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: primary,
+          width: 1,
+        ),
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Image.asset(
-            staff.gender == "Male"
-                ? "assets/images/ic_male.png"
-                : "assets/images/ic_female.png",
-            height: 40,
-            width: 40,
+          Text(
+            staff.name,
+            textAlign: TextAlign.center,
           ),
-          const SizedBox(width: 5),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                staff.name,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: darkBlue,
-                  fontSize: 16,
-                ),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "Mobile: ",
+                    style: TextStyle(
+                      fontSize: 13,
+                    ),
+                  ),
+                  Text(
+                    "Role: ",
+                    style: TextStyle(
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                staff.role,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black,
-                  fontSize: 13,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    staff.mobile,
+                    style: const TextStyle(fontSize: 13, color: darkBlue),
+                  ),
+                  Text(
+                    staff.role,
+                    style: const TextStyle(fontSize: 13, color: darkBlue),
+                  ),
+                ],
               ),
             ],
           ),
+          const SizedBox(height: 10),
+          _buildPermissionsChips(staff.permissions),
           const Spacer(),
-          IconButton(
-            onPressed: () => _showAddUpdateStaffDialog(staff),
-            icon: const Icon(
-              Icons.edit,
-              color: darkBlue,
-            ),
-          ),
-          IconButton(
-            onPressed: () {
-              _deleteStaff(staff, index);
-            },
-            icon: const Icon(
-              Icons.delete,
-              color: Colors.red,
-            ),
-          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              CircleAvatar(
+                backgroundColor: primary,
+                child: IconButton(
+                  onPressed: () => _showAddUpdateStaffDialog(staff),
+                  icon: const Icon(
+                    Icons.edit,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              CircleAvatar(
+                backgroundColor: Colors.red,
+                child: IconButton(
+                  onPressed: () {
+                    _deleteStaff(staff, index);
+                  },
+                  icon: const Icon(
+                    Icons.delete,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          )
         ],
+      ),
+    );
+  }
+
+  Widget _buildPermissionsChips(List<Permission> permissions) {
+    return Wrap(
+      children: permissions
+          .map((permission) => _buildPermissionChip(permission.text))
+          .toList(),
+    );
+  }
+
+  Widget _buildPermissionChip(String product) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      decoration: BoxDecoration(
+        color: primary,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 5),
+      child: Text(
+        product,
+        style: const TextStyle(color: Colors.white, fontSize: 9),
       ),
     );
   }
