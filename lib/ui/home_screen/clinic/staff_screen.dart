@@ -74,7 +74,7 @@ class StaffScreenState extends State<StaffScreen> {
       padding: const EdgeInsets.only(bottom: 250),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
-        mainAxisExtent: 260,
+        mainAxisExtent: 220,
         crossAxisSpacing: 20,
         mainAxisSpacing: 20,
       ),
@@ -101,6 +101,7 @@ class StaffScreenState extends State<StaffScreen> {
           Text(
             staff.name,
             textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 13),
           ),
           const SizedBox(height: 10),
           Row(
@@ -113,13 +114,13 @@ class StaffScreenState extends State<StaffScreen> {
                   Text(
                     "Mobile: ",
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                     ),
                   ),
                   Text(
                     "Role: ",
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                     ),
                   ),
                 ],
@@ -130,11 +131,11 @@ class StaffScreenState extends State<StaffScreen> {
                 children: [
                   Text(
                     staff.mobile,
-                    style: const TextStyle(fontSize: 13, color: darkBlue),
+                    style: const TextStyle(fontSize: 11, color: darkBlue),
                   ),
                   Text(
                     staff.role,
-                    style: const TextStyle(fontSize: 13, color: darkBlue),
+                    style: const TextStyle(fontSize: 11, color: darkBlue),
                   ),
                 ],
               ),
@@ -148,7 +149,9 @@ class StaffScreenState extends State<StaffScreen> {
             children: [
               CircleAvatar(
                 backgroundColor: primary,
+                radius: iconSize,
                 child: IconButton(
+                  iconSize: iconSize,
                   onPressed: () => _showAddUpdateStaffDialog(staff),
                   icon: const Icon(
                     Icons.edit,
@@ -158,7 +161,9 @@ class StaffScreenState extends State<StaffScreen> {
               ),
               CircleAvatar(
                 backgroundColor: Colors.red,
+                radius: iconSize,
                 child: IconButton(
+                  iconSize: iconSize,
                   onPressed: () {
                     _deleteStaff(staff, index);
                   },
@@ -193,7 +198,7 @@ class StaffScreenState extends State<StaffScreen> {
       padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 5),
       child: Text(
         product,
-        style: const TextStyle(color: Colors.white, fontSize: 9),
+        style: const TextStyle(color: Colors.white, fontSize: 8),
       ),
     );
   }
@@ -273,3 +278,5 @@ class StaffScreenState extends State<StaffScreen> {
     }
   }
 }
+
+const iconSize = 18.0;
