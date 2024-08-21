@@ -47,15 +47,6 @@ class RegisterState extends State<Register> {
               "assets/images/asset_26.png",
             ),
           ),
-          Positioned(
-            right: 0,
-            top: 70,
-            child: Image.asset(
-              width: 80,
-              height: 50,
-              "assets/images/asset_27.png",
-            ),
-          ),
           Responsive(
             desktop: mainContainer(screenWidth * 0.3),
             mobile: mainContainer(null),

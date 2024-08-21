@@ -128,8 +128,9 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("MR: ${Utils.capitalizeFirstLetter(mr.mrName)}"),
+              Text("MR Name: ${Utils.capitalizeFirstLetter(mr.mrName)}"),
               Text("Company: ${Utils.capitalizeFirstLetter(mr.company)}"),
+              const SizedBox(height: 5),
               Row(
                 children: [
                   const Text("Products: "),
@@ -151,9 +152,6 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
   }
 
   Widget _buildProductsChips(List<String> products) {
-    if (products.length == 1) {
-      return Text(products[0]);
-    }
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -172,8 +170,8 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
       ),
       padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
       child: Text(
-        product,
-        style: const TextStyle(color: Colors.white, fontSize: 12),
+        Utils.capitalizeFirstLetter(product),
+        style: const TextStyle(color: Colors.white, fontSize: 13),
       ),
     );
   }

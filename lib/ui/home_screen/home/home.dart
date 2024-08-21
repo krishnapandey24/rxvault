@@ -129,7 +129,6 @@ class HomeState extends State<Home> {
     return Row(
       children: [
         buildUserAndDoctorName(),
-        const Spacer(),
         buildBoxIndicators(Icons.person, "Patients", "$totalPatients"),
         const SizedBox(width: 15),
         buildBoxIndicators(
@@ -191,52 +190,54 @@ class HomeState extends State<Home> {
     );
   }
 
-  Column buildUserAndDoctorName() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: darkBlue,
-                borderRadius: BorderRadius.circular(4),
+  buildUserAndDoctorName() {
+    return Flexible(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: darkBlue,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: const Text(
+                  " User:  ",
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                ),
               ),
-              child: const Text(
-                " User:  ",
-                style: TextStyle(color: Colors.white, fontSize: 12),
+              Transform.scale(
+                scale: 0.7,
+                child: Switch(
+                  activeTrackColor: darkBlue,
+                  activeColor: Colors.white,
+                  value: clinicOpen,
+                  onChanged: (value) {
+                    setState(() {
+                      clinicOpen = value;
+                    });
+                    if (user.isStaff) {
+                      Utils.noPermission();
+                      return;
+                    }
+                    updateClinicStatus(clinicOpen);
+                  },
+                ),
               ),
-            ),
-            Transform.scale(
-              scale: 0.7,
-              child: Switch(
-                activeTrackColor: darkBlue,
-                activeColor: Colors.white,
-                value: clinicOpen,
-                onChanged: (value) {
-                  setState(() {
-                    clinicOpen = value;
-                  });
-                  if (user.isStaff) {
-                    Utils.noPermission();
-                    return;
-                  }
-                  updateClinicStatus(clinicOpen);
-                },
-              ),
-            ),
-          ],
-        ),
-        Text(
-          user.userName,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
+            ],
           ),
-        ),
-      ],
+          Text(
+            user.userName,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+            softWrap: true,
+          ),
+        ],
+      ),
     );
   }
 

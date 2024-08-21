@@ -61,7 +61,7 @@ class ClinicScreenState extends State<ClinicScreen> {
     setState(() {
       selectedDays = List<bool>.from(setting.getDaySelection());
       openingTime = setting.openTime1;
-      closingTime = setting.closeTime2;
+      closingTime = setting.closeTime1;
       openingTime2 = setting.openTime2;
       closingTime2 = setting.closeTime2;
       addressController = TextEditingController(text: setting.clinicAddress);

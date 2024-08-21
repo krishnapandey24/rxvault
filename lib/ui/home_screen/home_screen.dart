@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
 import 'package:rxvault/ui/widgets/rxvault_app_bar.dart';
 import 'package:rxvault/utils/colors.dart';
-
+import '../../utils/rx_icons_icons.dart';
 import '../../custom/animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import '../../models/setting.dart';
 import '../../models/user_info.dart';
@@ -55,7 +55,7 @@ class HomeScreenState extends State<HomeScreen> {
     Icons.home,
     Icons.medical_information,
     Icons.analytics,
-    Icons.toggle_on_sharp
+    RxIcons.doctorProfile
   ];
 
   late Future<Setting> settingsFuture;
