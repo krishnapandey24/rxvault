@@ -12,12 +12,17 @@ import '../../../network/api_service.dart';
 import '../models/patient_document_response.dart';
 
 class ViewAllDocuments extends StatefulWidget {
+  final List<Document>? documents;
   final String patientId;
   final String doctorId;
   final String? date;
 
   const ViewAllDocuments(
-      {super.key, required this.patientId, required this.doctorId, this.date});
+      {super.key,
+      required this.patientId,
+      required this.doctorId,
+      this.date,
+      this.documents});
 
   @override
   State<ViewAllDocuments> createState() => _ViewAllDocumentsState();
@@ -32,13 +37,27 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
   int _currentIndex = 0;
   int _documentsCount = 0;
   late Size size;
+  var isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    if (widget.documents != null && widget.documents!.isNotEmpty) {
+      _documents = widget.documents!;
+      isLoading = false;
+    } else {
+      loadDocuments();
+    }
     controller = PageController(initialPage: 0);
-    documentsFuture =
-        api.getPatientDocuments(widget.patientId, widget.doctorId, widget.date);
+  }
+
+  void loadDocuments() async {
+    List<Document> documents = await api.getPatientDocuments(
+        widget.patientId, widget.doctorId, widget.date);
+    setState(() {
+      _documents = documents;
+      isLoading = false;
+    });
   }
 
   @override
@@ -82,28 +101,24 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
           ),
         ],
       ),
-      body: FutureBuilder<List<Document>>(
-        future: documentsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            _documents = snapshot.data!;
-            _documentsCount = _documents.length;
-            if (_documents.isEmpty) {
-              Utils.toast("No Documents Found");
-              Navigator.pop(context);
-              return const SizedBox();
-            }
-            _currentIndex = _documentsCount - 1;
-            title = _documents.first.title;
-            return buildSwiper();
-          }
-        },
-      ),
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : _showDocuments(),
     );
+  }
+
+  Widget _showDocuments() {
+    if (_documents.isEmpty) {
+      Utils.toast("No Documents Found");
+      Navigator.pop(context);
+      return const SizedBox();
+    }
+    _documentsCount = _documents.length;
+    _currentIndex = _documentsCount - 1;
+    title = _documents.first.title;
+    return buildSwiper();
   }
 
   buildSwiper() {

@@ -344,22 +344,21 @@ class AddPatientDialogState extends State<AddPatientDialog> {
           return;
         }
       }
-      await api.addDoctorsPatient(
-          widget.userId, (newPatientId ?? patient.patientId).toString());
-
-      Utils.toast("Patient Added Successfully!");
-      _closeLoaderAndDialog(patientAdded: true);
+      _closeLoaderAndDialog(
+          patientId: (newPatientId ?? patient.patientId).toString());
     } catch (e) {
       Utils.toast("$e \n Please try again");
       pop();
     }
   }
 
-  void _closeLoaderAndDialog({bool patientAdded = false}) {
+  void _closeLoaderAndDialog({String? patientId}) {
     if (mounted) {
       pop(); // Close the loader
-      Navigator.pop(context,
-          patientAdded); // Navigate back, passing the patientAdded status
+      Navigator.pop(
+        context,
+        patientId,
+      ); // Navigate back, passing the patientAdded status
     }
   }
 

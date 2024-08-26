@@ -85,9 +85,6 @@ class ExcelGenerator {
         directory = await getApplicationDocumentsDirectory();
       }
 
-      // Debugging: Print directory path
-      print('Directory path: ${directory?.path}');
-
       bool hasExisted = await directory?.exists() ?? false;
       if (!hasExisted) {
         await directory?.create(recursive: true);
@@ -97,7 +94,6 @@ class ExcelGenerator {
           "${directory?.path}${Platform.pathSeparator}${fileName}_yoyuoy.xlsx");
 
       // Debugging: Print file path
-      print('File path: ${file.path}');
 
       await file.writeAsBytes(bytes);
 
@@ -108,8 +104,7 @@ class ExcelGenerator {
         Navigator.pop(context);
       }
       _openDefaultDownloadFolder();
-    } catch (e, t) {
-      print("$e $t");
+    } catch (e) {
       Utils.toast("Unable to save excel file!");
       if (context.mounted) {
         Navigator.pop(context);

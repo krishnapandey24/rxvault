@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
 class NativeBridge {
@@ -7,7 +8,7 @@ class NativeBridge {
     try {
       await _channel.invokeMethod('openDownloadFolder');
     } on PlatformException catch (e) {
-      print("Failed to run native function: '${e.message}'.");
+      debugPrint("Failed to run native function: '${e.message}'.");
     }
   }
 }

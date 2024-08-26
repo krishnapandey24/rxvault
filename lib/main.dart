@@ -1,4 +1,3 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -10,7 +9,8 @@ import 'package:rxvault/utils/colors.dart';
 import 'package:rxvault/utils/constants.dart';
 import 'package:rxvault/utils/user_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'firebase_options.dart';	
+import 'package:firebase_core/firebase_core.dart';
 import 'models/user_info.dart';
 
 Future<void> initPlatformState() async {
@@ -22,9 +22,9 @@ Future<void> initPlatformState() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await initPlatformState();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isLoggedIn = prefs.getBool(UserManager.isLoggedIn) ?? false;
@@ -48,17 +48,6 @@ Future<void> main() async {
   );
 }
 
-void setupFirebaseMessaging() {
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    // Handle foreground message
-  });
-
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-}
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Handle background messages
-}
 
 class RxVault extends StatelessWidget {
   final bool isFirstTime;
@@ -88,7 +77,7 @@ class RxVault extends StatelessWidget {
         colorScheme: const ColorScheme(
           primary: darkBlue, // Primary color
           secondary: Color(0xFF33FF57), // Secondary color
-          surface: Colors.white, // Surface color
+          surface: Colors.white,
           error: Colors.red, // Error color
           onPrimary: Colors.white, // Color for text/icons on primary color
           onSecondary: Colors.black, // Color for text/icons on secondary color

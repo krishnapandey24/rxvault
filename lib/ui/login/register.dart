@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:rxvault/ui/login/create_update_user.dart';
 import 'package:rxvault/ui/login/verification.dart';
@@ -231,7 +232,9 @@ class RegisterState extends State<Register> {
   void verifyOtp(String phoneNumber) async {
     bool isStaff = selectedOption == "staff";
     Utils.showLoader(context, "Please wait");
-    api.login(phoneNumber, selectedOption).then(
+    api
+        .login(phoneNumber, selectedOption, OneSignal.User.pushSubscription.id)
+        .then(
       (value) {
         Navigator.pop(context);
         user.updateIsStaffAndPermission(

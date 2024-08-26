@@ -6,7 +6,6 @@ import 'package:rxvault/enums/permission.dart';
 import 'package:rxvault/ui/dialogs/add_diagnosis_dialog.dart';
 import 'package:rxvault/ui/dialogs/add_patient_dialog.dart';
 import 'package:rxvault/ui/dialogs/select_services_dialog.dart';
-import 'package:rxvault/ui/view_all_documents.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
 import 'package:rxvault/utils/colors.dart';
 
@@ -20,12 +19,14 @@ import '../../dialogs/upload_image_dialog.dart';
 import '../../view_patient.dart';
 import '../../widgets/rxvault_app_bar.dart';
 import '../../widgets/triangle.dart';
+import '../../widgets/view_document_icon.dart';
 
 class Home extends StatefulWidget {
   final String userId;
   final Setting setting;
   final GlobalKey<ScaffoldState> scaffoldKey;
   final String clinicName;
+  final Function() goToClinic;
 
   const Home({
     super.key,
@@ -33,6 +34,7 @@ class Home extends StatefulWidget {
     required this.setting,
     required this.scaffoldKey,
     required this.clinicName,
+    required this.goToClinic,
   });
 
   @override
@@ -58,18 +60,21 @@ class HomeState extends State<Home> {
   late Size size;
   late double screenWidth;
   late double screenHeight;
+  late String todayDate;
 
   String get userId => widget.userId;
 
   @override
   void initState() {
     super.initState();
+    todayDate = Utils.getCurrentDate();
+    selectedDate = todayDate;
     setting = widget.setting;
     clinicOpen = setting.status == "open";
-    _loadData();
+    _refreshData();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _refreshData() async {
     setState(() {
       isLoading = true;
     });
@@ -111,7 +116,7 @@ class HomeState extends State<Home> {
         setting: setting,
         changeAppointmentDate: (date) {
           selectedDate = date;
-          _loadData();
+          _refreshData();
         },
       ),
       backgroundColor: Colors.white,
@@ -215,6 +220,9 @@ class HomeState extends State<Home> {
                   activeColor: Colors.white,
                   value: clinicOpen,
                   onChanged: (value) {
+                    if (_serviceIsEmpty()) {
+                      return;
+                    }
                     setState(() {
                       clinicOpen = value;
                     });
@@ -402,7 +410,7 @@ class HomeState extends State<Home> {
 
   RefreshIndicator buildListView(int length) {
     return RefreshIndicator(
-      onRefresh: _loadData,
+      onRefresh: _refreshData,
       child: ListView.builder(
         itemCount: patients.length,
         itemBuilder: (context, index) =>
@@ -413,7 +421,7 @@ class HomeState extends State<Home> {
 
   RefreshIndicator buildGridView(int length) {
     return RefreshIndicator(
-      onRefresh: _loadData,
+      onRefresh: _refreshData,
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -433,10 +441,18 @@ class HomeState extends State<Home> {
       return;
     }
     clearSearch();
+    addAppointment(patient.patientId);
+  }
+
+  void addAppointment(String patientId) {
+    if (selectedDate != todayDate) {
+      _showNotTodayDateDialog();
+      return;
+    }
     Utils.showLoader(context, "Adding Patient to the list...");
-    api.addDoctorsPatient(userId, patient.patientId).then((value) {
+    api.addDoctorsPatient(userId, patientId).then((value) {
       Navigator.pop(context);
-      _loadData();
+      _refreshData();
     }).catchError((e) {
       Navigator.pop(context);
       Utils.toast(e.toString());
@@ -459,9 +475,12 @@ class HomeState extends State<Home> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            getFormattedName(patient.name),
-            style: const TextStyle(fontSize: 15, color: Colors.black),
+          Expanded(
+            child: Text(
+              patient.name,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 15, color: Colors.black),
+            ),
           ),
           const Spacer(),
           InkWell(
@@ -535,11 +554,12 @@ class HomeState extends State<Home> {
             ),
           ),
           const SizedBox(width: 5),
-          InkWell(
-            onTap: () => showAddDiagnosis(patient),
-            child: buildItemColumn1(patient),
+          Expanded(
+            child: InkWell(
+              onTap: () => showAddDiagnosis(patient),
+              child: buildItemColumn1(patient),
+            ),
           ),
-          const Spacer(),
           InkWell(
             onTap: () {
               showSelectServicesDialog(widget.setting, patient);
@@ -569,13 +589,17 @@ class HomeState extends State<Home> {
               ),
             ),
           ),
-          InkWell(
-            onTap: () => _showDocumentsDialog(patient.patientId),
-            child: Padding(
-              padding: isGrid
-                  ? const EdgeInsets.all(7)
-                  : const EdgeInsets.symmetric(horizontal: 7, vertical: 12),
-              child: Image.asset("assets/images/as15.png"),
+          Container(
+            color: Colors.yellow,
+            child: SizedBox(
+              height: double.maxFinite,
+              width: 50,
+              child: ViewDocumentIcon(
+                date: selectedDate ?? todayDate,
+                patientId: patient.patientId,
+                doctorId: widget.userId,
+                patient: patient,
+              ),
             ),
           ),
           InkWell(
@@ -682,61 +706,42 @@ class HomeState extends State<Home> {
     });
   }
 
-  void _showDocumentsDialog(String patientId) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(0),
-          child: ViewAllDocuments(
-            patientId: patientId,
-            doctorId: widget.userId,
-            date: selectedDate ?? Utils.getCurrentDate(),
-          ),
-        );
-      },
-    );
-  }
-
   void addDocumentDialog(String patientId, String doctorPatientId) {
+    // if (_notTodayDate("documents")) return;
+
     if (user.doNotHavePermission(Permission.addImage)) {
       Utils.noPermission();
       return;
     }
+
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return Responsive(
-            mobile: UploadImageDialogs(
-              isMobile: true,
-              screenWidth: screenWidth,
-              parentContext: context,
-              userId: widget.userId,
-              patientId: patientId,
-              doctorPatientId: doctorPatientId,
-            ),
-            desktop: UploadImageDialogs(
-              isMobile: false,
-              screenWidth: screenWidth,
-              parentContext: context,
-              userId: widget.userId,
-              patientId: patientId,
-              doctorPatientId: doctorPatientId,
-            ),
-            tablet: UploadImageDialogs(
-              isMobile: false,
-              screenWidth: screenWidth,
-              parentContext: context,
-              userId: widget.userId,
-              patientId: patientId,
-              doctorPatientId: doctorPatientId,
-            ),
+            mobile: buildUploadDialog(true, patientId, doctorPatientId),
+            desktop: buildUploadDialog(false, patientId, doctorPatientId),
+            tablet: buildUploadDialog(false, patientId, doctorPatientId),
           );
         });
   }
 
-  Column buildItemColumn1(Patient patient) {
+  Widget buildUploadDialog(
+      bool isMobile, String patientId, String doctorPatientId) {
+    return UploadImageDialogs(
+      isMobile: isMobile,
+      screenWidth: screenWidth,
+      parentContext: context,
+      userId: widget.userId,
+      date: selectedDate ?? Utils.getCurrentDate(),
+      patientId: patientId,
+      doctorPatientId: doctorPatientId,
+      addDocument: () {
+        _refreshData();
+      },
+    );
+  }
+
+  buildItemColumn1(Patient patient) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -754,8 +759,9 @@ class HomeState extends State<Home> {
             );
           },
           child: Text(
-            getFormattedName(patient.name),
+            patient.name,
             maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: darkBlue,
               fontSize: 13,
@@ -766,14 +772,6 @@ class HomeState extends State<Home> {
         buildPatientInfoRow(patient)
       ],
     );
-  }
-
-  String getFormattedName(String name) {
-    if (name.length > 10) {
-      return '${name.substring(0, 10)}...';
-    } else {
-      return name;
-    }
   }
 
   Row buildPatientInfoRow(Patient patient) {
@@ -855,7 +853,7 @@ class HomeState extends State<Home> {
       return;
     }
 
-    bool? patientAdded = await showDialog(
+    String? patientId = await showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -879,8 +877,8 @@ class HomeState extends State<Home> {
       },
     );
 
-    if (patientAdded != null) {
-      _loadData();
+    if (patientId != null) {
+      addAppointment(patientId);
     }
   }
 
@@ -919,6 +917,8 @@ class HomeState extends State<Home> {
   }
 
   void showAddDiagnosis(Patient patient) {
+    if (_notTodayDate("diagnosis")) return;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -945,6 +945,8 @@ class HomeState extends State<Home> {
   }
 
   void showSelectServicesDialog(Setting setting, Patient patient) {
+    if (_notTodayDate("amount")) return;
+
     if (patient.getTotalAmount == "0") {
       if (user.doNotHavePermission(Permission.updatePatientService) ||
           user.doNotHavePermission(Permission.addPatientService)) {
@@ -1009,8 +1011,8 @@ class HomeState extends State<Home> {
           setState(() {
             patient.selectedServices = selectedServices;
             this.totalAmount = this.totalAmount +
-                parseNullableStringToInt(totalAmount) -
-                parseNullableStringToInt(patient.totalAmount);
+                _parseNullableStringToInt(totalAmount) -
+                _parseNullableStringToInt(patient.totalAmount);
             patient.totalAmount = totalAmount;
           });
         },
@@ -1030,7 +1032,7 @@ class HomeState extends State<Home> {
 
     api.deleteSelectedPatient(doctorPatientId, widget.userId).then((value) {
       Navigator.pop(context);
-      _loadData();
+      _refreshData();
       Utils.toast("Patient Removed");
     }).catchError((e) {
       Utils.toast("Unable to remove patient!");
@@ -1061,6 +1063,17 @@ class HomeState extends State<Home> {
     return total;
   }
 
+  void _showNotTodayDateDialog() {
+    Utils.showAlertDialog(
+      context,
+      "Appointment can only be added for current date",
+      () => Navigator.pop(context),
+      () {},
+      "Okay",
+      "",
+    );
+  }
+
   void clearSearch() {
     setState(() {
       searchResults.clear();
@@ -1070,7 +1083,26 @@ class HomeState extends State<Home> {
     searchFocusNode.unfocus();
   }
 
-  int parseNullableStringToInt(String? nullableString) {
+  int _parseNullableStringToInt(String? nullableString) {
     return int.tryParse(nullableString ?? '') ?? 0;
+  }
+
+  bool _serviceIsEmpty() {
+    if (setting.openClose.isNullOrEmpty() &&
+        setting.openTime1.isNullOrEmpty() &&
+        setting.closeTime1.isNullOrEmpty()) {
+      widget.goToClinic();
+      Utils.toast("Please set clinic time first!");
+      return true;
+    }
+    return false;
+  }
+
+  bool _notTodayDate(String name) {
+    if (selectedDate != todayDate) {
+      Utils.toast("You can only add/modify $name for current date");
+      return true;
+    }
+    return false;
   }
 }

@@ -15,5 +15,5 @@ const List<bool> defaultSelection = [
 const rupee = '₹';
 const profileImageSize = 50.0;
 String defaultTimeString = "--Select--";
-const oneSignalAppId = "";
+const oneSignalAppId = "8b756e36-fe32-4c4b-b46d-0a1bdea1a72b";
 const maxAmountLength = 5;

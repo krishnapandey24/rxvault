@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:rxvault/models/patient_document_response.dart';
 import 'package:rxvault/utils/colors.dart';
 import 'package:rxvault/utils/utils.dart';
 
@@ -14,10 +13,11 @@ class UploadImageDialogs extends StatefulWidget {
   final double screenWidth;
   final BuildContext parentContext;
   final String userId;
+  final String date;
   final String patientId;
   final String doctorPatientId;
   final bool fromViewDocuments;
-  final Function(Document)? addDocument;
+  final Function() addDocument;
 
   const UploadImageDialogs({
     super.key,
@@ -27,8 +27,9 @@ class UploadImageDialogs extends StatefulWidget {
     required this.userId,
     required this.patientId,
     this.fromViewDocuments = false,
-    this.addDocument,
+    required this.addDocument,
     required this.doctorPatientId,
+    required this.date,
   });
 
   @override
@@ -156,12 +157,13 @@ class UploadImageDialogsState extends State<UploadImageDialogs> {
     Utils.showLoader(context, "uploading images...");
 
     api
-        .addDocument(patientId, doctorPatientId, doctorId, "doc", imagesBytes)
+        .addDocument(patientId, doctorPatientId, doctorId, "doc", imagesBytes,
+            widget.date)
         .then((value) {
       Utils.toast("Images uploaded");
+      widget.addDocument();
       closeDialogs(1, "");
     }).catchError((e, t) {
-      print("$e $t");
       Utils.toast(e.toString());
       closeDialogs(1, "");
     });

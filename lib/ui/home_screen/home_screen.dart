@@ -4,11 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
 import 'package:rxvault/ui/widgets/rxvault_app_bar.dart';
 import 'package:rxvault/utils/colors.dart';
-import '../../utils/rx_icons_icons.dart';
+
 import '../../custom/animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import '../../models/setting.dart';
 import '../../models/user_info.dart';
 import '../../network/api_service.dart';
+import '../../utils/rx_icons_icons.dart';
 import '../../utils/utils.dart';
 import '../mr_settings.dart';
 import 'analytics.dart';
@@ -37,6 +38,7 @@ class HomeScreenState extends State<HomeScreen> {
       setting: setting,
       scaffoldKey: _scaffoldKey,
       clinicName: widget.clinicName,
+      goToClinic: () => changePage(1),
     ),
     ClinicScreen(
       userId: widget.userId,
@@ -82,7 +84,7 @@ class HomeScreenState extends State<HomeScreen> {
         backPressCount++;
         if (_bottomNavIndex != 0) {
           backPressCount = 0;
-          goToHome();
+          changePage(0);
           return;
         }
         if (backPressCount == 2) {
@@ -115,11 +117,7 @@ class HomeScreenState extends State<HomeScreen> {
               },
               clinicName: widget.clinicName,
               setting: setting,
-              changeAppointmentDate: (date) {
-                // setState(() {
-                //   // selectedDate = date;
-                // });
-              },
+              changeAppointmentDate: (date) {},
             ),
       key: _scaffoldKey,
       drawer: isDesktop
@@ -230,9 +228,9 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void goToHome() => setState(() {
-        pageController.jumpToPage(0);
-        _bottomNavIndex = 0;
+  void changePage(int index) => setState(() {
+        pageController.jumpToPage(index);
+        _bottomNavIndex = index;
       });
 
   void handleBackPress() {
@@ -240,7 +238,7 @@ class HomeScreenState extends State<HomeScreen> {
 
     if (_bottomNavIndex != 4) {
       backPressCount = 0;
-      goToHome();
+      changePage(0);
       return;
     }
 

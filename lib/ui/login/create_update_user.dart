@@ -268,10 +268,11 @@ class _CreateUpdateUserState extends State<CreateUpdateUser> {
                   if (user.isDoctor) ...[
                     TextFormField(
                       maxLength: 250,
- minLines: 1,//Normal textInputField will be displayed
-    maxLines: 5,// when user presses enter it will adapt to it
+                      minLines: 1, //Normal textInputField will be displayed
+                      maxLines:
+                          5, // when user presses enter it will adapt to it
                       initialValue: userInfo.address,
-  keyboardType: TextInputType.multiline,
+                      keyboardType: TextInputType.multiline,
                       decoration: InputDecoration(
                         counterText: '',
                         contentPadding: const EdgeInsets.all(15),
@@ -387,7 +388,10 @@ class _CreateUpdateUserState extends State<CreateUpdateUser> {
     userInfo.playerId = playerId;
     api.registerUser(userInfo).then(
       (value) {
-        api.login(userInfo.mobile!, "Login").then(
+        api
+            .login(
+                userInfo.mobile!, "Login", OneSignal.User.pushSubscription.id)
+            .then(
           (value) {
             user.updateName(userInfo.name ?? "");
             Navigator.of(context, rootNavigator: true).push(

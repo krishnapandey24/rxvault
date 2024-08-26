@@ -51,7 +51,7 @@ class Setting {
 
   Map<String, dynamic> toJson() {
     return {
-      'setting_id': settingId ?? "",
+      'setting_id': settingId ?? doctorId ?? "",
       'user_id': doctorId,
       'open_close': openClose ?? "",
       'open_time': openTime1 ?? "",

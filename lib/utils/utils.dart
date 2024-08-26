@@ -163,7 +163,8 @@ class Utils {
   }
 
   static showAlertDialog(
-      BuildContext context, String title, Function() yes, Function() no) {
+      BuildContext context, String title, Function() yes, Function() no,
+      [String? yesText, String? noText]) {
     return showDialog(
       context: context,
       barrierDismissible: false,
@@ -182,18 +183,19 @@ class Utils {
           actions: [
             TextButton(
               onPressed: yes,
-              child: const Text(
-                "Yes",
-                style: TextStyle(color: Colors.black),
+              child: Text(
+                yesText ?? "Yes",
+                style: const TextStyle(color: Colors.black),
               ),
             ),
-            TextButton(
-              onPressed: no,
-              child: const Text(
-                "No",
-                style: TextStyle(color: Colors.black),
+            if (noText == null || noText != "")
+              TextButton(
+                onPressed: no,
+                child: Text(
+                  noText ?? "No",
+                  style: const TextStyle(color: Colors.black),
+                ),
               ),
-            ),
           ],
         );
       },
@@ -323,5 +325,11 @@ class Utils {
       }
       return Colors.white;
     });
+  }
+}
+
+extension StringExtensions on String? {
+  bool isNullOrEmpty() {
+    return this == null || this!.isEmpty;
   }
 }

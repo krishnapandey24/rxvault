@@ -7,13 +7,13 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:rxvault/models/add_document_response.dart';
 import 'package:rxvault/models/analytics_response.dart';
 import 'package:rxvault/models/doctor_info.dart';
-import 'package:rxvault/models/mr_list_response.dart';
 import 'package:rxvault/models/patient_document_response.dart';
 import 'package:rxvault/models/update_staff_response.dart';
 import 'package:rxvault/utils/user_manager.dart';
 
 import '../enums/day.dart';
 import '../models/login_response.dart';
+import '../models/mr_list_response.dart';
 import '../models/notification_list_response.dart';
 import '../models/patient.dart';
 import '../models/patient_list_response.dart';
@@ -27,7 +27,9 @@ import '../utils/exceptions/registration_required.dart';
 import '../utils/utils.dart';
 
 class API {
+  // static const baseUrl = 'https://ensivosolutions.com/rxvault/api/';
   static const baseUrl = 'http://122.170.7.173/RxVault/Api/';
+
   static CustomException swwException =
       CustomException("Something went wrong, Please try again");
 
@@ -45,20 +47,23 @@ class API {
   );
 
   Future<AddDocumentResponse> addDocument(
-    String patientId,
-    String doctorPatientId,
-    String doctorId,
-    String title,
-    List<Uint8List> imageBytesList,
-  ) async {
+      String patientId,
+      String doctorPatientId,
+      String doctorId,
+      String title,
+      List<Uint8List> imageBytesList,
+      String date) async {
     final formData = FormData();
     formData.fields.add(MapEntry('patient_id', patientId));
     formData.fields.add(MapEntry('doctor_id', doctorId));
     formData.fields.add(MapEntry('title', title));
     formData.fields.add(MapEntry('doctor_patient_id', doctorPatientId));
+    formData.fields.add(MapEntry('date', date));
+   formData.fields.add(const MapEntry('created_by', 'Doctor'));
 
     for (int i = 0; i < imageBytesList.length; i++) {
-      final compressedImage = await compressList(imageBytesList[i]);
+      final compressedImage =
+          kIsWeb ? imageBytesList[i] : await compressList(imageBytesList[i]);
       formData.files.add(MapEntry(
         'document[]',
         MultipartFile.fromBytes(compressedImage, filename: '$title-$i'),
@@ -101,15 +106,17 @@ class API {
     await UserManager.updateUserInfo(userInfo);
   }
 
-  Future<DoctorInfo> login(String phoneNumber, String loginType) async {
+  Future<DoctorInfo> login(
+      String phoneNumber, String loginType, String? appId) async {
     try {
       final isStaffLogin = loginType == "staff";
       final endpoint = isStaffLogin ? "staff_login" : "Login";
-
+      appId = appId?.isEmpty == true ? "aaa" : appId;
       final response = await _dio.post(endpoint,
           data: FormData.fromMap({
             "mobile": phoneNumber,
             "password": "1234",
+            "app_id": appId,
           }));
 
       final loginResponse = LoginResponse.fromJson(response.data, isStaffLogin);
@@ -127,7 +134,7 @@ class API {
       if (e.response != null && e.response?.statusCode == 404) {
         throw CustomException(staffNotFound);
       } else {
-        rethrow;
+        throw CustomException(e.response?.data?["message"]);
       }
     } catch (e) {
       rethrow;
@@ -466,9 +473,12 @@ class API {
       );
 
       final settingsResponse = SettingResponse.fromJson(response.data);
+
       return settingsResponse.doctorsSetting.first;
     } catch (e) {
-      return Setting.empty();
+      final emptySettings = Setting.empty();
+      emptySettings.doctorId = doctorId;
+      return emptySettings;
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rxvault/ui/home_screen/drawer/privacy_policy.dart';
 import 'package:rxvault/ui/login/create_update_user.dart';
 import 'package:rxvault/ui/login/register.dart';
 
@@ -70,7 +71,11 @@ class _RxDrawerState extends State<RxDrawer> {
             buildHeader(),
             const SizedBox(height: 20),
             ListTile(
-              onTap: () {},
+              onTap: () => Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(
+                  builder: (context) => const PrivacyPolicy(),
+                ),
+              ),
               leading: const Icon(
                 Icons.privacy_tip_outlined,
                 size: 22,

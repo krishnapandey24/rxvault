@@ -68,8 +68,9 @@ class SelectPatientsDialogState extends State<SelectPatientsDialog> {
                       width: 40,
                     ),
                     title: Text(
-                      getFormattedName(patient.name),
+                      patient.name,
                       maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: darkBlue,
                         fontSize: 13,
@@ -110,13 +111,5 @@ class SelectPatientsDialogState extends State<SelectPatientsDialog> {
         ],
       ),
     );
-  }
-
-  String getFormattedName(String name) {
-    if (name.length > 10) {
-      return '${name.substring(0, 10)}...';
-    } else {
-      return name;
-    }
   }
 }
