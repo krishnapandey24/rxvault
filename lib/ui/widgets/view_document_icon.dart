@@ -8,13 +8,15 @@ import '../view_all_documents.dart';
 class ViewDocumentIcon extends StatefulWidget {
   final Patient patient;
   final String patientId, doctorId, date;
+  final Function() refresh;
 
   const ViewDocumentIcon(
       {super.key,
       required this.date,
       required this.patientId,
       required this.doctorId,
-      required this.patient});
+      required this.patient,
+      required this.refresh});
 
   @override
   State<ViewDocumentIcon> createState() => ViewDocumentIconState();
@@ -102,6 +104,7 @@ class ViewDocumentIconState extends State<ViewDocumentIcon> {
             patientId: patientId,
             doctorId: widget.doctorId,
             date: widget.date,
+            refresh: widget.refresh,
           ),
         );
       },

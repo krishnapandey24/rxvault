@@ -27,8 +27,8 @@ import '../utils/exceptions/registration_required.dart';
 import '../utils/utils.dart';
 
 class API {
-  // static const baseUrl = 'https://ensivosolutions.com/rxvault/api/';
-  static const baseUrl = 'http://122.170.7.173/RxVault/Api/';
+  static const baseUrl = 'https://ensivosolutions.com/rxvault/api/';
+  // static const baseUrl = 'http://122.170.7.173/RxVault/Api/';
 
   static CustomException swwException =
       CustomException("Something went wrong, Please try again");
@@ -59,7 +59,7 @@ class API {
     formData.fields.add(MapEntry('title', title));
     formData.fields.add(MapEntry('doctor_patient_id', doctorPatientId));
     formData.fields.add(MapEntry('date', date));
-   formData.fields.add(const MapEntry('created_by', 'Doctor'));
+    formData.fields.add(const MapEntry('created_by', 'Doctor'));
 
     for (int i = 0; i < imageBytesList.length; i++) {
       final compressedImage =

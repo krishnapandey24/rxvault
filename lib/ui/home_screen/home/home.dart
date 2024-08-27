@@ -599,6 +599,7 @@ class HomeState extends State<Home> {
                 patientId: patient.patientId,
                 doctorId: widget.userId,
                 patient: patient,
+                refresh: _refreshData,
               ),
             ),
           ),
@@ -647,7 +648,6 @@ class HomeState extends State<Home> {
   String _formatIndianNumber(String amount) {
     amount = amount.replaceAll(',', '');
 
-    // Handle edge cases where amount is empty or not a valid number
     if (amount.isEmpty || !RegExp(r'^\d+$').hasMatch(amount)) {
       return amount;
     }
@@ -655,7 +655,6 @@ class HomeState extends State<Home> {
     List<String> chars = amount.split('');
     chars = chars.reversed.toList();
 
-    // Insert commas at appropriate positions for Indian numbering format
     for (int i = 3; i < chars.length; i += 2) {
       chars.insert(i, ',');
       i++;

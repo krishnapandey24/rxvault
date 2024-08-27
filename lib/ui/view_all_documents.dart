@@ -16,13 +16,15 @@ class ViewAllDocuments extends StatefulWidget {
   final String patientId;
   final String doctorId;
   final String? date;
+  final Function() refresh;
 
   const ViewAllDocuments(
       {super.key,
       required this.patientId,
       required this.doctorId,
       this.date,
-      this.documents});
+      this.documents,
+      required this.refresh});
 
   @override
   State<ViewAllDocuments> createState() => _ViewAllDocumentsState();
@@ -218,6 +220,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
       Utils.toast("Document Deleted Successfully");
       if (mounted) Navigator.pop(context);
       if (mounted) Navigator.pop(context);
+      widget.refresh();
     } catch (e) {
       Utils.toast(e.toString());
     } finally {

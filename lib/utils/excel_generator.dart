@@ -39,19 +39,19 @@ class ExcelGenerator {
       bold: true,
     );
     sheetObject.cell(CellIndex.indexByString("A1")).value =
-        const TextCellValue("Name");
+        TextCellValue("Name");
     sheetObject.cell(CellIndex.indexByString("A1")).cellStyle = boldStyle;
 
     sheetObject.cell(CellIndex.indexByString("B1")).value =
-        const TextCellValue("Age");
+        TextCellValue("Age");
     sheetObject.cell(CellIndex.indexByString("B1")).cellStyle = boldStyle;
 
     sheetObject.cell(CellIndex.indexByString("C1")).value =
-        const TextCellValue("Mobile");
+        TextCellValue("Mobile");
     sheetObject.cell(CellIndex.indexByString("C1")).cellStyle = boldStyle;
 
     sheetObject.cell(CellIndex.indexByString("D1")).value =
-        const TextCellValue("Allergic");
+        TextCellValue("Allergic");
     sheetObject.cell(CellIndex.indexByString("D1")).cellStyle = boldStyle;
 
     for (int i = 0; i < patients.length; i++) {

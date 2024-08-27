@@ -13,7 +13,6 @@ import '../../utils/exceptions/registration_required.dart';
 import '../../utils/user_manager.dart';
 import '../../utils/utils.dart';
 import '../home_screen/home_screen.dart';
-import '../widgets/crop_image.dart';
 import '../widgets/responsive.dart';
 import '../widgets/user_image_preview.dart';
 
@@ -344,16 +343,16 @@ class _CreateUpdateUserState extends State<CreateUpdateUser> {
 
     if (result != null) {
       if (!mounted) return;
-      final croppedFile = await Navigator.of(context, rootNavigator: true).push(
-        MaterialPageRoute(
-          builder: (context) => CropImage(pickedFile: result, forProfile: true),
-        ),
-      );
-      if (croppedFile != null) {
-        final imageBytes = await croppedFile.readAsBytes();
-        final filePath = croppedFile.path;
-        _handleImageUpload(imageBytes, filePath);
-      }
+      // final croppedFile = await Navigator.of(context, rootNavigator: true).push(
+      //   MaterialPageRoute(
+      //     builder: (context) => CropImage(pickedFile: result, forProfile: true),
+      //   ),
+      // );
+      // if (croppedFile != null) {
+      final imageBytes = await result.readAsBytes();
+      final filePath = result.path;
+      _handleImageUpload(imageBytes, filePath);
+      // }
     }
   }
 
