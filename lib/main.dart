@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -9,8 +10,8 @@ import 'package:rxvault/utils/colors.dart';
 import 'package:rxvault/utils/constants.dart';
 import 'package:rxvault/utils/user_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'firebase_options.dart';	
-import 'package:firebase_core/firebase_core.dart';
+
+import 'firebase_options.dart';
 import 'models/user_info.dart';
 
 Future<void> initPlatformState() async {
@@ -18,6 +19,8 @@ Future<void> initPlatformState() async {
   OneSignal.Debug.setAlertLevel(OSLogLevel.none);
   OneSignal.initialize(oneSignalAppId);
   OneSignal.Notifications.requestPermission(true);
+  await Future.delayed(const Duration(milliseconds: 100));
+  OneSignal.User.pushSubscription.id;
 }
 
 Future<void> main() async {
@@ -47,7 +50,6 @@ Future<void> main() async {
     ),
   );
 }
-
 
 class RxVault extends StatelessWidget {
   final bool isFirstTime;

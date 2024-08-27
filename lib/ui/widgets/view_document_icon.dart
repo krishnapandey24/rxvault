@@ -80,7 +80,7 @@ class ViewDocumentIconState extends State<ViewDocumentIcon> {
                 ),
                 child: Center(
                   child: Text(
-                    _documents.length.toString(),
+                    getLengthString(),
                     style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ),
@@ -89,6 +89,12 @@ class ViewDocumentIconState extends State<ViewDocumentIcon> {
         ],
       ),
     );
+  }
+
+  String getLengthString() {
+    int length = _documents.length;
+    if (length > 100) return "99+";
+    return length.toString();
   }
 
   void _showDocumentsDialog(

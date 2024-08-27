@@ -27,6 +27,15 @@ class RegisterState extends State<Register> {
   final _formKey = GlobalKey<FormState>();
   String selectedOption = 'doctor';
   late User user;
+  String? playerId;
+
+  @override
+  void initState() {
+    super.initState();
+    OneSignal.User.pushSubscription.addObserver((state) {
+      playerId = OneSignal.User.pushSubscription.id;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -233,7 +242,8 @@ class RegisterState extends State<Register> {
     bool isStaff = selectedOption == "staff";
     Utils.showLoader(context, "Please wait");
     api
-        .login(phoneNumber, selectedOption, OneSignal.User.pushSubscription.id)
+        .login(phoneNumber, selectedOption,
+            playerId ?? OneSignal.User.pushSubscription.id)
         .then(
       (value) {
         Navigator.pop(context);

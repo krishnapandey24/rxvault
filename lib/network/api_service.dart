@@ -109,6 +109,7 @@ class API {
   Future<DoctorInfo> login(
       String phoneNumber, String loginType, String? appId) async {
     try {
+      print("there there is : $appId");
       final isStaffLogin = loginType == "staff";
       final endpoint = isStaffLogin ? "staff_login" : "Login";
       appId = appId?.isEmpty == true ? "aaa" : appId;

@@ -34,10 +34,15 @@ class _CreateUpdateUserState extends State<CreateUpdateUser> {
   late String? userImageUrl = widget.userInfo?.image;
 
   get isUpdate => widget.userInfo != null;
+  String? playerId;
 
   @override
   void initState() {
     super.initState();
+    OneSignal.User.pushSubscription.addObserver((state) {
+      playerId = OneSignal.User.pushSubscription.id;
+    });
+
     if (!isUpdate) {
       userInfo.mobile = widget.phoneNumber;
     }
@@ -383,8 +388,7 @@ class _CreateUpdateUserState extends State<CreateUpdateUser> {
   }
 
   void registerUser() {
-    final playerId = OneSignal.User.pushSubscription.id;
-    userInfo.playerId = playerId;
+    userInfo.playerId = playerId ?? OneSignal.User.pushSubscription.id;
     api.registerUser(userInfo).then(
       (value) {
         api
