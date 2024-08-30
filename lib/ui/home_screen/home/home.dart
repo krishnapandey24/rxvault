@@ -118,6 +118,7 @@ class HomeState extends State<Home> {
           selectedDate = date;
           _refreshData();
         },
+        refresh: _refreshData,
       ),
       backgroundColor: Colors.white,
       body: Container(

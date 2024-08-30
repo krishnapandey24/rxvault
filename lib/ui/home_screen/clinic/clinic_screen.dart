@@ -145,16 +145,17 @@ class ClinicScreenState extends State<ClinicScreen> {
   buildPreferences() {
     return SingleChildScrollView(
       child: Responsive(
-        desktop: buildMainColumn(true),
-        mobile: buildMainColumn(false),
+        desktop: buildMainColumn(false),
+        mobile: buildMainColumn(true),
         tablet: buildMainColumn(false),
       ),
     );
   }
 
-  Column buildMainColumn(bool isDesktop) {
+  Column buildMainColumn(bool isMobile) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          isMobile ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
         const Padding(
           padding: EdgeInsets.all(8.0),
@@ -182,6 +183,8 @@ class ClinicScreenState extends State<ClinicScreen> {
         ),
         const SizedBox(height: 10),
         Row(
+          mainAxisAlignment:
+              isMobile ? MainAxisAlignment.start : MainAxisAlignment.center,
           children: [
             const SizedBox(width: 25),
             TimePicker(
@@ -211,6 +214,8 @@ class ClinicScreenState extends State<ClinicScreen> {
         ),
         const SizedBox(height: 10),
         Row(
+          mainAxisAlignment:
+              isMobile ? MainAxisAlignment.start : MainAxisAlignment.center,
           children: [
             const SizedBox(width: 25),
             TimePicker(
@@ -237,7 +242,7 @@ class ClinicScreenState extends State<ClinicScreen> {
             padding: const EdgeInsets.all(16),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                minimumSize: Size(size.width * 0.5, 30),
+                minimumSize: Size(size.width * 0.25, 30),
                 backgroundColor: primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16), // Border radius

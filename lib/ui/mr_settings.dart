@@ -70,8 +70,9 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
                     child: CircularProgressIndicator(),
                   )
                 : buildPreferences(),
+            const SizedBox(height: 10),
             SizedBox(
-              width: size.width * 0.3,
+              width: 230,
               child: ElevatedButton(
                 onPressed: () => updateSettings(false),
                 child: const Text(
@@ -178,17 +179,19 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
 
   buildPreferences() {
     return Responsive(
-      desktop: buildMainColumn(true),
-      mobile: buildMainColumn(false),
+      desktop: buildMainColumn(false),
+      mobile: buildMainColumn(true),
       tablet: buildMainColumn(false),
     );
   }
 
-  Column buildMainColumn(bool isDesktop) {
+  Column buildMainColumn(bool isMobile) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          isMobile ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Padding(
               padding: EdgeInsets.all(8.0),
@@ -244,6 +247,7 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
         ),
         const SizedBox(height: 7),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(width: 25),
             TimePicker(

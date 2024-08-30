@@ -6,6 +6,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:rxvault/ui/view_image.dart';
+import 'package:rxvault/ui/widgets/responsive.dart';
 import 'package:rxvault/utils/utils.dart';
 
 import '../../../network/api_service.dart';
@@ -18,13 +19,14 @@ class ViewAllDocuments extends StatefulWidget {
   final String? date;
   final Function() refresh;
 
-  const ViewAllDocuments(
-      {super.key,
-      required this.patientId,
-      required this.doctorId,
-      this.date,
-      this.documents,
-      required this.refresh});
+  const ViewAllDocuments({
+    super.key,
+    required this.patientId,
+    required this.doctorId,
+    this.date,
+    this.documents,
+    required this.refresh,
+  });
 
   @override
   State<ViewAllDocuments> createState() => _ViewAllDocumentsState();
@@ -37,15 +39,17 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
   List<Document> _documents = [];
   final api = API();
   int _currentIndex = 0;
-  int _documentsCount = 0;
   late Size size;
   var isLoading = true;
+  int _currentFocusIndex = 0;
+  final ScrollController _scrollController = ScrollController();
+  final double _scrollOffset = 300.0;
 
   @override
   void initState() {
     super.initState();
     if (widget.documents != null && widget.documents!.isNotEmpty) {
-      _documents = widget.documents!;
+      _documents = widget.documents!.reversed.toList();
       isLoading = false;
     } else {
       loadDocuments();
@@ -57,7 +61,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
     List<Document> documents = await api.getPatientDocuments(
         widget.patientId, widget.doctorId, widget.date);
     setState(() {
-      _documents = documents;
+      _documents = documents.reversed.toList();
       isLoading = false;
     });
   }
@@ -117,13 +121,16 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
       Navigator.pop(context);
       return const SizedBox();
     }
-    _documentsCount = _documents.length;
-    _currentIndex = _documentsCount - 1;
+    _currentIndex = 0;
     title = _documents.first.title;
-    return buildSwiper();
+    return Responsive(
+      desktop: buildDesktopSlider(),
+      tablet: buildDesktopSlider(),
+      mobile: buildSwiper(),
+    );
   }
 
-  buildSwiper() {
+  Column buildSwiper() {
     Widget emptyAreaWidget = emptyArea();
     return Column(
       children: [
@@ -132,18 +139,12 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
           child: Swiper(
             loop: false,
             onIndexChanged: (index) {
-              index = _documentsCount - 1 - index;
               _currentIndex = index;
             },
             itemBuilder: (BuildContext context, int index) {
-              index = _documentsCount - 1 - index;
               Document document = _documents[index];
               return InkWell(
-                onTap: () => Navigator.of(context, rootNavigator: true).push(
-                  MaterialPageRoute(
-                    builder: (context) => ViewImage(document.imageUrl),
-                  ),
-                ),
+                onTap: () => onImageClick(document.imageUrl),
                 child: Stack(
                   children: [
                     Positioned(
@@ -213,6 +214,14 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
     );
   }
 
+  void onImageClick(String url) {
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        builder: (context) => ViewImage(url),
+      ),
+    );
+  }
+
   void _deleteDocument(String documentId) async {
     try {
       Utils.showLoader(context);
@@ -268,5 +277,122 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
     );
     Utils.toast("Pdf generated successfully");
     if (mounted) Navigator.pop(context);
+  }
+
+  void scrollLeft() {
+    _scrollController.animateTo(
+      _scrollController.offset - _scrollOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void scrollRight() {
+    _scrollController.animateTo(
+      _scrollController.offset + _scrollOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  Widget buildDesktopSlider() {
+    return Stack(
+      children: [
+        Positioned(
+          left: 80,
+          right: 0,
+          top: 80,
+          bottom: 80,
+          child: ListView.builder(
+            padding: EdgeInsets.only(
+              right: MediaQuery.of(context).size.width * 0.4,
+            ),
+            controller: _scrollController,
+            itemCount: _documents.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              Document document = _documents[index];
+              return InkWell(
+                onTap: () => onImageClick(document.imageUrl),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.all(_currentFocusIndex == index ? 0 : 16),
+                  child: AspectRatio(
+                    aspectRatio: 9 / 12, // Aspect ratio of 9:12
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: CachedNetworkImage(
+                            imageUrl: _documents[index].imageUrl,
+                            fit:
+                                BoxFit.cover, // Adjust this based on your needs
+                          ),
+                        ),
+                        if (_currentFocusIndex == index)
+                          buildDeleteIcon(document.id),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        Positioned(
+          top: MediaQuery.of(context).size.height / 2 - 30,
+          right: 10,
+          child: FloatingActionButton(
+            onPressed: () {
+              scrollRight();
+              setState(() {
+                if (_currentFocusIndex < _documents.length - 1) {
+                  _currentFocusIndex++;
+                }
+              });
+            },
+            child: const Icon(Icons.arrow_forward),
+          ),
+        ),
+        Positioned(
+          top: MediaQuery.of(context).size.height / 2 - 30,
+          left: 10,
+          child: FloatingActionButton(
+            onPressed: () {
+              scrollLeft();
+              setState(() {
+                if (_currentFocusIndex > 0) {
+                  _currentFocusIndex--;
+                }
+              });
+            },
+            child: const Icon(Icons.arrow_back),
+          ),
+        ),
+      ],
+    );
+  }
+
+  buildDeleteIcon(String id) {
+    return Positioned(
+      top: 0,
+      right: 0,
+      child: CircleAvatar(
+        backgroundColor: Colors.red,
+        radius: 20,
+        child: IconButton(
+          onPressed: () => Utils.showAlertDialog(
+              context, "Are you sure you want delete this document?", () {
+            _deleteDocument(id);
+          }, () {
+            Navigator.pop(context);
+          }),
+          iconSize: 24,
+          icon: const Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
   }
 }

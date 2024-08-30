@@ -52,12 +52,12 @@ class Patient {
   factory Patient.fromJson(Map<String, dynamic> json) {
     return Patient(
       patientId: json['patient_id'],
-      name: json['patient_name'],
-      age: json['patient_age'],
-      mobile: json['patient_mobile'],
-      gender: json['patient_gender'],
-      allergic: json['patient_allergic'],
-      diagnosis: json['diagnosis'],
+      name: json['patient_name'] ?? "",
+      age: json['patient_age'] ?? "",
+      mobile: json['patient_mobile'] ?? "",
+      gender: json['patient_gender'] ?? "",
+      allergic: json['patient_allergic'] ?? "",
+      diagnosis: json['diagnosis'] ?? "",
       doctorPatientId: json['doctor_patient_id'],
       selectedServices: json['selected_services'],
       totalAmount: json['total_amount'],

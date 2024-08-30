@@ -30,81 +30,81 @@ class GenerateExcelDialogState extends State<GenerateExcelDialog> {
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(16)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            const Text("Choose Range "),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const Text("From: "),
-                InkWell(
-                  onTap: () {
-                    pickDate(true);
-                  },
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: primary,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      startDate,
-                      style: const TextStyle(color: Colors.white),
-                    ),
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text("Choose Range "),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("From: "),
+              InkWell(
+                onTap: () {
+                  pickDate(true);
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: primary,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    startDate,
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
-                const SizedBox(width: 25),
-              ],
-            ),
-            const SizedBox(height: 25),
-            Row(
-              children: [
-                const Text("To:     "),
-                InkWell(
-                  onTap: () {
-                    pickDate(false);
-                  },
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: primary,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      endDate,
-                      style: const TextStyle(color: Colors.white),
-                    ),
+              ),
+              const SizedBox(width: 25),
+            ],
+          ),
+          const SizedBox(height: 25),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("To:     "),
+              InkWell(
+                onTap: () {
+                  pickDate(false);
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: primary,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    endDate,
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
-                const SizedBox(width: 25),
-              ],
-            ),
-            const SizedBox(height: 45),
-            SizedBox(
-              width: 200,
-              child: ElevatedButton(
-                  onPressed: () {
-                    if (startSelected && endSelected) {
-                      _fetchPatients();
-                    } else {
-                      Utils.toast("choose start and end date");
-                    }
-                  },
-                  child: const Text(
-                    "Generate Excel",
-                    style: TextStyle(color: Colors.white),
-                  )),
-            )
-          ],
-        ),
+              ),
+              const SizedBox(width: 25),
+            ],
+          ),
+          const SizedBox(height: 45),
+          SizedBox(
+            width: 200,
+            child: ElevatedButton(
+                onPressed: () {
+                  if (startSelected && endSelected) {
+                    _fetchPatients();
+                  } else {
+                    Utils.toast("choose start and end date");
+                  }
+                },
+                child: const Text(
+                  "Generate Excel",
+                  style: TextStyle(color: Colors.white),
+                )),
+          )
+        ],
       ),
     );
   }

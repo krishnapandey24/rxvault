@@ -118,6 +118,7 @@ class HomeScreenState extends State<HomeScreen> {
               clinicName: widget.clinicName,
               setting: setting,
               changeAppointmentDate: (date) {},
+              refresh: () {},
             ),
       key: _scaffoldKey,
       drawer: isDesktop

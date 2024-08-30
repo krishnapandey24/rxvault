@@ -14,6 +14,7 @@ class RxVaultAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String clinicName;
   final Function(bool) openDrawer;
   final Function(String) changeAppointmentDate;
+  final Function() refresh;
   final Setting setting;
   final String userId;
 
@@ -24,6 +25,7 @@ class RxVaultAppBar extends StatefulWidget implements PreferredSizeWidget {
     required this.setting,
     required this.changeAppointmentDate,
     required this.userId,
+    required this.refresh,
   });
 
   @override
@@ -114,7 +116,6 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
                 ],
               ),
               const Spacer(),
-              if (!isMobile) buildMenuButton(false),
               IconButton(
                 onPressed: () =>
                     Navigator.of(context, rootNavigator: true).push(
@@ -128,7 +129,11 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
                 icon: const Icon(
                   Icons.notifications,
                 ),
-              )
+              ),
+              if (!isMobile) ...[
+                buildRefreshButton(),
+                buildMenuButton(false),
+              ],
             ],
           ),
         ],
@@ -143,6 +148,17 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
       color: darkBlue,
       icon: const Icon(
         Icons.menu,
+      ),
+    );
+  }
+
+  IconButton buildRefreshButton() {
+    return IconButton(
+      onPressed: () => widget.refresh(),
+      iconSize: 24,
+      color: darkBlue,
+      icon: const Icon(
+        Icons.refresh,
       ),
     );
   }

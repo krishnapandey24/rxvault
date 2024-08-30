@@ -84,7 +84,8 @@ class AnalyticsState extends State<Analytics> {
         isError = false;
         patients = getPatientsList(analyticsData);
       });
-    } catch (e) {
+    } catch (e, t) {
+      print("here: $e, $t");
       setState(() {
         isError = true;
         isChartLoading = false;
@@ -133,7 +134,8 @@ class AnalyticsState extends State<Analytics> {
 
   Column _buildMainColumn(bool isMobile) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          isMobile ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
         _buildAnalytics(isMobile),
         const SizedBox(height: 10),
@@ -142,6 +144,7 @@ class AnalyticsState extends State<Analytics> {
         const Text("Data Range: "),
         const SizedBox(height: 10),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Text("From: "),
             isMobile ? const Spacer() : const SizedBox(width: 25),
@@ -166,6 +169,7 @@ class AnalyticsState extends State<Analytics> {
         ),
         const SizedBox(height: 10),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Text("To:  "),
             isMobile ? const Spacer() : const SizedBox(width: 35),
@@ -190,23 +194,11 @@ class AnalyticsState extends State<Analytics> {
         ),
         const SizedBox(height: 30),
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Total No. of patients: $totalPatients"),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Total Amount: $totalAmount"),
-                ],
-              ),
-            ),
+            Text("Total No. of patients: $totalPatients"),
+            const SizedBox(width: 10),
+            Text("Total Amount: $totalAmount"),
           ],
         ),
         const SizedBox(height: 30),
@@ -215,7 +207,7 @@ class AnalyticsState extends State<Analytics> {
           child: InkWell(
             onTap: _generateAndDownloadExcelSheet,
             child: Container(
-              constraints: BoxConstraints(minWidth: size.width * 0.5),
+              constraints: const BoxConstraints(minWidth: 230),
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
                 color: transparentBlue,
