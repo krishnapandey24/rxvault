@@ -780,7 +780,7 @@ class HomeState extends State<Home> {
         patient.age,
         style: const TextStyle(color: Colors.black, fontSize: 13),
       ),
-      const SizedBox(width: 8),
+      const SizedBox(width: 3),
     ];
 
     if (patient.diagnosis?.isNotEmpty ?? false) {

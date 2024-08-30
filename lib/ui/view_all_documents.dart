@@ -77,22 +77,25 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
         leading: const SizedBox.shrink(),
         centerTitle: true,
         title: widget.date != null
-            ? ElevatedButton(
-                onPressed: _generatePdf,
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.download,
-                      color: Colors.white,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      "Download All",
-                      style: TextStyle(color: Colors.white),
-                    )
-                  ],
+            ? SizedBox(
+                width: 300,
+                child: ElevatedButton(
+                  onPressed: _generatePdf,
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.download,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        "Download All",
+                        style: TextStyle(color: Colors.white),
+                      )
+                    ],
+                  ),
                 ),
               )
             : null,
