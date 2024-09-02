@@ -27,8 +27,8 @@ import '../utils/exceptions/registration_required.dart';
 import '../utils/utils.dart';
 
 class API {
- // static const baseUrl = 'https://ensivosolutions.com/rxvault/api/';
-   static const baseUrl = 'http://122.170.7.173/RxVault/Api/';
+  static const baseUrl = 'https://ensivosolutions.com/rxvault/api/';
+  //static const baseUrl = 'http://122.170.7.173/RxVault/Api/';
 
   static CustomException swwException =
       CustomException("Something went wrong, Please try again");
@@ -590,9 +590,9 @@ class API {
     }
   }
 
-  Future<List<NotificationModel>> getNotifications(String userId) async {
+  Future<List<Message>> getNotifications(String type) async {
     FormData formData = FormData.fromMap({
-      "user_id": userId,
+      "receiver_type": type,
     });
 
     try {

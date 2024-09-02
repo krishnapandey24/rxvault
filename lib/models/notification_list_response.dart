@@ -1,7 +1,7 @@
 class NotificationListResponse {
   String? success;
   String? message;
-  List<NotificationModel> notificationModels = [];
+  List<Message> notificationModels = [];
 
   NotificationListResponse(
       {this.success, this.message, required this.notificationModels});
@@ -9,53 +9,44 @@ class NotificationListResponse {
   NotificationListResponse.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     message = json['message'];
-    if (json['NotificationModels'] != null) {
-      notificationModels = <NotificationModel>[];
-      json['NotificationModels'].forEach((v) {
-        notificationModels.add(NotificationModel.fromJson(v));
+    if (json['notifications'] != null) {
+      notificationModels = <Message>[];
+      json['notifications'].forEach((v) {
+        notificationModels.add(Message.fromJson(v));
       });
     }
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['success'] = success;
-    data['message'] = message;
-    data['NotificationModels'] =
-        notificationModels.map((v) => v.toJson()).toList();
-    return data;
-  }
 }
 
-class NotificationModel {
-  String? notificationModelId;
-  String? title;
-  String? notification;
-  String? date;
-  String? created;
+class Message {
+  final String senderName;
+  final String messageTitle;
+  final String message;
+  final String created;
 
-  NotificationModel(
-      {this.notificationModelId,
-      this.title,
-      this.notification,
-      this.date,
-      this.created});
+  Message({
+    required this.senderName,
+    required this.messageTitle,
+    required this.message,
+    required this.created,
+  });
 
-  NotificationModel.fromJson(Map<String, dynamic> json) {
-    notificationModelId = json['notificationModel_id'];
-    title = json['title'];
-    notification = json['notificationModel'];
-    date = json['date'];
-    created = json['created'];
+  // Factory method to create a Message instance from JSON
+  factory Message.fromJson(Map<String, dynamic> json) {
+    return Message(
+      senderName: json['sender_name'] as String,
+      messageTitle: json['message_title'] as String,
+      message: json['message'] as String,
+      created: json['created'] as String,
+    );
   }
 
+  // Optional: Method to convert the Message instance back to JSON
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['notificationModel_id'] = notificationModelId;
-    data['title'] = title;
-    data['notificationModel'] = notification;
-    data['date'] = date;
-    data['created'] = created;
-    return data;
+    return {
+      'sender_name': senderName,
+      'message_title': messageTitle,
+      'message': message,
+    };
   }
 }

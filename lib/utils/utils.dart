@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,11 @@ class Utils {
       timeInSecForIosWeb: 1,
       fontSize: 16.0,
     );
+  }
+
+  static int getRandomNumber() {
+    final random = Random();
+    return random.nextInt(10) + 1; // Generates a number between 1 and 10
   }
 
   static String reverseDate(String inputDate) {

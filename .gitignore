@@ -30,12 +30,19 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+# But do not ignore build/web/
+!/build/web/
+
+# Additionally, do not ignore files within build/web/
+!/build/web/**
 
 # Symbolication related
 app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+
+*.zip
 
 # Android Studio will place build artifacts here
 /android/app/debug

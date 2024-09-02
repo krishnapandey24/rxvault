@@ -347,12 +347,12 @@ class MrSettingsScreenState extends State<MrSettingsScreen> {
     setting.itemDetails = jsonEncode(services);
     setting.doctorId = widget.userId;
     api.updateMr(setting).then((value) {
-      Navigator.pop(context);
+      if(mounted) Navigator.pop(context);
       Utils.toast(forOnOff
           ? "Mr ${mrOnOff ? "On" : "Off"}"
           : "Mr Settings Updated Successfully!");
     }).catchError((e) {
-      Navigator.pop(context);
+      if(mounted) Navigator.pop(context);
       Utils.toast(e.toString());
     });
   }
