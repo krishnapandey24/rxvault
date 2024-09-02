@@ -10,7 +10,7 @@ import 'package:rxvault/utils/colors.dart';
 import 'package:rxvault/utils/constants.dart';
 import 'package:rxvault/utils/user_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
 import 'models/user_info.dart';
 
@@ -28,7 +28,9 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await initPlatformState();
+  if(!kIsWeb){
+    await initPlatformState();
+  }
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isLoggedIn = prefs.getBool(UserManager.isLoggedIn) ?? false;
   String userId = prefs.getString(UserManager.userId) ?? "";
