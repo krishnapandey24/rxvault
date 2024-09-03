@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:rxvault/ui/widgets/responsive.dart';
 import 'package:rxvault/ui/widgets/rxvault_app_bar.dart';
@@ -73,6 +74,12 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     settingsFuture = API().getSettings(widget.userId);
+    OneSignal.Notifications.addClickListener((event) {
+      String? url = Utils.extractUrl(event.notification.body);
+      if (url != null) {
+        Utils.launchUrl(url);
+      }
+    });
   }
 
   @override

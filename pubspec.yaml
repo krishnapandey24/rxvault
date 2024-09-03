@@ -21,7 +21,6 @@ dependencies:
   cached_network_image: ^3.2.3
   lottie: ^3.1.0
   #  flutter_native_splash: ^2.2.19
-  share: ^2.0.4
   path: any
   image_picker: ^1.1.1
   intl: '>=0.17.0 <1.0.0'
@@ -48,6 +47,7 @@ dependencies:
   downloadsfolder: ^1.1.0
   flutter_html: ^3.0.0-beta.2
   image: ^4.2.0
+  share_plus: ^10.0.0
 
 
 dev_dependencies:

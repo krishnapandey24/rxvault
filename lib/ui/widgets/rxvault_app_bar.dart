@@ -121,7 +121,7 @@ class RxVaultAppBarState extends State<RxVaultAppBar> {
                     Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(
                     builder: (context) =>
-                        NotificationScreen(type: user.isStaff ? "staff" : "doctor"),
+                        NotificationScreen(type: user.isStaff ? "staff" : "user"),
                   ),
                 ),
                 iconSize: 24,

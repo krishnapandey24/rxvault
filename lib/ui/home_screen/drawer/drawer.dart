@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:rxvault/ui/home_screen/drawer/privacy_policy.dart';
 import 'package:rxvault/ui/login/create_update_user.dart';
 import 'package:rxvault/ui/login/register.dart';
+import 'package:rxvault/utils/constants.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../models/doctor_info.dart';
 import '../../../models/setting.dart';
@@ -90,24 +93,25 @@ class _RxDrawerState extends State<RxDrawer> {
                 size: 22,
               ),
             ),
+            if (!kIsWeb)
+              ListTile(
+                onTap: () => Share.share(playStoreUrl),
+                leading: const Icon(
+                  Icons.share,
+                  size: 22,
+                ),
+                title: const Text(
+                  "Share",
+                  style: TextStyle(fontSize: 14),
+                ),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.grey.shade700,
+                  size: 22,
+                ),
+              ),
             ListTile(
-              onTap: () {},
-              leading: const Icon(
-                Icons.share,
-                size: 22,
-              ),
-              title: const Text(
-                "Share",
-                style: TextStyle(fontSize: 14),
-              ),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.grey.shade700,
-                size: 22,
-              ),
-            ),
-            ListTile(
-              onTap: () {},
+              onTap: () => Utils.launchUrl(playStoreUrl),
               leading: const Icon(
                 Icons.star,
                 size: 22,
@@ -122,22 +126,41 @@ class _RxDrawerState extends State<RxDrawer> {
                 size: 22,
               ),
             ),
-            ListTile(
-              onTap: () {},
-              leading: const Icon(
-                Icons.public,
-                size: 22,
+            if (kIsWeb)
+              ListTile(
+                onTap: () => Utils.launchUrl(playStoreUrl),
+                leading: const Icon(
+                  Icons.install_mobile,
+                  size: 22,
+                ),
+                title: const Text(
+                  "Download App",
+                  style: TextStyle(fontSize: 14),
+                ),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.grey.shade700,
+                  size: 22,
+                ),
               ),
-              title: const Text(
-                "Go To Web App",
-                style: TextStyle(fontSize: 14),
+            if (!kIsWeb)
+              ListTile(
+                onTap: () => Utils.launchUrl(
+                    "https://www.ensivosolutions.com/rxvault/web/"),
+                leading: const Icon(
+                  Icons.public,
+                  size: 22,
+                ),
+                title: const Text(
+                  "Go To Web App",
+                  style: TextStyle(fontSize: 14),
+                ),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.grey.shade700,
+                  size: 22,
+                ),
               ),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.grey.shade700,
-                size: 22,
-              ),
-            ),
             ListTile(
               onTap: () => Navigator.of(context, rootNavigator: true).push(
                 MaterialPageRoute(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:rxvault/models/notification_list_response.dart';
 
 import '../../utils/utils.dart';
+import '../models/notification_list_response.dart';
 import '../network/api_service.dart';
 import '../utils/colors.dart';
 
@@ -53,9 +53,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 ),
               );
             } else {
+              int size = notifications.length;
               return ListView.builder(
-                itemCount: notifications.length,
+                itemCount: size,
                 itemBuilder: (context, index) {
+                  index = size - index - 1;
                   Message notification = notifications[index];
                   return buildNotificationItem(notification);
                 },
@@ -68,48 +70,54 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   Widget buildNotificationItem(Message notification) {
-    return Container(
-      margin: const EdgeInsets.all(10),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        border: Border.all(color: darkBlue),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            notification.messageTitle,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: darkBlue,
+    return InkWell(
+      onTap: () {
+        String? url = Utils.extractUrl(notification.message);
+        if (url != null) {
+          Utils.launchUrl(url);
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          border: Border.all(color: darkBlue),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              notification.messageTitle,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: darkBlue,
+              ),
             ),
-          ),
-          Text(
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            notification.message,
-            style: const TextStyle(
-              fontSize: 13,
-              color: darkBlue,
+            Text(
+              notification.message,
+              style: const TextStyle(
+                fontSize: 13,
+                color: darkBlue,
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            notification.created,
-            style: const TextStyle(
-              fontSize: 10,
-              color: darkBlue,
+            const SizedBox(height: 10),
+            Text(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              Utils.formatDate(notification.created),
+              style: const TextStyle(
+                fontSize: 10,
+                color: darkBlue,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

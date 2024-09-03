@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -9,8 +10,9 @@ import 'package:rxvault/ui/login/register.dart';
 import 'package:rxvault/utils/colors.dart';
 import 'package:rxvault/utils/constants.dart';
 import 'package:rxvault/utils/user_manager.dart';
+import 'package:rxvault/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart';
+
 import 'firebase_options.dart';
 import 'models/user_info.dart';
 
@@ -28,7 +30,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  if(!kIsWeb){
+  if (!kIsWeb) {
     await initPlatformState();
   }
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -53,7 +55,7 @@ Future<void> main() async {
   );
 }
 
-class RxVault extends StatelessWidget {
+class RxVault extends StatefulWidget {
   final bool isFirstTime;
   final bool isLoggedIn;
   final String userId;
@@ -68,6 +70,22 @@ class RxVault extends StatelessWidget {
     required this.clinicName,
     required this.name,
   });
+
+  @override
+  State<RxVault> createState() => _RxVaultState();
+}
+
+class _RxVaultState extends State<RxVault> {
+  @override
+  void initState() {
+    super.initState();
+    OneSignal.Notifications.addClickListener((event) {
+      String? url = Utils.extractUrl(event.notification.body);
+      if (url != null) {
+        Utils.launchUrl(url);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,10 +140,10 @@ class RxVault extends StatelessWidget {
           ),
         ),
       ),
-      home: isLoggedIn
+      home: widget.isLoggedIn
           ? HomeScreen(
-              userId: userId,
-              clinicName: clinicName,
+              userId: widget.userId,
+              clinicName: widget.clinicName,
             )
           : const Register(),
     );

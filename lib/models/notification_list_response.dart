@@ -1,17 +1,12 @@
 class NotificationListResponse {
-  String? success;
-  String? message;
   List<Message> notificationModels = [];
 
-  NotificationListResponse(
-      {this.success, this.message, required this.notificationModels});
+  NotificationListResponse({required this.notificationModels});
 
   NotificationListResponse.fromJson(Map<String, dynamic> json) {
-    success = json['success'];
-    message = json['message'];
-    if (json['notifications'] != null) {
+    if (json['data'] != null) {
       notificationModels = <Message>[];
-      json['notifications'].forEach((v) {
+      json['data'].forEach((v) {
         notificationModels.add(Message.fromJson(v));
       });
     }
@@ -39,14 +34,5 @@ class Message {
       message: json['message'] as String,
       created: json['created'] as String,
     );
-  }
-
-  // Optional: Method to convert the Message instance back to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'sender_name': senderName,
-      'message_title': messageTitle,
-      'message': message,
-    };
   }
 }

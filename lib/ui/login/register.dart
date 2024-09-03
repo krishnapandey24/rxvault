@@ -58,16 +58,16 @@ class RegisterState extends State<Register> {
             ),
           ),
           Responsive(
-            desktop: mainContainer(screenWidth * 0.3),
-            mobile: mainContainer(null),
-            tablet: mainContainer(screenWidth * 0.6),
+            desktop: mainContainer(screenWidth * 0.3, 100),
+            mobile: mainContainer(null, 150),
+            tablet: mainContainer(screenWidth * 0.6, 100),
           )
         ],
       ),
     );
   }
 
-  Widget mainContainer(double? width) {
+  Widget mainContainer(double? width, double topSpacing) {
     return SingleChildScrollView(
       child: Container(
         width: screenWidth,
@@ -78,7 +78,7 @@ class RegisterState extends State<Register> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 150),
+              SizedBox(height: topSpacing),
               const Text(
                 "Welcome!",
                 style: TextStyle(

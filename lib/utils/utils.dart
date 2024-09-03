@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:rxvault/utils/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class Utils {
   static void toast(String message) {
@@ -331,6 +332,25 @@ class Utils {
       }
       return Colors.white;
     });
+  }
+
+  static String? extractUrl(String? text) {
+    if (text == null) return null;
+    final urlPattern = RegExp(
+      r'((http|https):\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(/[^\s]*)?',
+      caseSensitive: false,
+    );
+
+    final match = urlPattern.firstMatch(text);
+    return match?.group(0);
+  }
+
+  static void launchUrl(String url) async {
+    if (await canLaunchUrlString(url)) {
+      launchUrlString(url);
+    }else{
+      throw "nuh uh";
+    }
   }
 }
 
