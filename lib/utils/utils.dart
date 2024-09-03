@@ -346,10 +346,10 @@ class Utils {
   }
 
   static void launchUrl(String url) async {
-    if (await canLaunchUrlString(url)) {
-      launchUrlString(url);
-    }else{
-      throw "nuh uh";
+    try {
+      await launchUrlString(url);
+    } catch (e) {
+      Utils.toast(e.toString());
     }
   }
 }
