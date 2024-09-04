@@ -15,6 +15,7 @@ import '../enums/day.dart';
 import '../models/login_response.dart';
 import '../models/mr_list_response.dart';
 import '../models/notification_list_response.dart';
+import '../models/otp_response.dart';
 import '../models/patient.dart';
 import '../models/patient_list_response.dart';
 import '../models/register_response.dart';
@@ -104,6 +105,21 @@ class API {
     }
 
     await UserManager.updateUserInfo(userInfo);
+  }
+
+  Future<int?> getOtp(String phoneNumber, String userType) async {
+    final response = await _dio.post("otpVerified",
+        data: FormData.fromMap({
+          "mobile": phoneNumber,
+          "user_type": userType,
+        }));
+
+    final otpResponse = OtpResponse.fromJson(response.data);
+    if (otpResponse.success == failure) {
+      throw CustomException("Something went wrong");
+    }
+
+    return otpResponse.otp;
   }
 
   Future<DoctorInfo> login(

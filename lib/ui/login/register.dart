@@ -7,7 +7,6 @@ import 'package:rxvault/utils/colors.dart';
 
 import '../../models/user_info.dart';
 import '../../network/api_service.dart';
-import '../../utils/exceptions/registration_required.dart';
 import '../../utils/utils.dart';
 import '../widgets/responsive.dart';
 
@@ -239,43 +238,13 @@ class RegisterState extends State<Register> {
   }
 
   void verifyOtp(String phoneNumber) async {
-    bool isStaff = selectedOption == "staff";
-    Utils.showLoader(context, "Please wait");
-    api
-        .login(phoneNumber, selectedOption,
-            playerId ?? OneSignal.User.pushSubscription.id)
-        .then(
-      (value) {
-        Navigator.pop(context);
-        user.updateIsStaffAndPermission(
-          isStaff,
-          value.permissions ?? "",
-        );
-        user.updateName(value.name ?? "");
-        Navigator.of(context, rootNavigator: true).push(
-          MaterialPageRoute(
-            builder: (context) => Verification(
-              doctorInfo: value,
-            ),
-          ),
-        );
-      },
-    ).catchError(
-      (e) {
-        Navigator.pop(context);
-        if (e is RegistrationRequired) {
-          Utils.toast("Registration Required");
-          Navigator.of(context, rootNavigator: true).push(
-            MaterialPageRoute(
-              builder: (context) => CreateUpdateUser(
-                phoneNumber: phoneNumber,
-              ),
-            ),
-          );
-        } else {
-          Utils.toast(e.toString());
-        }
-      },
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        builder: (context) => Verification(
+          selectedOption: selectedOption,
+          phoneNumber: phoneNumber,
+        ),
+      ),
     );
   }
 }
