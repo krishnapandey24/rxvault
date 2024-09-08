@@ -20,8 +20,8 @@ Future<void> initPlatformState() async {
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   OneSignal.Debug.setAlertLevel(OSLogLevel.none);
   OneSignal.initialize(oneSignalAppId);
-  OneSignal.Notifications.requestPermission(true);
-  await Future.delayed(const Duration(milliseconds: 100));
+  await OneSignal.Notifications.requestPermission(true);
+  await Future.delayed(const Duration(milliseconds: 100)); // this might be unnecessary
   OneSignal.User.pushSubscription.id;
 }
 

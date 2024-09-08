@@ -78,7 +78,7 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
         centerTitle: true,
         title: widget.date != null
             ? SizedBox(
-                width: 300,
+                width: 200,
                 child: ElevatedButton(
                   onPressed: _generatePdf,
                   child: const Row(
@@ -100,14 +100,21 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
               )
             : null,
         actions: [
-          InkWell(
-            onTap: () => Navigator.pop(context),
-            child: const Icon(
-              Icons.close,
-              color: Colors.white,
-              size: 35,
+          Container(
+            decoration: const BoxDecoration(
+              color: Colors.black12,
+              shape: BoxShape.circle,
+            ),
+            child: InkWell(
+              onTap: () => Navigator.pop(context),
+              child: const Icon(
+                Icons.close,
+                color: Colors.white,
+                size: 35,
+              ),
             ),
           ),
+          const SizedBox(width: 25),
         ],
       ),
       body: isLoading
@@ -126,10 +133,15 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
     }
     _currentIndex = 0;
     title = _documents.first.title;
-    return Responsive(
-      desktop: buildDesktopSlider(),
-      tablet: buildDesktopSlider(),
-      mobile: buildSwiper(),
+    return GestureDetector(
+      onTap: () {
+        Navigator.pop(context);
+      },
+      child: Container(
+        color: Colors.transparent,
+        child:
+            Responsive.isMobile(context) ? buildSwiper() : buildDesktopSlider(),
+      ),
     );
   }
 
