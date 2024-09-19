@@ -28,8 +28,8 @@ import '../utils/exceptions/registration_required.dart';
 import '../utils/utils.dart';
 
 class API {
-  static const baseUrl = 'https://ensivosolutions.com/rxvault/api/';
-  //static const baseUrl = 'http://122.170.7.173/RxVault/Api/';
+  // static const baseUrl = 'https://ensivosolutions.com/rxvault/api/';
+  static const baseUrl = 'http://122.170.7.173/RxVault/Api/';
 
   static CustomException swwException =
       CustomException("Something went wrong, Please try again");
@@ -118,6 +118,8 @@ class API {
     if (otpResponse.success == failure) {
       throw CustomException("Something went wrong");
     }
+
+    print("here:otp: ${otpResponse.otp}");
 
     return otpResponse.otp;
   }

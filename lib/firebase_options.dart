@@ -41,48 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCBIUYn8DnOLlbaPb874G2w4tosvXyXKQo',
-    appId: '1:693423727408:web:ce77e48e024d3359041ef5',
-    messagingSenderId: '693423727408',
-    projectId: 'rxvault-22325',
-    authDomain: 'rxvault-22325.firebaseapp.com',
-    storageBucket: 'rxvault-22325.appspot.com',
-    measurementId: 'G-MSDNDTTWBR',
+    apiKey: 'AIzaSyByuDyXcyQbE8kL5O9E9_-bPutee5r8tW8',
+    appId: '1:47584927433:web:006c2be2328d08ef567718',
+    messagingSenderId: '47584927433',
+    projectId: 'rxvault-b0bd0',
+    authDomain: 'rxvault-b0bd0.firebaseapp.com',
+    storageBucket: 'rxvault-b0bd0.appspot.com',
+    measurementId: 'G-P5QBG7301R',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB9Qa4zhbEmWA7q9HWg6FB85yS5pDiKzOo',
-    appId: '1:693423727408:android:a31278ad4dc268ff041ef5',
-    messagingSenderId: '693423727408',
-    projectId: 'rxvault-22325',
-    storageBucket: 'rxvault-22325.appspot.com',
+    apiKey: 'AIzaSyDV5E7JwQrJESeSuyYE3cIF31GYuH4LKdk',
+    appId: '1:47584927433:android:acc327c11f85c8f0567718',
+    messagingSenderId: '47584927433',
+    projectId: 'rxvault-b0bd0',
+    storageBucket: 'rxvault-b0bd0.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCsPkS2c_JednGfys43NF3KIq0VHLED1Y4',
-    appId: '1:693423727408:ios:9f50bf4e41590546041ef5',
-    messagingSenderId: '693423727408',
-    projectId: 'rxvault-22325',
-    storageBucket: 'rxvault-22325.appspot.com',
+    apiKey: 'AIzaSyABW3EPu7GBVtCkYBg-ACLFKAbKofZZHdo',
+    appId: '1:47584927433:ios:79eb1bb46e6faef7567718',
+    messagingSenderId: '47584927433',
+    projectId: 'rxvault-b0bd0',
+    storageBucket: 'rxvault-b0bd0.appspot.com',
     iosBundleId: 'com.ensivo.rxvault',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCsPkS2c_JednGfys43NF3KIq0VHLED1Y4',
-    appId: '1:693423727408:ios:9f50bf4e41590546041ef5',
-    messagingSenderId: '693423727408',
-    projectId: 'rxvault-22325',
-    storageBucket: 'rxvault-22325.appspot.com',
+    apiKey: 'AIzaSyABW3EPu7GBVtCkYBg-ACLFKAbKofZZHdo',
+    appId: '1:47584927433:ios:79eb1bb46e6faef7567718',
+    messagingSenderId: '47584927433',
+    projectId: 'rxvault-b0bd0',
+    storageBucket: 'rxvault-b0bd0.appspot.com',
     iosBundleId: 'com.ensivo.rxvault',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCBIUYn8DnOLlbaPb874G2w4tosvXyXKQo',
-    appId: '1:693423727408:web:02dadd10d6747944041ef5',
-    messagingSenderId: '693423727408',
-    projectId: 'rxvault-22325',
-    authDomain: 'rxvault-22325.firebaseapp.com',
-    storageBucket: 'rxvault-22325.appspot.com',
-    measurementId: 'G-V0JWQ38G5Z',
+    apiKey: 'AIzaSyByuDyXcyQbE8kL5O9E9_-bPutee5r8tW8',
+    appId: '1:47584927433:web:9270c4f1bce75ec9567718',
+    messagingSenderId: '47584927433',
+    projectId: 'rxvault-b0bd0',
+    authDomain: 'rxvault-b0bd0.firebaseapp.com',
+    storageBucket: 'rxvault-b0bd0.appspot.com',
+    measurementId: 'G-BQJTSFJDLX',
   );
+
 }
