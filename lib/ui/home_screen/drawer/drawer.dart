@@ -145,8 +145,7 @@ class _RxDrawerState extends State<RxDrawer> {
               ),
             if (!kIsWeb)
               ListTile(
-                onTap: () => Utils.launchUrl(
-                    "https://www.ensivosolutions.com/rxvault/web/"),
+                onTap: () => Utils.launchUrl("https://rxvault.co.in/web/"),
                 leading: const Icon(
                   Icons.public,
                   size: 22,

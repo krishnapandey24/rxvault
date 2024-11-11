@@ -167,10 +167,13 @@ class _ViewAllDocumentsState extends State<ViewAllDocuments> {
                       bottom: 0,
                       left: 0,
                       right: 10,
-                      child: CachedNetworkImage(
-                        placeholder: Utils.imagePlaceHolder,
-                        imageUrl: document.imageUrl,
-                        fit: BoxFit.cover,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(25),
+                        child: CachedNetworkImage(
+                          placeholder: Utils.imagePlaceHolder,
+                          imageUrl: document.imageUrl,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     if (_currentIndex == index)

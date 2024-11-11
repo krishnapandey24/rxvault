@@ -19,4 +19,4 @@ const oneSignalAppId = "582c3d61-e97b-4faa-b5a0-fb3c04466d00";
 const maxAmountLength = 5;
 
 const playStoreUrl =
-    "https://play.google.com/store/apps/details?id=com.ensivo.rxvault";
+    "https://play.google.com/store/apps/details?id=com.saitej.rxvault";
