@@ -122,7 +122,9 @@ class AddDiagnosisDialogState extends State<AddDiagnosisDialog> {
   void handleContinue() {
     if (_formKey.currentState!.validate()) {
       Utils.showLoader(context, "Adding Diagnosis...");
-      api.updatePatient(patient).then((value) {
+      api
+          .updateDiagnosis(patient.doctorPatientId, patient.diagnosis ?? "")
+          .then((value) {
         Navigator.pop(context);
         Utils.toast("Diagnosis added successfully");
         Navigator.pop(context);

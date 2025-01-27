@@ -103,6 +103,30 @@ class HomeState extends State<Home> {
     screenWidth = size.width;
     screenHeight = size.height;
     return Scaffold(
+      floatingActionButton: InkWell(
+        onTap: showAddPatientDialog,
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(9),
+            color: darkBlue,
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 18,
+              ),
+              Text(
+                "Add Patient ",
+                style: TextStyle(color: Colors.white, fontSize: 13),
+              ),
+            ],
+          ),
+        ),
+      ),
       appBar: RxVaultAppBar(
         userId: widget.userId,
         openDrawer: (isMobile) {

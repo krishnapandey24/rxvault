@@ -10,9 +10,17 @@ android {
     compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
-    compileOptions {
+     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+   signingConfigs {
+        release {
+            storeFile file("C:/Users/krish/dev/rxvault/rxkeystore.jks")  // Adjust path if necessary
+            storePassword "rxvault"
+            keyAlias "key0"
+            keyPassword "rxvault"
+        }
     }
 
     kotlinOptions {
@@ -27,15 +35,15 @@ android {
          minSdk = 27
         targetSdk = 34
 
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        versionCode = 8.0
+        versionName = "8.0"
     }
-
-    buildTypes {
+  buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
 }

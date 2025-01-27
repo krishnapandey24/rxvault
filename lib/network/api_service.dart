@@ -29,7 +29,7 @@ import '../utils/utils.dart';
 
 class API {
   static const baseUrl = 'https://rxvault.co.in/rx/Api/';
-  // static const baseUrl = 'http://110.227.212.61/RxVault/Api/';
+  //static const baseUrl = 'http://110.227.212.61/RxVault/Api/';
 
   static CustomException swwException =
       CustomException("Something went wrong, Please try again");
@@ -665,5 +665,18 @@ class API {
       quality: 50,
     );
     return result;
+  }
+
+  Future<void> updateDiagnosis(String? doctorPatientId, String s) async {
+    FormData formData = FormData.fromMap({
+      "doctor_patient_id": doctorPatientId,
+      "diagnosis": s,
+    });
+    final response = (await _dio.post("UpdateDiag", data: formData)).data;
+    String success = response["success"];
+    String message = response["message"];
+    if (success == failure) {
+      throw CustomException(message);
+    }
   }
 }
