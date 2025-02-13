@@ -9,6 +9,7 @@ import 'package:rxvault/ui/widgets/responsive.dart';
 import '../../models/patient.dart';
 import '../../network/api_service.dart';
 import '../../utils/colors.dart';
+import '../../utils/utils.dart';
 
 class Analytics extends StatefulWidget {
   final String userId;
@@ -85,7 +86,6 @@ class AnalyticsState extends State<Analytics> {
         patients = getPatientsList(analyticsData);
       });
     } catch (e, t) {
-      print("here: $e, $t");
       setState(() {
         isError = true;
         isChartLoading = false;
@@ -159,7 +159,7 @@ class AnalyticsState extends State<Analytics> {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  _startDate,
+                  Utils.formatDateString(_startDate),
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
@@ -184,7 +184,7 @@ class AnalyticsState extends State<Analytics> {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  _endDate,
+                  Utils.formatDateString(_endDate),
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
@@ -193,8 +193,7 @@ class AnalyticsState extends State<Analytics> {
           ],
         ),
         const SizedBox(height: 30),
-        Row(
-          mainAxisSize: MainAxisSize.min,
+        Wrap(
           children: [
             Text("Total No. of patients: $totalPatients"),
             const SizedBox(width: 10),

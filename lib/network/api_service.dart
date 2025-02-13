@@ -29,7 +29,7 @@ import '../utils/utils.dart';
 
 class API {
   static const baseUrl = 'https://rxvault.co.in/rx/Api/';
-  //static const baseUrl = 'http://110.227.212.61/RxVault/Api/';
+  // static const baseUrl = 'http://110.227.212.61/RxVault/Api/';
 
   static CustomException swwException =
       CustomException("Something went wrong, Please try again");

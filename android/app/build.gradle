@@ -16,7 +16,7 @@ android {
     }
    signingConfigs {
         release {
-            storeFile file("C:/Users/krish/dev/rxvault/rxkeystore.jks")  // Adjust path if necessary
+            storeFile file("rxkeystore.jks")  // Adjust path if necessary
             storePassword "rxvault"
             keyAlias "key0"
             keyPassword "rxvault"
@@ -35,8 +35,8 @@ android {
          minSdk = 27
         targetSdk = 34
 
-        versionCode = 8.0
-        versionName = "8.0"
+        versionCode = 10.0
+        versionName = "10.0"
     }
   buildTypes {
         release {

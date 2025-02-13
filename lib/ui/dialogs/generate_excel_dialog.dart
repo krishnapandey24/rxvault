@@ -55,7 +55,7 @@ class GenerateExcelDialogState extends State<GenerateExcelDialog> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    startDate,
+                    Utils.formatDateString(startDate),
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),
@@ -80,7 +80,7 @@ class GenerateExcelDialogState extends State<GenerateExcelDialog> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    endDate,
+                    Utils.formatDateString(endDate),
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),

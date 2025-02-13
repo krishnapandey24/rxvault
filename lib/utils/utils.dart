@@ -334,6 +334,19 @@ class Utils {
     });
   }
 
+  static String formatDateString(String dateStr) {
+    try {
+      // Parse the input date string
+      DateTime date = DateTime.parse(dateStr);
+
+      // Create formatter for the desired output format
+      return DateFormat('dd MMM yyyy').format(date);
+    } catch (e) {
+      // Return original string if parsing fails
+      return dateStr;
+    }
+  }
+
   static String? extractUrl(String? text) {
     if (text == null) return null;
     final urlPattern = RegExp(
